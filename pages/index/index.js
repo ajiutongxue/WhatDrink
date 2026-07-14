@@ -144,7 +144,8 @@ Page({
       var teaLib = appData.teaLibrary || teaData.TEAS;
       var history = appData.history || [];
       var avoidDays = (appData.settings && appData.settings.avoidDays) || 5;
-      var result = recommend.recommend(teaLib, parsed, self._weatherData, history, avoidDays);
+      var constitution = (appData.profile && appData.profile.constitution) || null;
+      var result = recommend.recommend(teaLib, parsed, self._weatherData, history, avoidDays, constitution);
 
     if (!result.primary) {
       self.setData({ loading: false, noResult: true, btnText: '开始推荐' });

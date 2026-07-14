@@ -155,3 +155,84 @@
   font-size: 22rpx;
   color: #B5A89A;
 }
+
+/* ============================================================
+   Constitution Quiz
+   ============================================================ */
+.quiz-desc {
+  font-size: 24rpx;
+  color: #B5A89A;
+  margin-bottom: 24rpx;
+  line-height: 1.6;
+}
+
+.quiz-q {
+  margin-bottom: 28rpx;
+}
+
+.quiz-q-text {
+  font-size: 28rpx;
+  font-weight: 500;
+  color: #3A2A1E;
+  margin-bottom: 14rpx;
+}
+
+.quiz-opts {
+  display: flex;
+  gap: 16rpx;
+  flex-wrap: wrap;
+}
+
+.quiz-opt {
+  padding: 14rpx 28rpx;
+  border: 3rpx solid #F0EBE3;
+  border-radius: 56rpx;
+  font-size: 26rpx;
+  color: #3A2A1E;
+  background: #FFFDF9;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.quiz-opt.selected {
+  background: #C4793B;
+  color: #FFFFFF;
+  border-color: #C4793B;
+}
+
+.quiz-result {
+  margin-top: 32rpx;
+  padding: 28rpx 32rpx;
+  background: linear-gradient(135deg, #FFF6EE, #FDF8F2);
+  border-radius: 28rpx;
+  border-left: 6rpx solid #D4956A;
+}
+
+.quiz-result-label {
+  font-size: 22rpx;
+  color: #B5A89A;
+  font-weight: 500;
+  letter-spacing: 1rpx;
+  margin-bottom: 8rpx;
+}
+
+.quiz-result-value {
+  font-size: 36rpx;
+  font-weight: 700;
+  color: #6B4F3A;
+  margin-bottom: 12rpx;
+}
+
+.quiz-result-hint {
+  font-size: 24rpx;
+  color: #8A7668;
+  line-height: 1.6;
+}
+
+.quiz-reset {
+  display: inline-block;
+  margin-top: 16rpx;
+  font-size: 24rpx;
+  color: #C4793B;
+  font-weight: 500;
+}

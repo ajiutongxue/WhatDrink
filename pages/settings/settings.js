@@ -1,11 +1,66 @@
 var data = require('../../utils/data');
 
+var QUIZ_QUESTIONS = [
+  {
+    text: '1. 平时怕冷还是怕热？',
+    options: [
+      { label: '怕冷', value: -1 },
+      { label: '差不多', value: 0 },
+      { label: '怕热', value: 1 }
+    ]
+  },
+  {
+    text: '2. 喜欢喝热水还是冷饮？',
+    options: [
+      { label: '热水', value: -1 },
+      { label: '都行', value: 0 },
+      { label: '冷饮', value: 1 }
+    ]
+  },
+  {
+    text: '3. 容易出汗吗？',
+    options: [
+      { label: '很少出汗', value: -1 },
+      { label: '正常', value: 0 },
+      { label: '容易出汗', value: 1 }
+    ]
+  },
+  {
+    text: '4. 大便情况？',
+    options: [
+      { label: '偏稀 / 易腹泻', value: -1 },
+      { label: '正常', value: 0 },
+      { label: '偏干 / 便秘', value: 1 }
+    ]
+  },
+  {
+    text: '5. 嘴唇颜色？',
+    options: [
+      { label: '偏淡 / 偏白', value: -1 },
+      { label: '淡红正常', value: 0 },
+      { label: '偏红 / 偏深', value: 1 }
+    ]
+  }
+];
+
+var CONSTITUTION_INFO = {
+  '偏寒': '适合温性茶（红茶、熟普、足火岩茶），少喝绿茶和新生普',
+  '平和': '各类茶都可以，随季节和心情选择',
+  '偏热': '适合凉性茶（绿茶、白茶、新生普），少喝红茶和熟普'
+};
+
 Page({
   data: {
     // Profile
     gender: '',
     age: '',
     city: '',
+    // Quiz
+    quizQuestions: QUIZ_QUESTIONS,
+    quizAnswers: {},
+    constitution: null,
+    constitutionText: '',
+    constitutionHint: '',
     // AI Config
     apiKey: '',
     endpoint: '',
@@ -33,10 +88,20 @@ Page({
     var l = appData.llm || {};
     var s = appData.settings || {};
 
+    // Restore quiz state
+    var quizAnswers = p.quizAnswers || {};
+    var constitution = p.constitution || null;
+    var constitutionText = constitution || '';
+    var constitutionHint = constitution ? (CONSTITUTION_INFO[constitution] || '') : '';
+
     this.setData({
       gender: p.gender || '',
       age: p.age || '',
       city: p.city || '',
+      quizAnswers: quizAnswers,
+      constitution: constitution,
+      constitutionText: constitutionText,
+      constitutionHint: constitutionHint,
       apiKey: l.apiKey || '',
       endpoint: l.endpoint || '',
       parserEnabled: !!l.parserEnabled,
@@ -45,6 +110,60 @@ Page({
       recModel: l.recModel || 'deepseek-v4-pro',
       avoidDays: s.avoidDays || 5,
       syncStatus: this._getSyncStatus(appData)
+    });
+  },
+
+  // ==== Quiz handlers ====
+  onQuizTap: function (e) {
+    var qi = e.currentTarget.dataset.qi;
+    var value = parseInt(e.currentTarget.dataset.value);
+    var quizAnswers = this.data.quizAnswers;
+    quizAnswers[qi] = value;
+    this.setData({ quizAnswers: quizAnswers });
+    this._calculateConstitution(quizAnswers);
+  },
+
+  _calculateConstitution: function (quizAnswers) {
+    // Check if all 5 questions are answered
+    var keys = Object.keys(quizAnswers);
+    if (keys.length < 5) return;
+
+    var sum = 0;
+    for (var i = 0; i < 5; i++) {
+      if (quizAnswers[i] === undefined || quizAnswers[i] === null) return;
+      sum += quizAnswers[i];
+    }
+
+    var constitution;
+    if (sum <= -2) constitution = '偏寒';
+    else if (sum >= 2) constitution = '偏热';
+    else constitution = '平和';
+
+    var appData = this._appData || data.load();
+    appData.profile.quizAnswers = quizAnswers;
+    appData.profile.constitution = constitution;
+    data.save(appData);
+    this._appData = appData;
+
+    this.setData({
+      constitution: constitution,
+      constitutionText: constitution,
+      constitutionHint: CONSTITUTION_INFO[constitution] || ''
+    });
+  },
+
+  onQuizReset: function () {
+    var appData = this._appData || data.load();
+    appData.profile.quizAnswers = {};
+    appData.profile.constitution = null;
+    data.save(appData);
+    this._appData = appData;
+
+    this.setData({
+      quizAnswers: {},
+      constitution: null,
+      constitutionText: '',
+      constitutionHint: ''
     });
   },
 

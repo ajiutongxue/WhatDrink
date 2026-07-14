@@ -18,15 +18,16 @@ var NATURE_NAMES = { '-2': '寒', '-1': '凉', '0': '平', '1': '温', '2': '热
 // ============================================================
 
 /**
- * Calculate the ideal tea nature based on season, weather, and body states.
+ * Calculate the ideal tea nature based on season, weather, body states, and constitution.
  * Returns a numeric value on the scale: 寒(-2), 凉(-1), 平(0), 温(+1), 热(+2).
  *
  * @param {string} season - Current season: '春'|'夏'|'秋'|'冬'
  * @param {Object|null} weather - WeatherData or null
  * @param {string[]} states - Detected body states
+ * @param {string|null} constitution - '偏寒'|'平和'|'偏热' or null
  * @returns {number} Ideal nature value (clamped -2 to 2)
  */
-function getIdealNature(season, weather, states) {
+function getIdealNature(season, weather, states, constitution) {
   // Season base
   var seasonBase = { '春': -0.5, '夏': -1.2, '秋': 0.3, '冬': 1.2 };
   var base = seasonBase[season] || 0;
@@ -62,6 +63,10 @@ function getIdealNature(season, weather, states) {
     }
   }
 
+  // Constitution adjustment
+  if (constitution === '偏寒') base += 0.5;
+  else if (constitution === '偏热') base -= 0.5;
+
   // Clamp to [-2, 2]
   return Math.max(-2, Math.min(2, base));
 }
@@ -78,9 +83,10 @@ function getIdealNature(season, weather, states) {
  * @param {Object|null} weather - WeatherData or null
  * @param {Array} history - HistoryEntry[] (drinking records)
  * @param {number} avoidDays - Anti-repetition window in days (default 5)
+ * @param {string|null} constitution - '偏寒'|'平和'|'偏热' or null
  * @returns {Object} RecommendResult { primary, alt, candidates }
  */
-function recommend(teaLibrary, parsed, weather, history, avoidDays) {
+function recommend(teaLibrary, parsed, weather, history, avoidDays, constitution) {
   if (!teaLibrary || !teaLibrary.length) {
     return { primary: null, alt: null, candidates: [] };
   }
@@ -95,7 +101,7 @@ function recommend(teaLibrary, parsed, weather, history, avoidDays) {
 
   // Determine current season
   var season = _getCurrentSeason();
-  var idealNature = getIdealNature(season, weather, safeStates);
+  var idealNature = getIdealNature(season, weather, safeStates, constitution);
 
   // Get current hour for caffeine+time scoring
   var hour = new Date().getHours();

@@ -46,6 +46,40 @@
     </view>
   </view>
 
+  <!-- ========== 体质辨识 ========== -->
+  <view class="card">
+    <view class="card-title">
+      <text class="icon">🏥</text>
+      <text>体质辨识</text>
+    </view>
+    <view class="quiz-desc" wx:if="{{!constitution}}">5 道题帮你判断体质，推荐更贴合你身体的茶。</view>
+
+    <block wx:for="{{quizQuestions}}" wx:key="index">
+      <view class="quiz-q">
+        <view class="quiz-q-text">{{item.text}}</view>
+        <view class="quiz-opts">
+          <text
+            wx:for="{{item.options}}"
+            wx:for-item="opt"
+            wx:key="value"
+            class="quiz-opt {{quizAnswers[index] === opt.value ? 'selected' : ''}}"
+            data-qi="{{index}}"
+            data-value="{{opt.value}}"
+            bindtap="onQuizTap"
+          >{{opt.label}}</text>
+        </view>
+      </view>
+    </block>
+
+    <!-- Result -->
+    <view class="quiz-result" wx:if="{{constitution}}">
+      <view class="quiz-result-label">你的体质</view>
+      <view class="quiz-result-value">{{constitutionText}}</view>
+      <view class="quiz-result-hint">{{constitutionHint}}</view>
+      <text class="quiz-reset" bindtap="onQuizReset">重新测试</text>
+    </view>
+  </view>
+
   <!-- ========== AI 配置 ========== -->
   <view class="card">
     <view class="card-title">
