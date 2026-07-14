@@ -1,0 +1,157 @@
+/* ============================================================
+   Settings Page — 设置
+   ============================================================ */
+
+.setting-hint {
+  font-size: 24rpx;
+  color: #B5A89A;
+  margin-bottom: 20rpx;
+  line-height: 1.6;
+}
+
+/* Setting Group */
+.setting-group {
+  margin-bottom: 32rpx;
+}
+
+.setting-label {
+  font-size: 24rpx;
+  color: #B5A89A;
+  margin-bottom: 12rpx;
+  display: block;
+  font-weight: 500;
+  letter-spacing: 1rpx;
+}
+
+.setting-input {
+  width: 100%;
+  border: 3rpx solid #F0EBE3;
+  border-radius: 28rpx;
+  padding: 20rpx 28rpx;
+  font-size: 28rpx;
+  background: #FAF5ED;
+  color: #3A2A1E;
+  outline: none;
+}
+
+.setting-input-short {
+  width: 160rpx;
+  text-align: center;
+}
+
+/* Setting Row (side by side) */
+.setting-row {
+  display: flex;
+  gap: 24rpx;
+}
+
+.setting-row .setting-group {
+  flex: 1;
+}
+
+/* Radio Group */
+.radio-group {
+  display: flex;
+  gap: 32rpx;
+  margin-top: 8rpx;
+}
+
+.radio-group label {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+  font-size: 28rpx;
+  color: #3A2A1E;
+}
+
+/* Toggle Row */
+.setting-toggle-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12rpx;
+}
+
+.setting-toggle-label {
+  font-size: 28rpx;
+  color: #3A2A1E;
+  font-weight: 500;
+}
+
+/* Model hint */
+.setting-model-hint {
+  font-size: 22rpx;
+  color: #B5A89A;
+  margin-top: 8rpx;
+}
+
+/* Inline row (input + text) */
+.setting-inline-row {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+}
+
+.setting-inline-hint {
+  font-size: 24rpx;
+  color: #B5A89A;
+}
+
+/* Buttons */
+.setting-btn {
+  padding: 18rpx 36rpx;
+  border: 3rpx solid #F0EBE3;
+  border-radius: 56rpx;
+  background: #FFFDF9;
+  font-size: 26rpx;
+  color: #3A2A1E;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+.setting-btn::after {
+  border: none;
+}
+
+.setting-btn[disabled] {
+  opacity: 0.5;
+}
+
+.setting-btn.danger {
+  color: #C27070;
+  border-color: rgba(194, 112, 112, 0.3);
+}
+
+.data-btn-row {
+  display: flex;
+  gap: 16rpx;
+  flex-wrap: wrap;
+  margin-top: 24rpx;
+}
+
+/* Sync Status */
+.sync-status-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16rpx 0 24rpx;
+  border-bottom: 1rpx solid #F0EBE3;
+  margin-bottom: 24rpx;
+}
+
+.sync-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4rpx;
+}
+
+.sync-label {
+  font-size: 28rpx;
+  color: #3A2A1E;
+  font-weight: 500;
+}
+
+.sync-status {
+  font-size: 22rpx;
+  color: #B5A89A;
+}

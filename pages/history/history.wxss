@@ -1,0 +1,107 @@
+/* ============================================================
+   History Page — 饮茶记录
+   ============================================================ */
+
+.history-empty {
+  text-align: center;
+  color: #B5A89A;
+  padding: 80rpx 40rpx;
+  font-size: 28rpx;
+  line-height: 1.8;
+}
+
+.history-empty-icon {
+  font-size: 72rpx;
+  margin-bottom: 20rpx;
+}
+
+.history-empty-hint {
+  font-size: 24rpx;
+  color: #B5A89A;
+  margin-top: 8rpx;
+}
+
+.history-item {
+  display: flex;
+  align-items: center;
+  gap: 24rpx;
+  padding: 28rpx 0;
+  border-bottom: 1rpx solid #F0EBE3;
+}
+
+.history-item:last-child {
+  border-bottom: none;
+}
+
+.history-date {
+  font-size: 24rpx;
+  color: #B5A89A;
+  min-width: 92rpx;
+  font-weight: 500;
+}
+
+.history-dot {
+  width: 16rpx;
+  height: 16rpx;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.history-tea {
+  flex: 1;
+}
+
+.history-tea-name {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #3A2A1E;
+}
+
+.history-tea-cat {
+  font-size: 22rpx;
+  color: #B5A89A;
+  margin-top: 4rpx;
+}
+
+.history-badge {
+  font-size: 20rpx;
+  padding: 4rpx 12rpx;
+  border-radius: 20rpx;
+  font-weight: 500;
+  margin-left: 8rpx;
+}
+
+.badge-primary {
+  background: #C4793B;
+  color: #FFFFFF;
+}
+
+.badge-alt {
+  background: #F0E8DA;
+  color: #8A7668;
+}
+
+.badge-custom {
+  background: #E0F2F1;
+  color: #00695C;
+}
+
+.skip-name {
+  color: #B5A89A;
+  font-weight: 400;
+}
+
+/* Category dot colors */
+.cat-dot-green { background: #6A9B5C; }
+.cat-dot-black { background: #8D6E63; }
+.cat-dot-white { background: #B0BEC5; }
+.cat-dot-oolong_tieguanyin,
+.cat-dot-oolong_wuyi,
+.cat-dot-oolong_dancong { background: #D4943A; }
+.cat-dot-puerh_raw { background: #6A9B5C; }
+.cat-dot-puerh_ripe { background: #5D4037; }
+.cat-dot-flavored_jasmine,
+.cat-dot-flavored_other { background: #C27070; }
+.cat-dot-unknown { background: #C4793B; }
+.cat-dot-none,
+.cat-dot-skip { background: #B5A89A; }

@@ -1,0 +1,170 @@
+<view class="page-container">
+
+  <!-- ========== 个人档案 ========== -->
+  <view class="card">
+    <view class="card-title">
+      <text class="icon">👤</text>
+      <text>个人档案</text>
+    </view>
+
+    <view class="setting-row">
+      <view class="setting-group">
+        <text class="setting-label">性别</text>
+        <view class="radio-group">
+          <label>
+            <radio value="male" checked="{{gender === 'male'}}" color="#C4793B" bindtap="onGenderTap" data-value="male" />
+            <text>男</text>
+          </label>
+          <label>
+            <radio value="female" checked="{{gender === 'female'}}" color="#C4793B" bindtap="onGenderTap" data-value="female" />
+            <text>女</text>
+          </label>
+        </view>
+      </view>
+      <view class="setting-group">
+        <text class="setting-label">年龄</text>
+        <input
+          class="setting-input"
+          type="number"
+          value="{{age}}"
+          bindinput="onAgeInput"
+          placeholder="年龄"
+        />
+      </view>
+    </view>
+
+    <view class="setting-group">
+      <text class="setting-label">常驻城市</text>
+      <input
+        class="setting-input"
+        type="text"
+        value="{{city}}"
+        bindinput="onCityInput"
+        bindblur="onCityBlur"
+        placeholder="例如：上海"
+      />
+    </view>
+  </view>
+
+  <!-- ========== AI 配置 ========== -->
+  <view class="card">
+    <view class="card-title">
+      <text class="icon">🧠</text>
+      <text>AI 配置</text>
+    </view>
+
+    <view class="setting-hint">
+      开启后使用大模型深度分析你的状况，生成更精准的推荐和更丰富的茶知识解读。
+    </view>
+
+    <view class="setting-group">
+      <text class="setting-label">API Key</text>
+      <input
+        class="setting-input"
+        type="text"
+        password="{{true}}"
+        value="{{apiKey}}"
+        bindinput="onApiKeyInput"
+        bindblur="onSettingsSave"
+        placeholder="输入 API Key"
+      />
+    </view>
+
+    <view class="setting-group">
+      <text class="setting-label">API 端点</text>
+      <input
+        class="setting-input"
+        type="text"
+        value="{{endpoint}}"
+        bindinput="onEndpointInput"
+        bindblur="onSettingsSave"
+        placeholder="https://xxx.maas.aliyuncs.com/compatible-mode/v1"
+      />
+    </view>
+
+    <!-- Parser toggle + model -->
+    <view class="setting-group">
+      <view class="setting-toggle-row">
+        <text class="setting-toggle-label">智能解析</text>
+        <switch checked="{{parserEnabled}}" color="#C4793B" bindchange="onParserToggle" />
+      </view>
+      <input
+        class="setting-input"
+        type="text"
+        value="{{parserModel}}"
+        bindinput="onParserModelInput"
+        bindblur="onSettingsSave"
+        placeholder="deepseek-v3"
+        wx:if="{{parserEnabled}}"
+      />
+      <view class="setting-model-hint" wx:if="{{parserEnabled}}">轻量模型，用于解析输入文本</view>
+    </view>
+
+    <!-- Recommend toggle + model -->
+    <view class="setting-group">
+      <view class="setting-toggle-row">
+        <text class="setting-toggle-label">深度推荐</text>
+        <switch checked="{{recEnabled}}" color="#C4793B" bindchange="onRecToggle" />
+      </view>
+      <input
+        class="setting-input"
+        type="text"
+        value="{{recModel}}"
+        bindinput="onRecModelInput"
+        bindblur="onSettingsSave"
+        placeholder="deepseek-v4-pro"
+        wx:if="{{recEnabled}}"
+      />
+      <view class="setting-model-hint" wx:if="{{recEnabled}}">深度模型，用于生成推荐和茶知识解读</view>
+    </view>
+  </view>
+
+  <!-- ========== 推荐设置 ========== -->
+  <view class="card">
+    <view class="card-title">
+      <text class="icon">🎯</text>
+      <text>推荐设置</text>
+    </view>
+
+    <view class="setting-group">
+      <text class="setting-label">反重复天数</text>
+      <view class="setting-inline-row">
+        <input
+          class="setting-input setting-input-short"
+          type="number"
+          value="{{avoidDays}}"
+          bindinput="onAvoidDaysInput"
+          bindblur="onSettingsSave"
+        />
+        <text class="setting-inline-hint">天内不重复推荐同一款茶</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- ========== 数据管理 ========== -->
+  <view class="card">
+    <view class="card-title">
+      <text class="icon">💾</text>
+      <text>数据管理</text>
+    </view>
+
+    <!-- Cloud sync status -->
+    <view class="sync-status-row">
+      <view class="sync-info">
+        <text class="sync-label">云同步</text>
+        <text class="sync-status">{{syncStatus}}</text>
+      </view>
+      <button class="setting-btn" bindtap="onSyncNow" disabled="{{syncing}}">
+        {{syncing ? '同步中...' : '立即同步'}}
+      </button>
+    </view>
+
+    <!-- Data actions -->
+    <view class="data-btn-row">
+      <button class="setting-btn" bindtap="onExport">导出数据</button>
+      <button class="setting-btn" bindtap="onImport">导入数据</button>
+      <button class="setting-btn danger" bindtap="onReset">重置所有</button>
+    </view>
+  </view>
+
+</view>

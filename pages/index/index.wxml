@@ -1,0 +1,153 @@
+<view class="page-container">
+
+  <!-- ========== Header Subtitle ========== -->
+  <view class="header-sub">
+    <text class="season-info">{{season}} · {{solarTerm}}</text>
+  </view>
+
+  <!-- ========== Input Card ========== -->
+  <view class="card input-area">
+    <view class="card-title">
+      <text class="icon">📝</text>
+      <text>今日情况</text>
+    </view>
+    <textarea
+      value="{{inputValue}}"
+      bindinput="onInput"
+      placeholder="随便说说今天的情况...\n例如：人在长沙，有点上火\n例如：不想喝普洱，想喝清淡的\n例如：昨晚没睡好，有点累"
+      placeholder-class="textarea-placeholder"
+      maxlength="500"
+      auto-height="{{false}}"
+    />
+    <view class="hint">可以说：城市、身体状况、口味偏好、不想喝的茶...</view>
+
+    <!-- Parsed Tags -->
+    <view class="parsed-tags" wx:if="{{parsedTags.length > 0}}">
+      <block wx:for="{{parsedTags}}" wx:key="index">
+        <text class="tag tag-{{item.type}}">{{item.icon}} {{item.label}}</text>
+      </block>
+    </view>
+
+    <!-- Recommend Button -->
+    <button class="btn-primary" bindtap="onRecommend" disabled="{{loading}}">{{btnText}}</button>
+  </view>
+
+  <!-- ========== Recommendation Area ========== -->
+  <view id="rec-area">
+
+    <!-- Loading State -->
+    <view class="rec-hero ai-loading" wx:if="{{loading}}">
+      <view class="ai-loading-icon">🧠</view>
+      <view class="ai-loading-text">AI 正在分析<text class="ai-loading-dots">...</text></view>
+      <view class="ai-loading-sub">综合时令、天气与中医茶疗理论</view>
+    </view>
+
+    <!-- No Result -->
+    <view class="rec-hero no-result" wx:if="{{noResult}}">
+      <view class="no-result-icon">🤔</view>
+      <view class="no-result-text">没有合适的茶推荐</view>
+      <view class="no-result-hint">试试放宽条件？</view>
+    </view>
+
+    <!-- Recommendation Result -->
+    <view class="rec-section" wx:if="{{hasResult && !loading}}">
+
+      <!-- ===== Primary Recommendation Card ===== -->
+      <view class="rec-hero">
+        <!-- Badge: AI or Rule-based -->
+        <text class="rec-hero-badge ai" wx:if="{{rec.isAI}}">AI 推荐</text>
+        <text class="rec-hero-badge primary" wx:else>今日推荐</text>
+
+        <!-- AI Notice -->
+        <view class="ai-notice" wx:if="{{rec.isAI}}">
+          <text>✨ {{rec.aiModel}} 深度分析</text>
+        </view>
+
+        <!-- Tea Name & Brand -->
+        <view class="rec-hero-name">{{rec.primary.name}}</view>
+        <view class="rec-hero-brand">{{rec.primary.brand}}</view>
+
+        <!-- Tags -->
+        <view class="rec-hero-tags">
+          <text class="nature-tag nature-{{rec.primary.natureCls}}">{{rec.primary.nature}}性</text>
+          <text class="rec-hero-tag cat-tag">{{rec.primary.catName}}</text>
+          <text class="rec-hero-tag info-tag">咖啡因 {{rec.primary.caffeine}}</text>
+          <text class="rec-hero-tag info-tag" wx:if="{{rec.primary.year}}">{{rec.primary.year}}年</text>
+        </view>
+
+        <!-- Reason / Explanation -->
+        <view class="rec-reason-ai" wx:if="{{rec.isAI}}">
+          <text>{{rec.primary.reason}}</text>
+        </view>
+        <view class="rec-hero-reason" wx:else>
+          <text>{{rec.primary.reason}}</text>
+        </view>
+
+        <!-- Avoid Info -->
+        <view class="avoid-info" wx:if="{{rec.avoidInfo}}">
+          <text>💡 {{rec.avoidInfo}}</text>
+        </view>
+
+        <!-- Brew Guide -->
+        <view class="rec-hero-brew">
+          <text>🌡 {{rec.primary.brew.temp}}</text>
+          <text>📏 {{rec.primary.brew.ratio}}</text>
+          <text>⏱ {{rec.primary.brew.time}}</text>
+        </view>
+      </view>
+
+      <!-- ===== Alternative Card ===== -->
+      <view class="rec-alt" wx:if="{{rec.alt}}">
+        <view class="rec-alt-icon">
+          <text>{{rec.alt.icon}}</text>
+        </view>
+        <view class="rec-alt-body">
+          <text class="rec-alt-badge">{{rec.isAI ? 'AI 备选' : '备选'}}</text>
+          <view>
+            <text class="rec-alt-name">{{rec.alt.name}}</text>
+            <text class="rec-alt-brand">{{rec.alt.brand}}</text>
+          </view>
+          <view class="rec-alt-tags">
+            <text class="nature-tag nature-{{rec.alt.natureCls}}" style="font-size:20rpx;padding:4rpx 16rpx">{{rec.alt.nature}}性</text>
+            <text class="rec-hero-tag cat-tag" style="font-size:20rpx;padding:4rpx 16rpx">{{rec.alt.catName}}</text>
+          </view>
+          <view class="rec-alt-reason">
+            <text>{{rec.alt.reason}}</text>
+          </view>
+          <view class="rec-alt-brew" wx:if="{{rec.alt.brew}}">
+            <text>{{rec.alt.brew.temp}} · {{rec.alt.brew.ratio}}</text>
+          </view>
+        </view>
+      </view>
+
+      <!-- ===== Checkin Area ===== -->
+      <view class="checkin-card" wx:if="{{!checkedIn}}">
+        <view class="checkin-title">今天喝了什么</view>
+        <view class="checkin-row">
+          <button class="checkin-pill hero" bindtap="onCheckinPrimary">{{rec.primary.name}}</button>
+          <button class="checkin-pill secondary" wx:if="{{rec.alt}}" bindtap="onCheckinAlt">{{rec.alt.name}}</button>
+          <button class="checkin-pill muted" bindtap="onShowCustom">喝的别的</button>
+          <button class="checkin-pill muted" bindtap="onSkipToday">没喝</button>
+        </view>
+        <view class="checkin-custom" wx:if="{{showCustom}}">
+          <input
+            value="{{customTeaName}}"
+            bindinput="onCustomInput"
+            placeholder="输入茶名..."
+            confirm-type="done"
+            bindconfirm="onCheckinCustom"
+          />
+          <button class="checkin-custom-btn" bindtap="onCheckinCustom">记录</button>
+        </view>
+      </view>
+
+      <!-- Already checked in -->
+      <view class="checkin-card" wx:if="{{checkedIn}}">
+        <view class="checkin-title">今日打卡完成 ✓</view>
+        <view class="checkin-done-text">{{checkinMsg}}</view>
+      </view>
+
+    </view>
+  </view>
+
+</view>

@@ -1,0 +1,53 @@
+<view class="page-container">
+
+  <!-- ========== Filter Bar ========== -->
+  <scroll-view class="tea-lib-filter-bar" scroll-x="{{true}}" enhanced="{{true}}" show-scrollbar="{{false}}">
+    <view class="tea-lib-filter-inner">
+      <text
+        wx:for="{{filterList}}"
+        wx:key="key"
+        class="tea-lib-filter-item {{item.active ? 'active' : ''}}"
+        data-key="{{item.key}}"
+        bindtap="onFilterTap"
+      >{{item.label}}</text>
+    </view>
+  </scroll-view>
+
+  <!-- ========== Tea Count Summary ========== -->
+  <view class="tea-lib-summary">
+    <text>共 {{totalCount}} 款茶叶</text>
+  </view>
+
+  <!-- ========== Grouped Tea List ========== -->
+  <block wx:for="{{groupedTeas}}" wx:key="catKey">
+    <view class="tea-lib-group">
+
+      <!-- Category Header -->
+      <view class="tea-lib-cat-header">
+        <text class="tea-lib-cat-name">{{item.catName}}</text>
+        <text class="tea-lib-cat-count">{{item.count}}款</text>
+      </view>
+
+      <!-- Tea Items -->
+      <view class="tea-lib-item" wx:for="{{item.teas}}" wx:for-item="tea" wx:key="id">
+        <view class="tea-lib-cat-dot cat-dot-{{tea.cat}}"></view>
+        <view class="tea-lib-name">
+          <text>{{tea.name}}</text>
+          <text class="tea-lib-note" wx:if="{{tea.note}}">⚠</text>
+        </view>
+        <view class="tea-lib-props">
+          <text class="nature-mini-tag nature-{{tea.natureCls}}">{{tea.nature}}</text>
+          <text wx:if="{{tea.year}}" class="tea-lib-year">{{tea.year}}年</text>
+          <text class="tea-lib-caffeine">☕{{tea.caffeine}}</text>
+        </view>
+      </view>
+
+    </view>
+  </block>
+
+  <!-- Empty state (when filter yields nothing) -->
+  <view class="tea-lib-empty" wx:if="{{groupedTeas.length === 0}}">
+    <text>该分类下暂无茶叶</text>
+  </view>
+
+</view>

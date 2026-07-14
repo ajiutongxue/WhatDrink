@@ -1,0 +1,48 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/history/history",
+    "pages/teaLib/teaLib",
+    "pages/settings/settings"
+  ],
+  "window": {
+    "navigationBarTitleText": "今天喝点什么茶",
+    "navigationBarBackgroundColor": "#5C3D2E",
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#FAF5ED"
+  },
+  "tabBar": {
+    "color": "#B5A89A",
+    "selectedColor": "#C4793B",
+    "backgroundColor": "#FFFDF9",
+    "borderStyle": "white",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "推荐",
+        "iconPath": "images/tab-rec.png",
+        "selectedIconPath": "images/tab-rec-active.png"
+      },
+      {
+        "pagePath": "pages/history/history",
+        "text": "记录",
+        "iconPath": "images/tab-history.png",
+        "selectedIconPath": "images/tab-history-active.png"
+      },
+      {
+        "pagePath": "pages/teaLib/teaLib",
+        "text": "茶库",
+        "iconPath": "images/tab-lib.png",
+        "selectedIconPath": "images/tab-lib-active.png"
+      },
+      {
+        "pagePath": "pages/settings/settings",
+        "text": "设置",
+        "iconPath": "images/tab-settings.png",
+        "selectedIconPath": "images/tab-settings-active.png"
+      }
+    ]
+  },
+  "cloud": true,
+  "sitemapLocation": "sitemap.json"
+}

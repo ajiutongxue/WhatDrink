@@ -1,0 +1,9 @@
+{
+  "name": "syncData",
+  "version": "1.0.0",
+  "description": "Tea Doctor data sync cloud function - merges client data with cloud storage",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "~2.6.3"
+  }
+}

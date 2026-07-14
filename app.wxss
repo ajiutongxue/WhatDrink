@@ -1,0 +1,950 @@
+/* ============================================================
+   Global Styles — 今天喝点什么茶
+   Ported from tea-doctor.html, adapted for WeChat Mini Program
+   ============================================================ */
+
+/* --- CSS Variables (base lib 2.11.0+) --- */
+page {
+  --bg: #FAF5ED;
+  --bg2: #F0E8DA;
+  --card: #FFFDF9;
+  --primary: #6B4F3A;
+  --primary-light: #9C7B5E;
+  --accent: #C4793B;
+  --accent2: #D4956A;
+  --text: #3A2A1E;
+  --text2: #8A7668;
+  --text3: #B5A89A;
+  --border: #E8DFD0;
+  --border-light: #F0EBE3;
+  --green: #6A9B5C;
+  --blue: #5B8FB9;
+  --amber: #D4943A;
+  --rose: #C27070;
+  --r-sm: 16rpx;
+  --r-md: 28rpx;
+  --r-lg: 40rpx;
+  --r-xl: 56rpx;
+
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  background: #FAF5ED;
+  color: #3A2A1E;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ============================================================
+   Base Card
+   ============================================================ */
+.card {
+  background: #FFFDF9;
+  border-radius: 40rpx;
+  padding: 36rpx 40rpx;
+  margin-bottom: 32rpx;
+  border: 1rpx solid #F0EBE3;
+  box-shadow: 0 2rpx 8rpx rgba(107, 79, 58, 0.06);
+}
+
+.card-title {
+  font-size: 26rpx;
+  font-weight: 500;
+  color: #8A7668;
+  margin-bottom: 24rpx;
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  letter-spacing: 1rpx;
+}
+
+.card-title .icon {
+  font-size: 32rpx;
+  opacity: 0.7;
+}
+
+/* ============================================================
+   Input Area
+   ============================================================ */
+.input-area {
+  background: #FFFDF9;
+  border-radius: 56rpx;
+  padding: 40rpx;
+  margin-bottom: 32rpx;
+  border: 1rpx solid #F0EBE3;
+  box-shadow: 0 8rpx 32rpx rgba(107, 79, 58, 0.08);
+}
+
+.input-area textarea {
+  width: 100%;
+  border: none;
+  border-radius: 28rpx;
+  padding: 28rpx 32rpx;
+  font-size: 30rpx;
+  resize: none;
+  height: 160rpx;
+  font-family: inherit;
+  background: #FAF5ED;
+  color: #3A2A1E;
+  outline: none;
+  line-height: 1.5;
+}
+
+.input-area .hint {
+  font-size: 22rpx;
+  color: #B5A89A;
+  margin-top: 16rpx;
+  letter-spacing: 0.6rpx;
+}
+
+/* ============================================================
+   Primary Button
+   ============================================================ */
+.btn-primary {
+  width: 100%;
+  padding: 28rpx;
+  border: none;
+  border-radius: 56rpx;
+  background: linear-gradient(135deg, #7A5640, #5C3D2E);
+  color: #FFFFFF;
+  font-size: 30rpx;
+  font-weight: 500;
+  margin-top: 28rpx;
+  letter-spacing: 2rpx;
+  box-shadow: 0 8rpx 24rpx rgba(92, 61, 46, 0.2);
+}
+
+.btn-primary[disabled] {
+  opacity: 0.5;
+}
+
+.btn-primary::after {
+  border: none;
+}
+
+/* ============================================================
+   Parsed Tags
+   ============================================================ */
+.parsed-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12rpx;
+  margin-top: 20rpx;
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6rpx;
+  padding: 6rpx 20rpx;
+  border-radius: 40rpx;
+  font-size: 24rpx;
+  font-weight: 500;
+}
+
+.tag-state {
+  background: #FFF3E0;
+  color: #BF6C20;
+}
+
+.tag-city {
+  background: #E8F5E9;
+  color: #2E7D32;
+}
+
+.tag-mood {
+  background: #E3F2FD;
+  color: #1565C0;
+}
+
+.tag-avoid {
+  background: #FFEBEE;
+  color: #C62828;
+}
+
+.tag-prefer {
+  background: #E0F2F1;
+  color: #00695C;
+}
+
+/* ============================================================
+   Recommendation Hero Card (Primary)
+   ============================================================ */
+.rec-hero {
+  background: linear-gradient(160deg, #FDF8F2 0%, #F7EDE0 100%);
+  border-radius: 56rpx;
+  padding: 48rpx 44rpx;
+  margin-bottom: 28rpx;
+  border: 1rpx solid rgba(196, 121, 59, 0.12);
+  box-shadow: 0 16rpx 64rpx rgba(107, 79, 58, 0.10);
+  position: relative;
+  overflow: hidden;
+}
+
+.rec-hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8rpx;
+  padding: 8rpx 24rpx;
+  border-radius: 40rpx;
+  font-size: 22rpx;
+  font-weight: 600;
+  letter-spacing: 2rpx;
+  margin-bottom: 28rpx;
+}
+
+.rec-hero-badge.primary {
+  background: linear-gradient(135deg, #C4793B, #9C5A2A);
+  color: #FFFFFF;
+}
+
+.rec-hero-badge.ai {
+  background: linear-gradient(135deg, #7C5CBF, #5B3E9E);
+  color: #FFFFFF;
+}
+
+.rec-hero-name {
+  font-size: 48rpx;
+  font-weight: 700;
+  color: #3A2A1E;
+  line-height: 1.3;
+  margin-bottom: 4rpx;
+}
+
+.rec-hero-brand {
+  font-size: 28rpx;
+  color: #8A7668;
+  margin-bottom: 24rpx;
+}
+
+.rec-hero-tags {
+  display: flex;
+  gap: 12rpx;
+  flex-wrap: wrap;
+  margin-bottom: 28rpx;
+}
+
+.rec-hero-tag {
+  font-size: 22rpx;
+  padding: 6rpx 20rpx;
+  border-radius: 32rpx;
+  font-weight: 500;
+  letter-spacing: 0.6rpx;
+}
+
+.nature-tag {
+  font-size: 22rpx;
+  padding: 6rpx 20rpx;
+  border-radius: 32rpx;
+  color: #FFFFFF;
+  font-weight: 500;
+}
+
+.nature-han { background: #4A7FB5; }
+.nature-liang { background: #6AAFCF; }
+.nature-ping { background: #A8A8A8; }
+.nature-wen { background: #D4883A; }
+.nature-re { background: #C25B45; }
+
+.cat-tag {
+  background: rgba(107, 79, 58, 0.08);
+  color: #6B4F3A;
+}
+
+.info-tag {
+  background: rgba(107, 79, 58, 0.05);
+  color: #8A7668;
+}
+
+.rec-hero-reason {
+  font-size: 28rpx;
+  color: #3A2A1E;
+  line-height: 1.8;
+  padding: 28rpx 32rpx;
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: 28rpx;
+  margin-bottom: 24rpx;
+  border-left: 6rpx solid #D4956A;
+}
+
+.rec-hero-reason text {
+  color: #6B4F3A;
+  font-weight: 600;
+}
+
+.rec-hero-brew {
+  display: flex;
+  gap: 32rpx;
+  font-size: 24rpx;
+  color: #8A7668;
+  padding-top: 24rpx;
+  border-top: 1rpx dashed #E8DFD0;
+}
+
+.rec-hero-brew text {
+  display: inline-flex;
+  align-items: center;
+  gap: 6rpx;
+}
+
+.avoid-info {
+  font-size: 24rpx;
+  color: #B5A89A;
+  margin-top: 20rpx;
+  padding: 16rpx 24rpx;
+  background: rgba(194, 112, 112, 0.06);
+  border-radius: 28rpx;
+  border-left: 4rpx solid #C27070;
+}
+
+/* ============================================================
+   Alt Card (Compact / Alternative Recommendation)
+   ============================================================ */
+.rec-alt {
+  background: #FFFDF9;
+  border-radius: 40rpx;
+  padding: 32rpx 36rpx;
+  margin-bottom: 28rpx;
+  border: 1rpx solid #F0EBE3;
+  box-shadow: 0 2rpx 8rpx rgba(107, 79, 58, 0.06);
+  display: flex;
+  gap: 28rpx;
+  align-items: flex-start;
+}
+
+.rec-alt-icon {
+  width: 88rpx;
+  height: 88rpx;
+  border-radius: 50%;
+  background: #F0E8DA;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 40rpx;
+  flex-shrink: 0;
+}
+
+.rec-alt-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.rec-alt-badge {
+  display: inline-block;
+  font-size: 20rpx;
+  padding: 2rpx 12rpx;
+  border-radius: 16rpx;
+  background: #F0E8DA;
+  color: #8A7668;
+  font-weight: 500;
+  margin-bottom: 8rpx;
+  letter-spacing: 1rpx;
+}
+
+.rec-alt-name {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #3A2A1E;
+}
+
+.rec-alt-brand {
+  font-size: 24rpx;
+  color: #B5A89A;
+  margin-left: 8rpx;
+}
+
+.rec-alt-tags {
+  display: flex;
+  gap: 8rpx;
+  flex-wrap: wrap;
+  margin: 12rpx 0;
+}
+
+.rec-alt-reason {
+  font-size: 24rpx;
+  color: #8A7668;
+  line-height: 1.6;
+  margin-top: 12rpx;
+}
+
+.rec-alt-brew {
+  font-size: 22rpx;
+  color: #B5A89A;
+  margin-top: 12rpx;
+}
+
+/* ============================================================
+   AI-Specific Styling
+   ============================================================ */
+.rec-reason-ai {
+  font-size: 28rpx;
+  color: #3A2A1E;
+  line-height: 1.8;
+  padding: 28rpx 32rpx;
+  background: linear-gradient(135deg, rgba(124, 92, 191, 0.04), rgba(91, 62, 158, 0.04));
+  border-radius: 28rpx;
+  margin-bottom: 24rpx;
+  border-left: 6rpx solid #9B7FD4;
+}
+
+.rec-reason-ai text {
+  color: #6B4FA0;
+  font-weight: 600;
+}
+
+.ai-notice {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  font-size: 20rpx;
+  color: #9B7FD4;
+  margin-bottom: 20rpx;
+  letter-spacing: 1rpx;
+}
+
+.ai-loading {
+  text-align: center;
+  padding: 64rpx 40rpx;
+  color: #8A7668;
+}
+
+.ai-loading-icon {
+  font-size: 72rpx;
+  margin-bottom: 28rpx;
+}
+
+.ai-loading-text {
+  font-size: 30rpx;
+  color: #3A2A1E;
+  font-weight: 500;
+  margin-bottom: 16rpx;
+}
+
+.ai-loading-sub {
+  font-size: 24rpx;
+  color: #B5A89A;
+}
+
+.ai-loading-dots {
+  display: inline-block;
+  width: 30rpx;
+  text-align: left;
+}
+
+/* ============================================================
+   Checkin Area
+   ============================================================ */
+.checkin-card {
+  background: #FFFDF9;
+  border-radius: 56rpx;
+  padding: 36rpx 40rpx;
+  margin-bottom: 32rpx;
+  border: 1rpx solid #F0EBE3;
+  box-shadow: 0 2rpx 8rpx rgba(107, 79, 58, 0.06);
+}
+
+.checkin-title {
+  font-size: 26rpx;
+  font-weight: 500;
+  color: #8A7668;
+  margin-bottom: 24rpx;
+  letter-spacing: 1rpx;
+}
+
+.checkin-row {
+  display: flex;
+  gap: 16rpx;
+  flex-wrap: wrap;
+}
+
+.checkin-pill {
+  flex: 1;
+  min-width: 0;
+  padding: 20rpx 12rpx;
+  border: 3rpx solid #E8DFD0;
+  border-radius: 56rpx;
+  background: #FFFDF9;
+  font-size: 26rpx;
+  color: #3A2A1E;
+  text-align: center;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.checkin-pill::after {
+  border: none;
+}
+
+.checkin-pill.hero {
+  border-color: #D4956A;
+  background: #FFF6EE;
+  color: #6B4F3A;
+}
+
+.checkin-pill.secondary {
+  border-style: dashed;
+}
+
+.checkin-pill.muted {
+  color: #B5A89A;
+  font-weight: 400;
+}
+
+.checkin-pill.disabled {
+  opacity: 0.4;
+}
+
+/* Custom tea input */
+.checkin-custom {
+  display: flex;
+  gap: 16rpx;
+  align-items: center;
+  margin-top: 20rpx;
+}
+
+.checkin-custom input {
+  flex: 1;
+  border: 3rpx solid #E8DFD0;
+  border-radius: 56rpx;
+  padding: 20rpx 32rpx;
+  font-size: 26rpx;
+  background: #FAF5ED;
+  color: #3A2A1E;
+  outline: none;
+}
+
+.checkin-custom-btn {
+  padding: 20rpx 36rpx;
+  border: none;
+  border-radius: 56rpx;
+  background: #C4793B;
+  color: #FFFFFF;
+  font-size: 26rpx;
+  font-weight: 500;
+  letter-spacing: 1rpx;
+}
+
+.checkin-custom-btn::after {
+  border: none;
+}
+
+/* ============================================================
+   History
+   ============================================================ */
+.history-item {
+  display: flex;
+  align-items: center;
+  gap: 24rpx;
+  padding: 28rpx 0;
+  border-bottom: 1rpx solid #F0EBE3;
+}
+
+.history-item:last-child {
+  border-bottom: none;
+}
+
+.history-date {
+  font-size: 24rpx;
+  color: #B5A89A;
+  min-width: 92rpx;
+  font-weight: 500;
+}
+
+.history-dot {
+  width: 16rpx;
+  height: 16rpx;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.history-tea {
+  flex: 1;
+}
+
+.history-tea-name {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #3A2A1E;
+}
+
+.history-tea-cat {
+  font-size: 22rpx;
+  color: #B5A89A;
+  margin-top: 4rpx;
+}
+
+.history-badge {
+  font-size: 20rpx;
+  padding: 4rpx 12rpx;
+  border-radius: 20rpx;
+  font-weight: 500;
+  margin-left: 8rpx;
+}
+
+.badge-primary {
+  background: #C4793B;
+  color: #FFFFFF;
+}
+
+.badge-alt {
+  background: #F0E8DA;
+  color: #8A7668;
+}
+
+.badge-custom {
+  background: #E0F2F1;
+  color: #00695C;
+}
+
+.history-empty {
+  text-align: center;
+  color: #B5A89A;
+  padding: 80rpx 40rpx;
+  font-size: 28rpx;
+  line-height: 1.8;
+}
+
+.history-empty-icon {
+  font-size: 64rpx;
+  margin-bottom: 20rpx;
+}
+
+/* Category dot colors */
+.cat-dot-green { background: #6A9B5C; }
+.cat-dot-black { background: #8D6E63; }
+.cat-dot-white { background: #B0BEC5; }
+.cat-dot-oolong_tieguanyin,
+.cat-dot-oolong_wuyi,
+.cat-dot-oolong_dancong { background: #D4943A; }
+.cat-dot-puerh_raw { background: #6A9B5C; }
+.cat-dot-puerh_ripe { background: #5D4037; }
+.cat-dot-flavored_jasmine,
+.cat-dot-flavored_other { background: #C27070; }
+.cat-dot-unknown { background: #C4793B; }
+.cat-dot-none,
+.cat-dot-skip { background: #B5A89A; }
+
+/* ============================================================
+   Settings
+   ============================================================ */
+.setting-group {
+  margin-bottom: 36rpx;
+}
+
+.setting-label {
+  font-size: 24rpx;
+  color: #B5A89A;
+  margin-bottom: 12rpx;
+  display: block;
+  font-weight: 500;
+  letter-spacing: 1rpx;
+}
+
+.setting-input {
+  width: 100%;
+  border: 3rpx solid #F0EBE3;
+  border-radius: 28rpx;
+  padding: 20rpx 28rpx;
+  font-size: 28rpx;
+  background: #FAF5ED;
+  color: #3A2A1E;
+  outline: none;
+}
+
+.setting-row {
+  display: flex;
+  gap: 24rpx;
+}
+
+.setting-row .setting-group {
+  flex: 1;
+}
+
+.radio-group {
+  display: flex;
+  gap: 24rpx;
+  margin-top: 8rpx;
+}
+
+.radio-group label {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+  font-size: 28rpx;
+}
+
+.setting-btn {
+  padding: 18rpx 36rpx;
+  border: 3rpx solid #F0EBE3;
+  border-radius: 56rpx;
+  background: #FFFDF9;
+  font-size: 26rpx;
+  color: #3A2A1E;
+  font-weight: 500;
+}
+
+.setting-btn::after {
+  border: none;
+}
+
+.setting-btn.danger {
+  color: #C27070;
+  border-color: rgba(194, 112, 112, 0.3);
+}
+
+.data-btn-row {
+  display: flex;
+  gap: 16rpx;
+  flex-wrap: wrap;
+}
+
+.sync-status {
+  font-size: 24rpx;
+  color: #B5A89A;
+  margin-bottom: 16rpx;
+}
+
+/* Toggle switch row */
+.setting-toggle-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16rpx;
+}
+
+.setting-toggle-label {
+  font-size: 28rpx;
+  color: #3A2A1E;
+  font-weight: 500;
+}
+
+/* ============================================================
+   Quiz
+   ============================================================ */
+.quiz-q {
+  margin: 28rpx 0;
+}
+
+.quiz-q-text {
+  font-size: 28rpx;
+  font-weight: 500;
+  margin-bottom: 16rpx;
+}
+
+.quiz-opts {
+  display: flex;
+  gap: 16rpx;
+  flex-wrap: wrap;
+}
+
+.quiz-opt {
+  padding: 16rpx 32rpx;
+  border: 3rpx solid #F0EBE3;
+  border-radius: 56rpx;
+  font-size: 26rpx;
+  background: #FFFDF9;
+  font-weight: 500;
+}
+
+.quiz-opt.selected {
+  background: #C4793B;
+  color: #FFFFFF;
+  border-color: #C4793B;
+}
+
+.quiz-result {
+  margin-top: 28rpx;
+  padding: 28rpx 32rpx;
+  background: linear-gradient(135deg, #FFF6EE, #FDF8F2);
+  border-radius: 28rpx;
+  font-size: 26rpx;
+  color: #6B4F3A;
+  line-height: 1.6;
+  border-left: 6rpx solid #D4956A;
+}
+
+/* ============================================================
+   Tea Library
+   ============================================================ */
+.tea-lib-filter-bar {
+  display: flex;
+  white-space: nowrap;
+  padding: 16rpx 0 24rpx;
+  margin-bottom: 16rpx;
+}
+
+.tea-lib-filter-item {
+  display: inline-block;
+  padding: 12rpx 28rpx;
+  border-radius: 40rpx;
+  font-size: 26rpx;
+  font-weight: 500;
+  margin-right: 16rpx;
+  background: #FFFDF9;
+  color: #8A7668;
+  border: 2rpx solid #F0EBE3;
+  flex-shrink: 0;
+}
+
+.tea-lib-filter-item.active {
+  background: #C4793B;
+  color: #FFFFFF;
+  border-color: #C4793B;
+}
+
+.tea-lib-cat-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12rpx 0 8rpx;
+}
+
+.tea-lib-cat-name {
+  font-size: 28rpx;
+  color: #6B4F3A;
+  font-weight: 600;
+}
+
+.tea-lib-cat-count {
+  font-size: 22rpx;
+  color: #B5A89A;
+}
+
+.tea-lib-item {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+  padding: 18rpx 8rpx;
+  border-bottom: 1rpx solid #F0EBE3;
+  font-size: 26rpx;
+}
+
+.tea-lib-item:last-child {
+  border-bottom: none;
+}
+
+.tea-lib-cat-dot {
+  width: 12rpx;
+  height: 12rpx;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.tea-lib-name {
+  flex: 1;
+  font-weight: 500;
+}
+
+.tea-lib-props {
+  font-size: 22rpx;
+  color: #B5A89A;
+  display: flex;
+  gap: 8rpx;
+  align-items: center;
+}
+
+/* ============================================================
+   Bottom Nav (for reference — TabBar handles this natively)
+   ============================================================ */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(255, 253, 249, 0.92);
+  border-top: 1rpx solid #F0EBE3;
+  display: flex;
+  z-index: 100;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.nav-tab {
+  flex: 1;
+  padding: 16rpx 0 12rpx;
+  text-align: center;
+  font-size: 20rpx;
+  color: #B5A89A;
+  font-weight: 500;
+  letter-spacing: 1rpx;
+  background: none;
+  border: none;
+}
+
+.nav-tab.active {
+  color: #C4793B;
+}
+
+.nav-tab .nav-icon {
+  font-size: 44rpx;
+  display: block;
+  margin-bottom: 2rpx;
+}
+
+/* ============================================================
+   Toast
+   ============================================================ */
+.toast {
+  position: fixed;
+  top: 48rpx;
+  left: 50%;
+  transform: translateX(-50%) translateY(-16rpx);
+  background: #6B4F3A;
+  color: #FFFFFF;
+  padding: 20rpx 48rpx;
+  border-radius: 56rpx;
+  font-size: 26rpx;
+  z-index: 200;
+  opacity: 0;
+  pointer-events: none;
+  font-weight: 500;
+  letter-spacing: 1rpx;
+  box-shadow: 0 8rpx 32rpx rgba(92, 61, 46, 0.2);
+  white-space: nowrap;
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* ============================================================
+   Section animation
+   ============================================================ */
+.rec-section {
+  animation: recFadeIn 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes recFadeIn {
+  from { opacity: 0; transform: translateY(32rpx); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ============================================================
+   Page Container (shared)
+   ============================================================ */
+.page-container {
+  padding: 32rpx;
+  padding-bottom: 40rpx;
+  min-height: 100vh;
+  background: #FAF5ED;
+}
+
+/* ============================================================
+   Empty / Muted states
+   ============================================================ */
+.muted-text {
+  color: #B5A89A;
+}
+
+.skip-name {
+  color: #B5A89A;
+}
+
+/* ============================================================
+   Nature tag classes (for inline use)
+   ============================================================ */
+.nature-mini-tag {
+  font-size: 20rpx;
+  padding: 2rpx 8rpx;
+  border-radius: 16rpx;
+  color: #FFFFFF;
+  font-weight: 500;
+}
