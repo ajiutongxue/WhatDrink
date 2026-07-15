@@ -14,6 +14,11 @@ Page({
     this._loadHistory();
   },
 
+  // Called by app.js after cloud sync completes
+  reloadData: function () {
+    this._loadHistory();
+  },
+
   _loadHistory: function () {
     var appData = data.load();
     this._appData = appData;

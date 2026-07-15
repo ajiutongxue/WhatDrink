@@ -81,6 +81,11 @@ Page({
     this._loadSettings();
   },
 
+  // Called by app.js after cloud sync completes
+  reloadData: function () {
+    this._loadSettings();
+  },
+
   _loadSettings: function () {
     var appData = data.load();
     this._appData = appData;
@@ -109,7 +114,7 @@ Page({
       recEnabled: !!l.enabled,
       recModel: l.recModel || 'deepseek-v4-pro',
       avoidDays: s.avoidDays || 5,
-      syncStatus: this._getSyncStatus(appData)
+      syncStatus: this._getSyncStatus()
     });
   },
 
@@ -167,9 +172,10 @@ Page({
     });
   },
 
-  _getSyncStatus: function (appData) {
-    if (appData._lastSyncTime) {
-      var d = new Date(appData._lastSyncTime);
+  _getSyncStatus: function () {
+    var t = data.getLastSyncTime();
+    if (t) {
+      var d = new Date(t);
       var m = d.getMonth() + 1, day = d.getDate();
       var h = d.getHours(), min = d.getMinutes();
       return '上次同步：' + m + '/' + day + ' ' +
@@ -271,16 +277,25 @@ Page({
     data.sync()
       .then(function (mergedData) {
         self._appData = mergedData;
-        data.save(mergedData);
+        // sync() already calls save() internally; no need to save again
+        self._loadSettings();
         self.setData({
           syncing: false,
-          syncStatus: self._getSyncStatus(mergedData)
+          syncStatus: self._getSyncStatus()
         });
         wx.showToast({ title: '同步完成', icon: 'success' });
       })
       .catch(function (err) {
-        self.setData({ syncing: false, syncStatus: '同步失败' });
-        wx.showToast({ title: '同步失败：' + (err.message || '网络错误'), icon: 'none', duration: 3000 });
+        console.warn('[settings] sync failed:', err);
+        self.setData({
+          syncing: false,
+          syncStatus: self._getSyncStatus()
+        });
+        wx.showToast({
+          title: '同步失败：' + (err && err.message || '网络错误'),
+          icon: 'none',
+          duration: 3000
+        });
       });
   },
 

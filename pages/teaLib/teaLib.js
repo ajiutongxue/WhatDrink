@@ -50,6 +50,13 @@ Page({
     this._applyFilter(this.data.activeFilter);
   },
 
+  // Called by app.js after cloud sync completes
+  reloadData: function () {
+    var appData = data.load();
+    this._allTeas = appData.teaLibrary || teaData.TEAS;
+    this._applyFilter(this.data.activeFilter);
+  },
+
   onFilterTap: function (e) {
     var key = e.currentTarget.dataset.key;
     this.setData({ activeFilter: key });

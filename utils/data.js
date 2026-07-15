@@ -126,11 +126,11 @@ function save(data) {
  * @returns {Promise<Object>} Merged AppData
  */
 function sync() {
-  return new Promise(function(resolve) {
+  return new Promise(function(resolve, reject) {
     var local = load();
 
     if (!_cloudAvailable()) {
-      resolve(local);
+      reject(new Error('云开发不可用'));
       return;
     }
 
@@ -138,12 +138,9 @@ function sync() {
     try {
       db = wx.cloud.database();
     } catch (e) {
-      console.warn('[data] cloud db init failed:', e);
-      resolve(local);
+      reject(new Error('云数据库初始化失败'));
       return;
     }
-
-    var collection = db.collection(CLOUD_COLLECTION);
 
     // Call cloud function to merge
     wx.cloud.callFunction({
@@ -153,15 +150,16 @@ function sync() {
         if (res && res.result && res.result.success && res.result.data) {
           var merged = _mergeData(res.result.data, local);
           save(merged);
+          _setLastSyncTime(Date.now());
           resolve(merged);
         } else {
-          // Cloud function returned no usable data, just keep local
-          resolve(local);
+          var msg = (res && res.result && res.result.error) || '云函数返回失败';
+          reject(new Error(msg));
         }
       },
       fail: function(err) {
         console.warn('[data] sync cloud function failed:', err);
-        resolve(local);
+        reject(new Error(err.errMsg || '云函数调用失败'));
       }
     });
   });
@@ -315,40 +313,140 @@ function _mergeData(cloudData, localData) {
   if (!cloudData) return localData;
   if (!localData) return cloudData;
 
-  // History union
+  // History: union by date+teaId+type, local wins for same key
+  // (local may carry newer tastingNotes just edited by user)
   var historyMap = {};
   var cloudHistory = Array.isArray(cloudData.history) ? cloudData.history : [];
   var localHistory = Array.isArray(localData.history) ? localData.history : [];
-  var allHistory = cloudHistory.concat(localHistory);
 
-  allHistory.forEach(function(h) {
+  cloudHistory.forEach(function(h) {
     if (h && h.date) {
       var key = h.date + '_' + (h.teaId || 0) + '_' + (h.type || 'unknown');
+      historyMap[key] = h;
+    }
+  });
+  localHistory.forEach(function(h) {
+    if (h && h.date) {
+      var key = h.date + '_' + (h.teaId || 0) + '_' + (h.type || 'unknown');
+      var existing = historyMap[key];
+      if (existing) {
+        // Field-level merge: keep cloud tastingNotes if local doesn't have one
+        if (!h.tastingNotes && existing.tastingNotes) {
+          h.tastingNotes = existing.tastingNotes;
+        }
+      }
       historyMap[key] = h;
     }
   });
 
   var mergedHistory = [];
   for (var k in historyMap) {
-    if (historyMap.hasOwnProperty(k)) {
-      mergedHistory.push(historyMap[k]);
-    }
+    if (historyMap.hasOwnProperty(k)) mergedHistory.push(historyMap[k]);
   }
-
-  // Sort history by date descending
   mergedHistory.sort(function(a, b) {
     return (b.date || '').localeCompare(a.date || '');
   });
 
   return {
-    profile: cloudData.profile || localData.profile,
+    profile: _mergeProfile(cloudData.profile, localData.profile),
     history: mergedHistory,
-    settings: cloudData.settings || localData.settings,
-    llm: cloudData.llm || localData.llm,
-    teaLibrary: (Array.isArray(cloudData.teaLibrary) && cloudData.teaLibrary.length > 0)
-      ? cloudData.teaLibrary
-      : localData.teaLibrary
+    settings: _mergeSettings(cloudData.settings, localData.settings),
+    llm: _mergeLLM(cloudData.llm, localData.llm),
+    teaLibrary: _mergeTeaLibrary(cloudData.teaLibrary, localData.teaLibrary)
   };
+}
+
+/**
+ * Field-level profile merge: each field takes non-empty value, cloud preferred.
+ * Avoids one device's empty field overwriting another's non-empty value.
+ */
+function _mergeProfile(cloud, local) {
+  var c = cloud || {}, l = local || {};
+  var result = {};
+  var keys = ['gender', 'age', 'city', 'constitution'];
+  keys.forEach(function(k) {
+    if (c[k] !== undefined && c[k] !== null && c[k] !== '') {
+      result[k] = c[k];
+    } else if (l[k] !== undefined && l[k] !== null && l[k] !== '') {
+      result[k] = l[k];
+    } else {
+      result[k] = c[k] !== undefined ? c[k] : l[k];
+    }
+  });
+  // quizAnswers: deep merge, cloud first
+  var cqa = c.quizAnswers || {}, lqa = l.quizAnswers || {};
+  result.quizAnswers = {};
+  for (var ck in cqa) if (cqa.hasOwnProperty(ck)) result.quizAnswers[ck] = cqa[ck];
+  for (var lk in lqa) if (lqa.hasOwnProperty(lk) && result.quizAnswers[lk] === undefined) {
+    result.quizAnswers[lk] = lqa[lk];
+  }
+  return result;
+}
+
+function _mergeSettings(cloud, local) {
+  var c = cloud || {}, l = local || {};
+  var avoidDays = (typeof c.avoidDays === 'number' && c.avoidDays > 0)
+    ? c.avoidDays
+    : ((typeof l.avoidDays === 'number' && l.avoidDays > 0) ? l.avoidDays : 5);
+  return { avoidDays: avoidDays };
+}
+
+function _mergeLLM(cloud, local) {
+  var c = cloud || {}, l = local || {};
+  var result = {};
+  var strKeys = ['apiKey', 'endpoint', 'recModel', 'parserModel'];
+  strKeys.forEach(function(k) {
+    if (c[k]) result[k] = c[k];
+    else if (l[k]) result[k] = l[k];
+    else result[k] = c[k] !== undefined ? c[k] : l[k];
+  });
+  result.enabled = (typeof c.enabled === 'boolean')
+    ? c.enabled
+    : ((typeof l.enabled === 'boolean') ? l.enabled : false);
+  result.parserEnabled = (typeof c.parserEnabled === 'boolean')
+    ? c.parserEnabled
+    : ((typeof l.parserEnabled === 'boolean') ? l.parserEnabled : false);
+  return result;
+}
+
+/**
+ * Tea library: union by id, cloud wins for duplicates.
+ * Prevents one device's additions from being wiped by another's older list.
+ */
+function _mergeTeaLibrary(cloud, local) {
+  var cl = Array.isArray(cloud) ? cloud : [];
+  var ll = Array.isArray(local) ? local : [];
+  var map = {};
+  var order = [];
+  cl.forEach(function(t) {
+    if (t && t.id !== undefined && map[t.id] === undefined) {
+      map[t.id] = t;
+      order.push(t.id);
+    }
+  });
+  ll.forEach(function(t) {
+    if (t && t.id !== undefined && map[t.id] === undefined) {
+      map[t.id] = t;
+      order.push(t.id);
+    }
+  });
+  var result = [];
+  order.forEach(function(id) { result.push(map[id]); });
+  return result.length > 0 ? result : ll;
+}
+
+/**
+ * Persist last successful sync time in a dedicated storage key.
+ * Kept separate from AppData so it survives reset() and isn't synced itself.
+ */
+var LAST_SYNC_KEY = 'tea_doctor_last_sync';
+
+function _getLastSyncTime() {
+  try { return wx.getStorageSync(LAST_SYNC_KEY) || 0; } catch (e) { return 0; }
+}
+
+function _setLastSyncTime(t) {
+  try { wx.setStorageSync(LAST_SYNC_KEY, t); } catch (e) {}
 }
 
 module.exports = {
@@ -358,5 +456,6 @@ module.exports = {
   exportJSON: exportJSON,
   importJSON: importJSON,
   reset: reset,
-  getDefaultData: getDefaultData
+  getDefaultData: getDefaultData,
+  getLastSyncTime: function() { return _getLastSyncTime(); }
 };

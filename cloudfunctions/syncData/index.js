@@ -4,11 +4,11 @@
  * Uses openid from WeChat context to identify users.
  *
  * Merge strategy:
- * - history: union deduplicated by date+teaId+type key
- * - profile: prefer incoming (local)
- * - settings: prefer incoming (local)
- * - llm: prefer incoming (local)
- * - teaLibrary: prefer incoming (local)
+ * - history: union by date+teaId+type, local wins for same key (newer tastingNotes)
+ * - profile: field-level merge, non-empty wins (cloud preferred)
+ * - settings: field-level merge, non-empty wins
+ * - llm: field-level merge, non-empty for strings; cloud for booleans
+ * - teaLibrary: union by id, cloud wins for duplicates
  */
 
 var cloud = require('wx-server-sdk');
@@ -32,6 +32,14 @@ exports.main = async function(event, context) {
 
   var db = cloud.database();
   var collection = db.collection('tea_doctor');
+
+  // Ensure collection exists — createCollection is idempotent-safe via try/catch
+  // (errors when collection already exists, which we ignore)
+  try {
+    await db.createCollection('tea_doctor');
+  } catch (e) {
+    // Already exists or no permission — proceed, the get below will surface real errors
+  }
 
   try {
     // Find existing document for this user
@@ -97,54 +105,112 @@ exports.main = async function(event, context) {
  * @returns {Object} Merged data
  */
 function mergeData(cloud, local) {
-  // History: union by date+teaId+type dedup key
+  // History: union by date+teaId+type, local wins for same key
+  // (local may carry newer tastingNotes just edited by user)
   var historyMap = new Map();
 
   var cloudHistory = (cloud && Array.isArray(cloud.history)) ? cloud.history : [];
   var localHistory = (local && Array.isArray(local.history)) ? local.history : [];
 
-  // Add cloud entries first
-  for (var i = 0; i < cloudHistory.length; i++) {
-    var h = cloudHistory[i];
+  cloudHistory.forEach(function(h) {
     if (h && h.date) {
       var key = h.date + '_' + (h.teaId || 0) + '_' + (h.type || 'unknown');
       historyMap.set(key, h);
     }
-  }
-
-  // Add local entries (overwrites cloud if same key, which is correct - local is preferred)
-  for (var j = 0; j < localHistory.length; j++) {
-    var lh = localHistory[j];
-    if (lh && lh.date) {
-      var lkey = lh.date + '_' + (lh.teaId || 0) + '_' + (lh.type || 'unknown');
-      historyMap.set(lkey, lh);
+  });
+  localHistory.forEach(function(h) {
+    if (h && h.date) {
+      var key = h.date + '_' + (h.teaId || 0) + '_' + (h.type || 'unknown');
+      var existing = historyMap.get(key);
+      if (existing) {
+        // Keep cloud tastingNotes if local doesn't have one
+        if (!h.tastingNotes && existing.tastingNotes) {
+          h.tastingNotes = existing.tastingNotes;
+        }
+      }
+      historyMap.set(key, h);
     }
-  }
-
-  var mergedHistory = [];
-  historyMap.forEach(function(val) {
-    mergedHistory.push(val);
   });
 
-  // Sort by date descending
+  var mergedHistory = [];
+  historyMap.forEach(function(val) { mergedHistory.push(val); });
   mergedHistory.sort(function(a, b) {
     return (b.date || '').localeCompare(a.date || '');
   });
 
-  // Other fields: prefer incoming (local), fall back to cloud
   return {
     history: mergedHistory,
-    profile: (local && local.profile && Object.keys(local.profile).length > 0)
-      ? local.profile
-      : (cloud.profile || {}),
-    settings: (local && local.settings && Object.keys(local.settings).length > 0)
-      ? local.settings
-      : (cloud.settings || {}),
-    llm: (local && local.llm && Object.keys(local.llm).length > 0)
-      ? local.llm
-      : (cloud.llm || {}),
-    teaLibrary: (local && Array.isArray(local.teaLibrary) && local.teaLibrary.length > 0)
-      ? local.teaLibrary
-      : (cloud.teaLibrary || [])
+    profile: mergeProfile(cloud.profile || {}, local.profile || {}),
+    settings: mergeSettings(cloud.settings || {}, local.settings || {}),
+    llm: mergeLLM(cloud.llm || {}, local.llm || {}),
+    teaLibrary: mergeTeaLibrary(cloud.teaLibrary || [], local.teaLibrary || [])
   };
+}
+
+// Field-level profile merge: non-empty wins, cloud preferred.
+// Prevents one device's empty field overwriting another's value.
+function mergeProfile(cloud, local) {
+  var result = {};
+  var keys = ['gender', 'age', 'city', 'constitution'];
+  keys.forEach(function(k) {
+    if (cloud[k] !== undefined && cloud[k] !== null && cloud[k] !== '') {
+      result[k] = cloud[k];
+    } else if (local[k] !== undefined && local[k] !== null && local[k] !== '') {
+      result[k] = local[k];
+    } else {
+      result[k] = cloud[k] !== undefined ? cloud[k] : local[k];
+    }
+  });
+  var cqa = cloud.quizAnswers || {}, lqa = local.quizAnswers || {};
+  result.quizAnswers = {};
+  for (var ck in cqa) if (cqa.hasOwnProperty(ck)) result.quizAnswers[ck] = cqa[ck];
+  for (var lk in lqa) if (lqa.hasOwnProperty(lk) && result.quizAnswers[lk] === undefined) {
+    result.quizAnswers[lk] = lqa[lk];
+  }
+  return result;
+}
+
+function mergeSettings(cloud, local) {
+  var avoidDays = (typeof cloud.avoidDays === 'number' && cloud.avoidDays > 0)
+    ? cloud.avoidDays
+    : ((typeof local.avoidDays === 'number' && local.avoidDays > 0) ? local.avoidDays : 5);
+  return { avoidDays: avoidDays };
+}
+
+function mergeLLM(cloud, local) {
+  var result = {};
+  var strKeys = ['apiKey', 'endpoint', 'recModel', 'parserModel'];
+  strKeys.forEach(function(k) {
+    if (cloud[k]) result[k] = cloud[k];
+    else if (local[k]) result[k] = local[k];
+    else result[k] = cloud[k] !== undefined ? cloud[k] : local[k];
+  });
+  result.enabled = (typeof cloud.enabled === 'boolean')
+    ? cloud.enabled
+    : ((typeof local.enabled === 'boolean') ? local.enabled : false);
+  result.parserEnabled = (typeof cloud.parserEnabled === 'boolean')
+    ? cloud.parserEnabled
+    : ((typeof local.parserEnabled === 'boolean') ? local.parserEnabled : false);
+  return result;
+}
+
+// Tea library: union by id, cloud wins for duplicates.
+function mergeTeaLibrary(cloud, local) {
+  var map = {};
+  var order = [];
+  cloud.forEach(function(t) {
+    if (t && t.id !== undefined && map[t.id] === undefined) {
+      map[t.id] = t;
+      order.push(t.id);
+    }
+  });
+  local.forEach(function(t) {
+    if (t && t.id !== undefined && map[t.id] === undefined) {
+      map[t.id] = t;
+      order.push(t.id);
+    }
+  });
+  var result = [];
+  order.forEach(function(id) { result.push(map[id]); });
+  return result.length > 0 ? result : local;
 }

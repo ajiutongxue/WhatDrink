@@ -80,6 +80,16 @@ Page({
     }
   },
 
+  // Called by app.js after cloud sync completes — refresh local cache + weather
+  reloadData: function () {
+    this._appData = data.load();
+    var newCity = this._appData.profile.city || '';
+    if (newCity && newCity !== this._weatherCity) {
+      this._weatherCity = newCity;
+      this._fetchWeather(newCity);
+    }
+  },
+
   // ==== Input ====
   onInput: function (e) {
     var val = e.detail.value || '';
