@@ -5,7 +5,8 @@ Page({
   data: {
     historyList: [],
     editingIdx: -1,   // currently editing history index (-1 = none)
-    editingText: ''
+    editingText: '',
+    editingImages: []
   },
 
   _appData: null,
@@ -54,25 +55,25 @@ Page({
         isSkip: h.type === 'skip',
         typeName: typeMap[h.type] || '',
         typeBadgeClass: badgeMap[h.type] || '',
-        hasNotes: !!(h.tastingNotes && h.tastingNotes.length > 0),
-        tastingNotes: h.tastingNotes || ''
+        hasNotes: !!(h.tastingNotes && h.tastingNotes.length > 0) || !!(h.imageFileIDs && h.imageFileIDs.length > 0),
+        tastingNotes: h.tastingNotes || '',
+        imageFileIDs: h.imageFileIDs || []
       });
     }
 
-    this.setData({ historyList: list, editingIdx: -1, editingText: '' });
+    this.setData({ historyList: list, editingIdx: -1, editingText: '', editingImages: [] });
   },
 
   // ==== Tasting Notes ====
   onToggleNotes: function (e) {
     var idx = parseInt(e.currentTarget.dataset.idx);
     if (this.data.editingIdx === idx) {
-      // Close editing
-      this.setData({ editingIdx: -1, editingText: '' });
+      this.setData({ editingIdx: -1, editingText: '', editingImages: [] });
     } else {
-      // Open editing for this entry
       var history = (this._appData && this._appData.history) || [];
       var existing = (history[idx] && history[idx].tastingNotes) || '';
-      this.setData({ editingIdx: idx, editingText: existing });
+      var existingImgs = (history[idx] && history[idx].imageFileIDs) ? history[idx].imageFileIDs.slice() : [];
+      this.setData({ editingIdx: idx, editingText: existing, editingImages: existingImgs });
     }
   },
 
@@ -80,19 +81,121 @@ Page({
     this.setData({ editingText: e.detail.value });
   },
 
+  onChooseImage: function () {
+    var self = this;
+    var current = this.data.editingImages || [];
+    var remain = 6 - current.length;
+    if (remain <= 0) {
+      wx.showToast({ title: '最多 6 张', icon: 'none' });
+      return;
+    }
+    wx.chooseMedia({
+      count: remain,
+      mediaType: ['image'],
+      sourceType: ['album', 'camera'],
+      sizeType: ['compressed'],
+      success: function (res) {
+        var files = res.tempFiles || [];
+        if (files.length === 0) return;
+        var appData = self._appData || data.load();
+        var history = appData.history || [];
+        var idx = self.data.editingIdx;
+        var entry = (idx >= 0 && history[idx]) ? history[idx] : {};
+        var dateStr = entry.date || '';
+        var teaId = entry.teaId || 0;
+        var ts = Date.now();
+        var uploaded = current.slice();
+        var pending = files.length;
+        wx.showLoading({ title: '上传中' });
+        files.forEach(function (f, i) {
+          var cloudPath = 'tasting-images/' + dateStr + '_' + teaId + '_' + ts + '_' + i + '.jpg';
+          wx.cloud.uploadFile({
+            cloudPath: cloudPath,
+            filePath: f.tempFilePath,
+            success: function (upRes) {
+              uploaded.push(upRes.fileID);
+            },
+            fail: function (err) {
+              console.warn('upload failed', cloudPath, err);
+            },
+            complete: function () {
+              pending--;
+              if (pending === 0) {
+                wx.hideLoading();
+                self.setData({ editingImages: uploaded });
+              }
+            }
+          });
+        });
+      }
+    });
+  },
+
+  onPreviewImage: function (e) {
+    var src = e.currentTarget.dataset.src;
+    var listIdx = e.currentTarget.dataset.listIdx;
+    var urls;
+    if (listIdx !== undefined && listIdx !== '') {
+      var item = this.data.historyList[listIdx];
+      urls = (item && item.imageFileIDs) || [];
+    } else {
+      urls = this.data.editingImages || [];
+    }
+    if (urls.length === 0) return;
+    var srcIdx = urls.indexOf(src);
+    wx.showLoading({ title: '加载中' });
+    wx.cloud.getTempFileURL({
+      fileList: urls,
+      success: function (res) {
+        wx.hideLoading();
+        var httpsUrls = (res.fileList || []).map(function (f) { return f.tempFileURL; }).filter(Boolean);
+        if (httpsUrls.length === 0) return;
+        var current = (srcIdx >= 0 && srcIdx < httpsUrls.length) ? httpsUrls[srcIdx] : httpsUrls[0];
+        wx.previewImage({ current: current, urls: httpsUrls });
+      },
+      fail: function () {
+        wx.hideLoading();
+        wx.showToast({ title: '预览失败', icon: 'none' });
+      }
+    });
+  },
+
+  onRemoveImage: function (e) {
+    var idx = e.currentTarget.dataset.idx;
+    var self = this;
+    var images = (this.data.editingImages || []).slice();
+    var fileId = images[idx];
+    if (!fileId) return;
+    wx.showModal({
+      title: '删除图片',
+      content: '确定删除这张图片吗？',
+      success: function (res) {
+        if (!res.confirm) return;
+        images.splice(idx, 1);
+        self.setData({ editingImages: images });
+        wx.cloud.deleteFile({
+          fileList: [fileId],
+          fail: function (err) { console.warn('deleteFile failed', fileId, err); }
+        });
+      }
+    });
+  },
+
   onSaveNotes: function () {
     var text = (this.data.editingText || '').trim();
+    var imgs = this.data.editingImages || [];
     var idx = this.data.editingIdx;
     if (idx < 0) return;
 
     var appData = this._appData || data.load();
     if (idx < appData.history.length) {
       appData.history[idx].tastingNotes = text;
+      appData.history[idx].imageFileIDs = imgs.slice();
       data.save(appData);
       this._appData = appData;
     }
 
     this._loadHistory();
-    wx.showToast({ title: text ? '已保存' : '已清空', icon: 'success', duration: 1200 });
+    wx.showToast({ title: (text || imgs.length > 0) ? '已保存' : '已清空', icon: 'success', duration: 1200 });
   }
 });

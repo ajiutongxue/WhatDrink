@@ -58,6 +58,7 @@ Page({
     // Tasting notes
     showTasting: false,
     tastingDraft: '',
+    tastingImages: [],
     tastingSaved: false,
     tastingSavedText: ''
   },
@@ -435,27 +436,130 @@ Page({
     this.setData({
       checkedIn: true, isSkip: false,
       checkinMsg: '今天喝了「' + (tea ? tea.name : teaName) + '」(' + (typeNames[type] || type) + ')',
-      showTasting: false, tastingDraft: '', tastingSaved: false, tastingSavedText: ''
+      showTasting: false, tastingDraft: '', tastingImages: [], tastingSaved: false, tastingSavedText: ''
     });
     wx.showToast({ title: '已记录', icon: 'success', duration: 1500 });
   },
 
   // ==== Tasting Notes ====
   onShowTasting: function () {
-    this.setData({ showTasting: true, tastingSaved: false });
+    var idx = this._lastCheckinIdx;
+    var existingImages = [];
+    if (idx !== undefined && idx >= 0 && this._appData && this._appData.history[idx]) {
+      existingImages = (this._appData.history[idx].imageFileIDs || []).slice();
+    }
+    this.setData({ showTasting: true, tastingSaved: false, tastingImages: existingImages });
   },
 
   onTastingInput: function (e) {
     this.setData({ tastingDraft: e.detail.value });
   },
 
+  onChooseImage: function () {
+    var self = this;
+    var current = this.data.tastingImages || [];
+    var remain = 6 - current.length;
+    if (remain <= 0) {
+      wx.showToast({ title: '最多 6 张', icon: 'none' });
+      return;
+    }
+    wx.chooseMedia({
+      count: remain,
+      mediaType: ['image'],
+      sourceType: ['album', 'camera'],
+      sizeType: ['compressed'],
+      success: function (res) {
+        var files = res.tempFiles || [];
+        if (files.length === 0) return;
+        var appData = self._appData || data.load();
+        var history = appData.history || [];
+        var idx = self._lastCheckinIdx;
+        var entry = (idx !== undefined && history[idx]) ? history[idx] : {};
+        var dateStr = entry.date || self._today();
+        var teaId = entry.teaId || 0;
+        var ts = Date.now();
+        var uploaded = current.slice();
+        var pending = files.length;
+        wx.showLoading({ title: '上传中' });
+        files.forEach(function (f, i) {
+          var cloudPath = 'tasting-images/' + dateStr + '_' + teaId + '_' + ts + '_' + i + '.jpg';
+          wx.cloud.uploadFile({
+            cloudPath: cloudPath,
+            filePath: f.tempFilePath,
+            success: function (upRes) {
+              uploaded.push(upRes.fileID);
+            },
+            fail: function (err) {
+              console.warn('upload failed', cloudPath, err);
+            },
+            complete: function () {
+              pending--;
+              if (pending === 0) {
+                wx.hideLoading();
+                self.setData({ tastingImages: uploaded });
+              }
+            }
+          });
+        });
+      }
+    });
+  },
+
+  onPreviewImage: function (e) {
+    var src = e.currentTarget.dataset.src;
+    var urls = this.data.tastingImages || [];
+    if (urls.length === 0) return;
+    var srcIdx = urls.indexOf(src);
+    wx.showLoading({ title: '加载中' });
+    wx.cloud.getTempFileURL({
+      fileList: urls,
+      success: function (res) {
+        wx.hideLoading();
+        var httpsUrls = (res.fileList || []).map(function (f) { return f.tempFileURL; }).filter(Boolean);
+        if (httpsUrls.length === 0) return;
+        var current = (srcIdx >= 0 && srcIdx < httpsUrls.length) ? httpsUrls[srcIdx] : httpsUrls[0];
+        wx.previewImage({ current: current, urls: httpsUrls });
+      },
+      fail: function () {
+        wx.hideLoading();
+        wx.showToast({ title: '预览失败', icon: 'none' });
+      }
+    });
+  },
+
+  onRemoveImage: function (e) {
+    var idx = e.currentTarget.dataset.idx;
+    var self = this;
+    var images = (this.data.tastingImages || []).slice();
+    var fileId = images[idx];
+    if (!fileId) return;
+    wx.showModal({
+      title: '删除图片',
+      content: '确定删除这张图片吗？',
+      success: function (res) {
+        if (!res.confirm) return;
+        images.splice(idx, 1);
+        self.setData({ tastingImages: images });
+        wx.cloud.deleteFile({
+          fileList: [fileId],
+          fail: function (err) { console.warn('deleteFile failed', fileId, err); }
+        });
+      }
+    });
+  },
+
   onSaveTasting: function () {
     var text = (this.data.tastingDraft || '').trim();
-    if (!text) { wx.showToast({ title: '请输入感受', icon: 'none' }); return; }
+    var imgs = this.data.tastingImages || [];
+    if (!text && imgs.length === 0) {
+      wx.showToast({ title: '请输入感受或添加图片', icon: 'none' });
+      return;
+    }
     var appData = this._appData || data.load();
     var idx = this._lastCheckinIdx;
     if (idx !== undefined && idx >= 0 && idx < appData.history.length) {
       appData.history[idx].tastingNotes = text;
+      appData.history[idx].imageFileIDs = imgs.slice();
       data.save(appData);
       this._appData = appData;
     }

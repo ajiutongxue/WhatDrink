@@ -49,7 +49,10 @@
 
           <!-- Existing tasting notes display (show when not editing this entry) -->
           <view class="history-notes-display" wx:if="{{item.hasNotes && editingIdx !== item.idx}}">
-            <text>{{item.tastingNotes}}</text>
+            <text wx:if="{{item.tastingNotes}}">{{item.tastingNotes}}</text>
+            <view class="history-img-grid" wx:if="{{item.imageFileIDs.length > 0}}">
+              <image class="history-img-thumb" wx:for="{{item.imageFileIDs}}" wx:for-item="img" wx:for-index="imgIdx" wx:key="*this" src="{{img}}" mode="aspectFill" data-src="{{img}}" data-list-idx="{{index}}" bindtap="onPreviewImage"></image>
+            </view>
           </view>
 
           <!-- Editing area -->
@@ -63,6 +66,16 @@
               auto-height
               focus="{{editingIdx === item.idx}}"
             />
+            <view class="history-img-grid" wx:if="{{editingImages.length > 0}}">
+              <view class="history-img-item" wx:for="{{editingImages}}" wx:key="*this">
+                <image class="history-img-thumb" src="{{item}}" mode="aspectFill" data-src="{{item}}" bindtap="onPreviewImage"></image>
+                <view class="history-img-del" data-idx="{{index}}" catchtap="onRemoveImage">×</view>
+              </view>
+            </view>
+            <view class="history-img-add" wx:if="{{editingImages.length < 6}}" bindtap="onChooseImage">
+              <text class="history-img-add-icon">+</text>
+              <text class="history-img-add-text">{{editingImages.length}}/6</text>
+            </view>
             <view class="history-notes-actions">
               <text class="history-notes-count">{{editingText.length}}/500</text>
               <button class="history-notes-save" bindtap="onSaveNotes">保存</button>
