@@ -151,97 +151,116 @@ function parseWithLLM(input, config) {
  *   excluded: string
  * }
  */
-function callLLM(candidates, parsed, weather, config, profile) {
+function callLLM(eligibleTeas, context, config) {
   return new Promise(function(resolve) {
-    if (!candidates || !candidates.length || !config || !config.apiKey || !config.endpoint || !config.recModel) {
+    if (!eligibleTeas || !eligibleTeas.length || !config || !config.apiKey || !config.endpoint || !config.recModel) {
       resolve(null);
       return;
     }
 
-    // Build candidate summary for the prompt
+    // Build candidate list from eligible teas (no scores, LLM decides freely)
     var candidateList = [];
-    var maxCandidates = Math.min(candidates.length, 15);
+    var maxCandidates = Math.min(eligibleTeas.length, 20);
     for (var i = 0; i < maxCandidates; i++) {
-      var c = candidates[i];
-      if (!c || !c.tea) continue;
+      var t = eligibleTeas[i];
+      if (!t) continue;
       candidateList.push(
-        (i + 1) + '. ' + c.tea.name +
-        '（' + c.tea.brand + '）' +
-        ' - ' + _catName(c.tea.cat) +
-        ', 茶性:' + c.tea.nature +
-        ', 咖啡因:' + c.tea.caffeine +
-        ', 评分:' + (c.score || 0) +
-        (c.reasons && c.reasons.length ? ', 理由:' + c.reasons.join(';') : '')
+        (i + 1) + '. ' + t.name +
+        '（' + (t.brand || '') + '）' +
+        ' - ' + _catName(t.cat) +
+        ', 茶性:' + (t.nature || t.baseNature || '平') +
+        ', 咖啡因:' + (t.caffeine || '中') +
+        (t.year ? ', ' + t.year + '年' : '')
       );
     }
 
+    var ctx = context || {};
+
+    var timeDesc = '时段：' + (ctx.timeSlot || '未知');
+    if (typeof ctx.hour === 'number') timeDesc += '（' + ctx.hour + '时）';
+
+    var seasonDesc = ctx.season || '';
+    if (ctx.solarTerm) seasonDesc += '，节气：' + ctx.solarTerm;
+
     var weatherDesc = '无天气数据';
-    if (weather) {
-      weatherDesc = weather.city + '，' + weather.temp + '°C' +
-        (weather.desc ? '，' + weather.desc : '') +
-        '，湿度' + weather.humidity + '%';
+    if (ctx.weather) {
+      weatherDesc = ctx.weather.city + '，' + ctx.weather.temp + '°C' +
+        (ctx.weather.desc ? '，' + ctx.weather.desc : '') +
+        '，湿度' + ctx.weather.humidity + '%';
     }
 
-    var statesDesc = (parsed && parsed.states && parsed.states.length)
-      ? parsed.states.join('、')
-      : '无特殊状况';
+    var statesDesc = (ctx.states && ctx.states.length) ? ctx.states.join('、') : '无特殊状况';
+    var constitutionDesc = ctx.constitution || '未知';
+
+    var todayDesc = '今天尚未饮茶';
+    if (ctx.todayDrunk && ctx.todayDrunk.length) {
+      todayDesc = ctx.todayDrunk.map(function(d) {
+        return d.name + '(' + d.nature + ')' + (d.checkinTime ? ' ' + d.checkinTime : '');
+      }).join('、');
+    }
+
+    var reactionDesc = '无';
+    if (ctx.recentReactions && ctx.recentReactions.length) {
+      reactionDesc = ctx.recentReactions.map(function(r) {
+        return r.name + '(' + r.rating + (r.effects && r.effects.length ? ':' + r.effects.join('/') : '') + ')';
+      }).join('、');
+    }
 
     var avoidDesc = '';
-    if (parsed && parsed.avoidCats && parsed.avoidCats.length) {
-      avoidDesc = '不想喝：' + parsed.avoidCats.map(function(k) { return _catName(k); }).join('、');
+    if (ctx.avoidCats && ctx.avoidCats.length) {
+      avoidDesc = '不想喝：' + ctx.avoidCats.map(function(k) { return _catName(k); }).join('、');
     }
-
     var preferDesc = '';
-    if (parsed && parsed.preferCats && parsed.preferCats.length) {
-      preferDesc = '想喝：' + parsed.preferCats.map(function(k) { return _catName(k); }).join('、');
+    if (ctx.preferCats && ctx.preferCats.length) {
+      preferDesc = '想喝：' + ctx.preferCats.map(function(k) { return _catName(k); }).join('、');
     }
-
     var moodDesc = '';
-    if (parsed && parsed.mood) {
+    if (ctx.mood) {
       var moodMap = { light: '清淡', strong: '浓郁', sweet: '甘甜' };
-      moodDesc = '口味偏好：' + (moodMap[parsed.mood] || parsed.mood);
+      moodDesc = '口味偏好：' + (moodMap[ctx.mood] || ctx.mood);
     }
 
-    var profileDesc = '';
-    if (profile) {
+    var profileDesc = '未设置';
+    if (ctx.profile) {
       var parts = [];
-      if (profile.gender) parts.push(profile.gender === 'male' ? '男性' : '女性');
-      if (profile.age) parts.push(profile.age + '岁');
-      if (profile.city) parts.push('常驻' + profile.city);
-      profileDesc = parts.length ? parts.join('，') : '未设置';
+      if (ctx.profile.gender) parts.push(ctx.profile.gender === 'male' ? '男性' : '女性');
+      if (ctx.profile.age) parts.push(ctx.profile.age + '岁');
+      if (ctx.profile.city) parts.push('常驻' + ctx.profile.city);
+      if (parts.length) profileDesc = parts.join('，');
     }
 
     var systemPrompt =
-      '你是一位专业的中医茶饮顾问。你需要根据用户的身体状况、天气情况和个人偏好，' +
-      '从候选茶叶中选出最适合今天饮用的茶。你的推荐需要有中医茶疗的理论支撑。\n\n' +
-      '茶性知识：\n' +
-      '- 寒性茶：清热降火，适合夏季和热证体质\n' +
-      '- 凉性茶：清凉解热，适合春夏和轻微上火\n' +
-      '- 平性茶：温和不刺激，四季皆宜\n' +
-      '- 温性茶：暖胃暖身，适合秋冬和寒性体质\n' +
-      '- 热性茶：大热之品，适合严寒和阳虚';
+      '你是一位专业的中医茶饮顾问。根据用户的当前时段、天气、身体状况、今日已饮茶、历史反应等综合因素，' +
+      '从候选茶叶中选出最适合当下饮用的茶。推荐需有中医茶疗理论支撑。\n\n' +
+      '茶性知识：寒清热降火/凉清凉解热/平温和四季宜/温暖胃暖身/热大热之品\n' +
+      '时段原则：早晨宜提神(高咖啡因+温性升阳)/下午渐降咖啡因/晚间宜低咖啡因安神(避免寒凉伤胃)';
 
     var userPrompt =
       '【用户档案】' + profileDesc + '\n' +
+      '【当前时段】' + timeDesc + '\n' +
+      (seasonDesc ? '【季节节气】' + seasonDesc + '\n' : '') +
       '【天气】' + weatherDesc + '\n' +
       '【身体状况】' + statesDesc + '\n' +
+      '【体质】' + constitutionDesc + '\n' +
+      '【今日已饮】' + todayDesc + '（请避开这些茶，并注意今日茶性平衡）\n' +
+      '【历史反应】' + reactionDesc + '（bad表示反馈不佳，请降权）\n' +
       (avoidDesc ? '【回避】' + avoidDesc + '\n' : '') +
       (preferDesc ? '【偏好】' + preferDesc + '\n' : '') +
       (moodDesc ? '【口味】' + moodDesc + '\n' : '') +
-      '\n【候选茶叶】（按规则引擎评分排序）：\n' + candidateList.join('\n') + '\n\n' +
-      '请从以上候选中选出主推和备选各一款，并给出详细的推荐理由。' +
-      '推荐理由需要包含茶性分析、身体状况适配说明和冲泡建议。\n\n' +
-      '请严格按以下JSON返回：\n' +
+      '\n【候选茶叶】（已过滤今日已喝和不想喝的）：\n' + candidateList.join('\n') + '\n\n' +
+      '请综合时段、天气、身体状况、今日已饮茶（注意茶性平衡）和历史反应，选出主推和备选各一款。' +
+      '理由需包含时段分析和今日已饮茶的平衡考量。\n\n' +
+      '请严格按JSON返回：\n' +
       '{\n' +
       '  "primary": {\n' +
-      '    "name": "茶叶名称（必须与候选列表中完全一致）",\n' +
-      '    "reason": "详细推荐理由（100-200字，包含茶性分析和身体状况适配说明）"\n' +
+      '    "name": "茶叶名称（必须与候选完全一致）",\n' +
+      '    "reason": "推荐理由（100-200字，含时段分析和茶性平衡说明）"\n' +
       '  },\n' +
       '  "alternative": {\n' +
-      '    "name": "备选茶叶名称（必须与候选列表中完全一致，尽量与主推不同茶类）",\n' +
-      '    "reason": "备选推荐理由（50-100字）"\n' +
+      '    "name": "备选茶叶名称（尽量不同茶类）",\n' +
+      '    "reason": "备选理由（50-100字）"\n' +
       '  },\n' +
-      '  "excluded": "被排除的茶类及原因（简要说明，30字内）"\n' +
+      '  "excluded": "排除原因（30字内）"\n' +
       '}';
 
     var url = _buildUrl(config.endpoint, '/chat/completions');
@@ -277,11 +296,9 @@ function callLLM(candidates, parsed, weather, config, profile) {
             return;
           }
 
-          // Validate that the recommended names exist in candidates
-          var candidateNames = {};
-          candidates.forEach(function(c) {
-            if (c && c.tea) candidateNames[c.tea.name] = true;
-          });
+          // Validate names exist in eligible teas
+          var nameMap = {};
+          eligibleTeas.forEach(function(t) { if (t && t.name) nameMap[t.name] = true; });
 
           var result = {
             primary: {
@@ -295,9 +312,8 @@ function callLLM(candidates, parsed, weather, config, profile) {
             excluded: parsed.excluded || ''
           };
 
-          // Warn if names don't match candidates
-          if (!candidateNames[result.primary.name]) {
-            console.warn('[llm] primary name not in candidates:', result.primary.name);
+          if (!nameMap[result.primary.name]) {
+            console.warn('[llm] primary name not in eligible:', result.primary.name);
           }
 
           resolve(result);

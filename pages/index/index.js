@@ -162,35 +162,91 @@ Page({
       var history = appData.history || [];
       var avoidDays = (appData.settings && appData.settings.avoidDays) || 5;
       var constitution = (appData.profile && appData.profile.constitution) || null;
-      var result = recommend.recommend(teaLib, parsed, self._weatherData, history, avoidDays, constitution);
 
-    if (!result.primary) {
+    // 硬过滤候选池（去掉今天已喝/disabled/avoidCats）
+    var eligibleTeas = recommend.filterEligible(teaLib, parsed, history);
+    if (!eligibleTeas || eligibleTeas.length === 0) {
       self.setData({ loading: false, noResult: true, btnText: '开始推荐' });
       return;
     }
 
     if (llmConfig.enabled && llmConfig.apiKey) {
-      self._callLLM(result, parsed, appData);
+      self._callLLM(eligibleTeas, parsed, appData, history, constitution, avoidDays);
     } else {
+      var result = recommend.recommend(teaLib, parsed, self._weatherData, history, avoidDays, constitution);
+      if (!result.primary) {
+        self.setData({ loading: false, noResult: true, btnText: '开始推荐' });
+        return;
+      }
       self._showRuleResult(result, parsed);
     }
     }); // end .then()
   },
 
-  _callLLM: function (ruleResult, parsed, appData) {
+  _callLLM: function (eligibleTeas, parsed, appData, history, constitution, avoidDays) {
     var self = this;
-    llm.callLLM(ruleResult.candidates, parsed, self._weatherData, appData.llm, appData.profile)
+    var hour = new Date().getHours();
+    var slot = recommend.getTimeSlot(hour);
+    var teaLib = appData.teaLibrary || teaData.TEAS;
+
+    // Build today's drunk list
+    var libMap = {};
+    for (var i = 0; i < teaLib.length; i++) libMap[teaLib[i].id] = teaLib[i];
+    var today = self._today();
+    var todayDrunk = [];
+    for (var j = 0; j < (history || []).length; j++) {
+      var h = history[j];
+      if (h.date === today && h.type !== 'skip' && h.teaId >= 0 && libMap[h.teaId]) {
+        var t = libMap[h.teaId];
+        todayDrunk.push({ name: t.name, nature: t.nature || t.baseNature || '平', checkinTime: h.checkinTime || '' });
+      }
+    }
+
+    // Build recent reactions (30 days)
+    var cutoff = self._daysAgo(30);
+    var recentReactions = [];
+    for (var k = 0; k < (history || []).length; k++) {
+      var he = history[k];
+      if (he.reaction && he.date >= cutoff && he.teaId >= 0 && libMap[he.teaId]) {
+        recentReactions.push({ name: libMap[he.teaId].name, rating: he.reaction.rating, effects: he.reaction.effects || [] });
+      }
+    }
+
+    var context = {
+      hour: hour, timeSlot: slot.name,
+      season: getSeason(), solarTerm: getSolarTerm(),
+      weather: self._weatherData,
+      states: (parsed && parsed.states) || [],
+      constitution: constitution,
+      todayDrunk: todayDrunk,
+      recentReactions: recentReactions,
+      avoidCats: (parsed && parsed.avoidCats) || [],
+      preferCats: (parsed && parsed.preferCats) || [],
+      mood: parsed && parsed.mood,
+      profile: appData.profile
+    };
+
+    llm.callLLM(eligibleTeas, context, appData.llm)
       .then(function (llmRes) {
         if (llmRes) {
-          self._showLLMResult(llmRes, ruleResult, parsed);
+          self._showLLMResult(llmRes, parsed);
         } else {
           wx.showToast({ title: 'AI 调用失败，使用规则推荐', icon: 'none', duration: 2000 });
-          self._showRuleResult(ruleResult, parsed);
+          self._fallbackRule(parsed, appData, history, constitution, avoidDays);
         }
       })
       .catch(function () {
-        self._showRuleResult(ruleResult, parsed);
+        self._fallbackRule(parsed, appData, history, constitution, avoidDays);
       });
+  },
+
+  _fallbackRule: function (parsed, appData, history, constitution, avoidDays) {
+    var result = recommend.recommend(appData.teaLibrary || teaData.TEAS, parsed, this._weatherData, history, avoidDays, constitution);
+    if (result.primary) {
+      this._showRuleResult(result, parsed);
+    } else {
+      this.setData({ loading: false, noResult: true, btnText: '开始推荐' });
+    }
   },
 
   _showRuleResult: function (result, parsed) {
@@ -234,12 +290,10 @@ Page({
     });
   },
 
-  _showLLMResult: function (llmRes, ruleResult, parsed) {
+  _showLLMResult: function (llmRes, parsed) {
     var primaryTea = this._matchTeaByName(llmRes.primary && llmRes.primary.name);
-    if (!primaryTea && ruleResult.primary) primaryTea = ruleResult.primary.tea;
     var altTea = this._matchTeaByName(llmRes.alternative && llmRes.alternative.name);
-    if (!altTea && ruleResult.alt) altTea = ruleResult.alt.tea;
-    if (!primaryTea) { this._showRuleResult(ruleResult, parsed); return; }
+    if (!primaryTea) { this.setData({ loading: false, noResult: true, btnText: '开始推荐' }); return; }
 
     var catName = teaData.CAT_NAMES[primaryTea.cat] || primaryTea.cat;
     var brew = teaData.BREW_GUIDE[primaryTea.cat] || teaData.BREW_GUIDE.oolong_other;
@@ -421,13 +475,15 @@ Page({
     for (var i = 0; i < lib.length; i++) {
       if (lib[i].id === teaId) { tea = lib[i]; break; }
     }
+    var now = new Date();
     appData.history.push({
       date: this._today(),
       teaId: tea ? tea.id : teaId,
       teaName: tea ? tea.name : teaName,
       teaCat: tea ? tea.cat : 'unknown',
       teaBrand: tea ? tea.brand : '',
-      type: type
+      type: type,
+      checkinTime: ('0' + now.getHours()).slice(-2) + ':' + ('0' + now.getMinutes()).slice(-2)
     });
     data.save(appData);
     this._appData = appData;
@@ -583,6 +639,12 @@ Page({
 
   _today: function () {
     var d = new Date();
+    var m = d.getMonth() + 1, day = d.getDate();
+    return d.getFullYear() + '-' + (m < 10 ? '0' + m : m) + '-' + (day < 10 ? '0' + day : day);
+  },
+
+  _daysAgo: function (n) {
+    var d = new Date(Date.now() - n * 86400000);
     var m = d.getMonth() + 1, day = d.getDate();
     return d.getFullYear() + '-' + (m < 10 ? '0' + m : m) + '-' + (day < 10 ? '0' + day : day);
   }
