@@ -81,7 +81,7 @@ function parseWithLLM(input, config) {
     wx.request({
       url: url,
       method: 'POST',
-      timeout: 15000,
+      timeout: 20000,
       header: {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer ' + config.apiKey
@@ -265,10 +265,12 @@ function callLLM(eligibleTeas, context, config) {
 
     var url = _buildUrl(config.endpoint, '/chat/completions');
 
+    var attempt = 0;
+    var doRequest = function() {
     wx.request({
       url: url,
       method: 'POST',
-      timeout: 30000,
+      timeout: 45000,
       header: {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer ' + config.apiKey
@@ -323,10 +325,18 @@ function callLLM(eligibleTeas, context, config) {
         }
       },
       fail: function(err) {
-        console.warn('[llm] callLLM request failed:', err);
-        resolve(null);
+        attempt++;
+        if (attempt <= 1) {
+          console.warn('[llm] callLLM retry ' + attempt + ':', err);
+          setTimeout(doRequest, 1000);
+        } else {
+          console.warn('[llm] callLLM failed after retry:', err);
+          resolve(null);
+        }
       }
     });
+    };
+    doRequest();
   });
 }
 
