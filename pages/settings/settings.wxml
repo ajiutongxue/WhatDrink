@@ -54,7 +54,7 @@
     </view>
     <view class="quiz-desc" wx:if="{{!constitution}}">5 道题帮你判断体质，推荐更贴合你身体的茶。</view>
 
-    <block wx:for="{{quizQuestions}}" wx:key="index">
+    <block wx:for="{{quizQuestions}}" wx:for-index="qIdx" wx:key="text">
       <view class="quiz-q">
         <view class="quiz-q-text">{{item.text}}</view>
         <view class="quiz-opts">
@@ -62,8 +62,8 @@
             wx:for="{{item.options}}"
             wx:for-item="opt"
             wx:key="value"
-            class="quiz-opt {{quizAnswers[index] === opt.value ? 'selected' : ''}}"
-            data-qi="{{index}}"
+            class="quiz-opt {{quizAnswers[qIdx] === opt.value ? 'selected' : ''}}"
+            data-qi="{{qIdx}}"
             data-value="{{opt.value}}"
             bindtap="onQuizTap"
           >{{opt.label}}</text>
