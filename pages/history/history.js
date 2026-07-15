@@ -14,6 +14,10 @@ Page({
     this._loadHistory();
   },
 
+  onTapStats: function () {
+    wx.navigateTo({ url: '/pages/stats/stats' });
+  },
+
   // Called by app.js after cloud sync completes
   reloadData: function () {
     this._loadHistory();

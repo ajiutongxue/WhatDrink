@@ -168,3 +168,13 @@
 .history-notes-save::after {
   border: none;
 }
+
+/* Stats entry button */
+.history-stats-btn {
+  margin-left: auto;
+  font-size: 24rpx;
+  color: #C4793B;
+  background: #FAF0E6;
+  padding: 8rpx 22rpx;
+  border-radius: 24rpx;
+}

@@ -4,6 +4,7 @@
     <view class="card-title">
       <text class="icon">📅</text>
       <text>饮茶记录</text>
+      <text class="history-stats-btn" bindtap="onTapStats">📊 统计</text>
     </view>
 
     <!-- Empty State -->

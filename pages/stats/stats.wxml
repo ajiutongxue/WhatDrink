@@ -1,0 +1,77 @@
+<view class="page-container">
+
+  <view class="stats-header">
+    <text class="stats-title">饮茶统计</text>
+    <text class="stats-month">{{monthLabel}}</text>
+  </view>
+
+  <!-- ========== 茶类分布（环形图） ========== -->
+  <view class="card stats-card">
+    <view class="card-title"><text class="icon">🥧</text><text>本月茶类分布</text></view>
+    <view class="stats-donut-wrap">
+      <canvas type="2d" id="donutCanvas" class="stats-donut"></canvas>
+    </view>
+    <view class="stats-legend" wx:if="{{catDist.length > 0}}">
+      <view class="stats-legend-item" wx:for="{{catDist}}" wx:key="key">
+        <view class="stats-legend-dot" style="background:{{item.color}}"></view>
+        <text class="stats-legend-name">{{item.name}}</text>
+        <text class="stats-legend-val">{{item.value}}次 · {{item.pct}}%</text>
+      </view>
+    </view>
+    <view wx:else class="stats-empty">本月暂无饮茶记录</view>
+  </view>
+
+  <!-- ========== 茶性分布 ========== -->
+  <view class="card stats-card">
+    <view class="card-title"><text class="icon">⚖️</text><text>本月茶性分布</text></view>
+    <view class="stats-bars" wx:if="{{monthTotal > 0}}">
+      <view class="stats-bar-row" wx:for="{{natureDist}}" wx:key="name">
+        <text class="stats-bar-label">{{item.name}}</text>
+        <view class="stats-bar-track">
+          <view class="stats-bar-fill" style="width:{{item.pct}}%;background:{{item.color}}"></view>
+        </view>
+        <text class="stats-bar-val">{{item.value}}</text>
+      </view>
+    </view>
+    <view wx:else class="stats-empty">本月暂无饮茶记录</view>
+  </view>
+
+  <!-- ========== Top 5 ========== -->
+  <view class="card stats-card">
+    <view class="card-title"><text class="icon">🏆</text><text>最常喝的茶 Top 5</text></view>
+    <view class="stats-top" wx:if="{{top5.length > 0}}">
+      <view class="stats-top-row" wx:for="{{top5}}" wx:key="name">
+        <text class="stats-top-rank rank-{{index+1}}">{{index+1}}</text>
+        <view class="stats-top-info">
+          <text class="stats-top-name">{{item.name}}</text>
+          <view class="stats-bar-track">
+            <view class="stats-bar-fill accent" style="width:{{item.pct}}%"></view>
+          </view>
+        </view>
+        <text class="stats-bar-val">{{item.value}}次</text>
+      </view>
+    </view>
+    <view wx:else class="stats-empty">暂无饮茶记录</view>
+  </view>
+
+  <!-- ========== 饮茶频率（最近30天） ========== -->
+  <view class="card stats-card">
+    <view class="card-title"><text class="icon">📈</text><text>最近30天饮茶频率</text></view>
+    <view class="stats-freq">
+      <view class="stats-freq-col" wx:for="{{freq}}" wx:key="date">
+        <view class="stats-freq-bar" style="height:{{item.height}}rpx;background:{{item.count > 0 ? '#C4793B' : '#F0E8DA'}}"></view>
+      </view>
+    </view>
+    <view class="stats-freq-axis">
+      <text>{{freq.length > 0 ? freq[0].label : ''}}</text>
+      <text>近30天</text>
+      <text>{{freq.length > 0 ? freq[freq.length-1].label : ''}}</text>
+    </view>
+    <view class="stats-freq-summary">
+      <text>喝茶 {{freqDays}} 天</text>
+      <text class="dot">·</text>
+      <text>共 {{freqTotal}} 次</text>
+    </view>
+  </view>
+
+</view>

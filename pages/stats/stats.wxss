@@ -1,0 +1,214 @@
+/* ============================================================
+   Stats Page — 饮茶统计
+   ============================================================ */
+
+.stats-header {
+  display: flex;
+  align-items: baseline;
+  gap: 16rpx;
+  margin-bottom: 8rpx;
+  padding: 0 4rpx;
+}
+
+.stats-title {
+  font-size: 36rpx;
+  font-weight: 600;
+  color: #3A2A1E;
+}
+
+.stats-month {
+  font-size: 24rpx;
+  color: #B5A89A;
+}
+
+.stats-card {
+  margin-bottom: 28rpx;
+}
+
+/* ---- Donut ---- */
+.stats-donut-wrap {
+  display: flex;
+  justify-content: center;
+  padding: 16rpx 0 8rpx;
+}
+
+.stats-donut {
+  width: 300rpx;
+  height: 300rpx;
+}
+
+/* ---- Legend ---- */
+.stats-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14rpx 28rpx;
+  margin-top: 16rpx;
+  padding-top: 16rpx;
+  border-top: 1rpx solid #F0EBE3;
+}
+
+.stats-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+  font-size: 24rpx;
+}
+
+.stats-legend-dot {
+  width: 16rpx;
+  height: 16rpx;
+  border-radius: 50%;
+}
+
+.stats-legend-name {
+  color: #3A2A1E;
+}
+
+.stats-legend-val {
+  color: #B5A89A;
+}
+
+/* ---- Bars (nature + top) ---- */
+.stats-bars {
+  margin-top: 8rpx;
+}
+
+.stats-bar-row {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  margin-bottom: 18rpx;
+}
+
+.stats-bar-label {
+  width: 48rpx;
+  font-size: 26rpx;
+  color: #6B4F3A;
+  flex-shrink: 0;
+}
+
+.stats-bar-track {
+  flex: 1;
+  height: 20rpx;
+  background: #F0E8DA;
+  border-radius: 10rpx;
+  overflow: hidden;
+}
+
+.stats-bar-fill {
+  height: 100%;
+  border-radius: 10rpx;
+}
+
+.stats-bar-fill.accent {
+  background: #C4793B;
+}
+
+.stats-bar-val {
+  width: 80rpx;
+  text-align: right;
+  font-size: 24rpx;
+  color: #8A7668;
+  flex-shrink: 0;
+}
+
+/* ---- Top 5 ---- */
+.stats-top {
+  margin-top: 8rpx;
+}
+
+.stats-top-row {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  margin-bottom: 20rpx;
+}
+
+.stats-top-rank {
+  width: 44rpx;
+  height: 44rpx;
+  line-height: 44rpx;
+  text-align: center;
+  border-radius: 50%;
+  background: #F0E8DA;
+  color: #8A7668;
+  font-size: 24rpx;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.stats-top-rank.rank-1 { background: #D4943A; color: #FFFFFF; }
+.stats-top-rank.rank-2 { background: #C7A882; color: #FFFFFF; }
+.stats-top-rank.rank-3 { background: #B5A89A; color: #FFFFFF; }
+
+.stats-top-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.stats-top-name {
+  font-size: 26rpx;
+  color: #3A2A1E;
+  font-weight: 500;
+  margin-bottom: 8rpx;
+  display: block;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* ---- Frequency ---- */
+.stats-freq {
+  display: flex;
+  align-items: flex-end;
+  gap: 4rpx;
+  height: 130rpx;
+  margin-top: 16rpx;
+  padding: 0 4rpx;
+}
+
+.stats-freq-col {
+  flex: 1;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  height: 100%;
+}
+
+.stats-freq-bar {
+  width: 100%;
+  border-radius: 4rpx 4rpx 0 0;
+  min-height: 8rpx;
+}
+
+.stats-freq-axis {
+  display: flex;
+  justify-content: space-between;
+  font-size: 20rpx;
+  color: #B5A89A;
+  margin-top: 12rpx;
+  padding: 0 4rpx;
+}
+
+.stats-freq-summary {
+  display: flex;
+  justify-content: center;
+  gap: 12rpx;
+  font-size: 24rpx;
+  color: #6B4F3A;
+  margin-top: 16rpx;
+  padding-top: 16rpx;
+  border-top: 1rpx solid #F0EBE3;
+}
+
+.stats-freq-summary .dot {
+  color: #D4C9BC;
+}
+
+/* ---- Empty ---- */
+.stats-empty {
+  text-align: center;
+  color: #B5A89A;
+  padding: 48rpx 0;
+  font-size: 26rpx;
+}
