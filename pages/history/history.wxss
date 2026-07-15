@@ -21,16 +21,19 @@
   margin-top: 8rpx;
 }
 
+.history-item-wrap {
+  border-bottom: 1rpx solid #F0EBE3;
+}
+
+.history-item-wrap:last-child {
+  border-bottom: none;
+}
+
 .history-item {
   display: flex;
   align-items: center;
   gap: 24rpx;
   padding: 28rpx 0;
-  border-bottom: 1rpx solid #F0EBE3;
-}
-
-.history-item:last-child {
-  border-bottom: none;
 }
 
 .history-date {
@@ -105,3 +108,63 @@
 .cat-dot-unknown { background: #C4793B; }
 .cat-dot-none,
 .cat-dot-skip { background: #B5A89A; }
+
+/* ============================================================
+   Tasting Notes (history page)
+   ============================================================ */
+.history-notes-btn {
+  font-size: 32rpx;
+  flex-shrink: 0;
+  padding: 8rpx;
+}
+
+.history-notes-display {
+  padding: 0 0 20rpx 132rpx;
+  font-size: 24rpx;
+  color: #8A7668;
+  line-height: 1.7;
+}
+
+.history-notes-edit {
+  padding: 0 0 20rpx 0;
+}
+
+.history-notes-textarea {
+  width: 100%;
+  min-height: 100rpx;
+  border: 3rpx solid #F0EBE3;
+  border-radius: 20rpx;
+  padding: 20rpx 24rpx;
+  font-size: 26rpx;
+  color: #3A2A1E;
+  background: #FAF5ED;
+  line-height: 1.6;
+  box-sizing: border-box;
+}
+
+.history-notes-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 12rpx;
+}
+
+.history-notes-count {
+  font-size: 22rpx;
+  color: #B5A89A;
+}
+
+.history-notes-save {
+  padding: 10rpx 28rpx;
+  border: none;
+  border-radius: 40rpx;
+  background: #C4793B;
+  color: #FFFFFF;
+  font-size: 24rpx;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.history-notes-save::after {
+  border: none;
+}

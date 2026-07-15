@@ -27,17 +27,44 @@
         </view>
 
         <!-- Normal Entry -->
-        <view class="history-item" wx:else>
-          <text class="history-date">{{item.dateShort}}</text>
-          <view class="history-dot cat-dot-{{item.teaCat}}"></view>
-          <view class="history-tea">
-            <view class="history-tea-name">
-              <text>{{item.teaName}}</text>
-              <text class="history-badge {{item.typeBadgeClass}}" wx:if="{{item.typeName}}">{{item.typeName}}</text>
+        <view class="history-item-wrap" wx:else>
+          <view class="history-item">
+            <text class="history-date">{{item.dateShort}}</text>
+            <view class="history-dot cat-dot-{{item.teaCat}}"></view>
+            <view class="history-tea">
+              <view class="history-tea-name">
+                <text>{{item.teaName}}</text>
+                <text class="history-badge {{item.typeBadgeClass}}" wx:if="{{item.typeName}}">{{item.typeName}}</text>
+              </view>
+              <view class="history-tea-cat">
+                <text wx:if="{{item.teaBrand}}">{{item.teaBrand}} · </text>
+                <text>{{item.teaCatName}}</text>
+              </view>
             </view>
-            <view class="history-tea-cat">
-              <text wx:if="{{item.teaBrand}}">{{item.teaBrand}} · </text>
-              <text>{{item.teaCatName}}</text>
+            <text class="history-notes-btn" bindtap="onToggleNotes" data-idx="{{item.idx}}">
+              {{item.hasNotes ? '📝' : '✏️'}}
+            </text>
+          </view>
+
+          <!-- Existing tasting notes display (show when not editing this entry) -->
+          <view class="history-notes-display" wx:if="{{item.hasNotes && editingIdx !== item.idx}}">
+            <text>{{item.tastingNotes}}</text>
+          </view>
+
+          <!-- Editing area -->
+          <view class="history-notes-edit" wx:if="{{editingIdx === item.idx}}">
+            <textarea
+              class="history-notes-textarea"
+              value="{{editingText}}"
+              bindinput="onNotesInput"
+              placeholder="口感、香气、回甘、体感、心情..."
+              maxlength="500"
+              auto-height
+              focus="{{editingIdx === item.idx}}"
+            />
+            <view class="history-notes-actions">
+              <text class="history-notes-count">{{editingText.length}}/500</text>
+              <button class="history-notes-save" bindtap="onSaveNotes">保存</button>
             </view>
           </view>
         </view>

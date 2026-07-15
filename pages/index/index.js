@@ -52,8 +52,14 @@ Page({
     parsedTags: [],
     checkedIn: false,
     checkinMsg: '',
+    isSkip: false,
     showCustom: false,
-    customTeaName: ''
+    customTeaName: '',
+    // Tasting notes
+    showTasting: false,
+    tastingDraft: '',
+    tastingSaved: false,
+    tastingSavedText: ''
   },
 
   _appData: null,
@@ -391,7 +397,10 @@ Page({
     });
     data.save(appData);
     this._appData = appData;
-    this.setData({ checkedIn: true, checkinMsg: '今天没有喝茶' });
+    this.setData({
+      checkedIn: true, checkinMsg: '今天没有喝茶', isSkip: true,
+      showTasting: false, tastingDraft: '', tastingSaved: false, tastingSavedText: ''
+    });
   },
 
   _doCheckin: function (teaId, teaName, type) {
@@ -411,12 +420,41 @@ Page({
     });
     data.save(appData);
     this._appData = appData;
+    this._lastCheckinIdx = appData.history.length - 1;
     var typeNames = { primary: '主推', alt: '备选', custom: '自选' };
     this.setData({
-      checkedIn: true,
-      checkinMsg: '今天喝了「' + (tea ? tea.name : teaName) + '」(' + (typeNames[type] || type) + ')'
+      checkedIn: true, isSkip: false,
+      checkinMsg: '今天喝了「' + (tea ? tea.name : teaName) + '」(' + (typeNames[type] || type) + ')',
+      showTasting: false, tastingDraft: '', tastingSaved: false, tastingSavedText: ''
     });
     wx.showToast({ title: '已记录', icon: 'success', duration: 1500 });
+  },
+
+  // ==== Tasting Notes ====
+  onShowTasting: function () {
+    this.setData({ showTasting: true, tastingSaved: false });
+  },
+
+  onTastingInput: function (e) {
+    this.setData({ tastingDraft: e.detail.value });
+  },
+
+  onSaveTasting: function () {
+    var text = (this.data.tastingDraft || '').trim();
+    if (!text) { wx.showToast({ title: '请输入感受', icon: 'none' }); return; }
+    var appData = this._appData || data.load();
+    var idx = this._lastCheckinIdx;
+    if (idx !== undefined && idx >= 0 && idx < appData.history.length) {
+      appData.history[idx].tastingNotes = text;
+      data.save(appData);
+      this._appData = appData;
+    }
+    this.setData({
+      showTasting: false,
+      tastingSaved: true,
+      tastingSavedText: text
+    });
+    wx.showToast({ title: '感受已保存', icon: 'success', duration: 1500 });
   },
 
   _today: function () {

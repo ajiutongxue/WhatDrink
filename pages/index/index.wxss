@@ -67,3 +67,88 @@
   75% { width: 30rpx; }
   100% { width: 30rpx; }
 }
+
+/* ============================================================
+   Tasting Notes (after checkin)
+   ============================================================ */
+.checkin-done-text {
+  font-size: 26rpx;
+  color: #8A7668;
+  line-height: 1.6;
+}
+
+.tasting-entry {
+  margin-top: 24rpx;
+}
+
+.tasting-trigger {
+  display: inline-block;
+  font-size: 26rpx;
+  color: #C4793B;
+  font-weight: 500;
+  padding: 8rpx 0;
+}
+
+.tasting-textarea {
+  width: 100%;
+  min-height: 120rpx;
+  border: 3rpx solid #F0EBE3;
+  border-radius: 20rpx;
+  padding: 20rpx 24rpx;
+  font-size: 26rpx;
+  color: #3A2A1E;
+  background: #FAF5ED;
+  line-height: 1.6;
+  box-sizing: border-box;
+}
+
+.tasting-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 16rpx;
+}
+
+.tasting-count {
+  font-size: 22rpx;
+  color: #B5A89A;
+}
+
+.tasting-save-btn {
+  padding: 12rpx 32rpx;
+  border: none;
+  border-radius: 40rpx;
+  background: #C4793B;
+  color: #FFFFFF;
+  font-size: 26rpx;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.tasting-save-btn::after {
+  border: none;
+}
+
+.tasting-saved {
+  margin-top: 24rpx;
+  padding: 20rpx 24rpx;
+  background: linear-gradient(135deg, #FFF6EE, #FDF8F2);
+  border-radius: 20rpx;
+  border-left: 6rpx solid #D4956A;
+  position: relative;
+}
+
+.tasting-saved-text {
+  font-size: 26rpx;
+  color: #3A2A1E;
+  line-height: 1.7;
+  display: block;
+}
+
+.tasting-edit-link {
+  font-size: 22rpx;
+  color: #C4793B;
+  font-weight: 500;
+  margin-top: 12rpx;
+  display: inline-block;
+}

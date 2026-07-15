@@ -145,6 +145,32 @@
       <view class="checkin-card" wx:if="{{checkedIn}}">
         <view class="checkin-title">今日打卡完成 ✓</view>
         <view class="checkin-done-text">{{checkinMsg}}</view>
+
+        <!-- Tasting notes (only if actually drank tea, not "skip") -->
+        <block wx:if="{{!isSkip}}">
+          <view class="tasting-entry" wx:if="{{!showTasting}}">
+            <text class="tasting-trigger" bindtap="onShowTasting">✏️ 写几句品饮感受</text>
+          </view>
+          <view class="tasting-entry" wx:if="{{showTasting}}">
+            <textarea
+              class="tasting-textarea"
+              value="{{tastingDraft}}"
+              bindinput="onTastingInput"
+              placeholder="口感、香气、回甘、体感、心情..."
+              maxlength="500"
+              auto-height
+              focus="{{showTasting}}"
+            />
+            <view class="tasting-actions">
+              <text class="tasting-count">{{tastingDraft.length}}/500</text>
+              <button class="tasting-save-btn" bindtap="onSaveTasting">保存</button>
+            </view>
+          </view>
+          <view class="tasting-saved" wx:if="{{tastingSaved}}">
+            <text class="tasting-saved-text">{{tastingSavedText}}</text>
+            <text class="tasting-edit-link" bindtap="onShowTasting">修改</text>
+          </view>
+        </block>
       </view>
 
     </view>
