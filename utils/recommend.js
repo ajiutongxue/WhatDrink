@@ -114,6 +114,7 @@ function recommend(teaLibrary, parsed, weather, history, avoidDays, constitution
   for (var i = 0; i < teaLibrary.length; i++) {
     var tea = teaLibrary[i];
     if (!tea || !tea.name) continue;
+    if (tea.disabled) continue; // 停用的茶不参与推荐
 
     var scored = _scoreTea(tea, {
       idealNature: idealNature,

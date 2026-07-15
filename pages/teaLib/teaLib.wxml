@@ -1,7 +1,13 @@
 <view class="page-container">
 
-  <!-- ========== Filter Bar ========== -->
-  <scroll-view class="tea-lib-filter-bar" scroll-x="{{true}}" enhanced="{{true}}" show-scrollbar="{{false}}">
+  <!-- ========== Toolbar ========== -->
+  <view class="tea-lib-toolbar">
+    <view class="tea-lib-add-btn" bindtap="onAddTea">+ 添加茶叶</view>
+    <view class="tea-lib-edit-btn {{editMode ? 'active' : ''}}" bindtap="onToggleEdit">{{editMode ? '完成' : '管理'}}</view>
+  </view>
+
+  <!-- ========== Filter Bar (browse mode) ========== -->
+  <scroll-view wx:if="{{!editMode}}" class="tea-lib-filter-bar" scroll-x="{{true}}" enhanced="{{true}}" show-scrollbar="{{false}}">
     <view class="tea-lib-filter-inner">
       <text
         wx:for="{{filterList}}"
@@ -13,27 +19,33 @@
     </view>
   </scroll-view>
 
-  <!-- ========== Tea Count Summary ========== -->
+  <!-- ========== Summary ========== -->
   <view class="tea-lib-summary">
-    <text>共 {{totalCount}} 款茶叶</text>
+    <text>共 {{totalCount}} 款茶叶{{disabledCount > 0 ? '（' + disabledCount + '款已停用）' : ''}}</text>
   </view>
 
-  <!-- ========== Grouped Tea List ========== -->
-  <block wx:for="{{groupedTeas}}" wx:key="catKey">
+  <!-- ========== Grouped Tea List (browse mode) ========== -->
+  <block wx:if="{{!editMode}}" wx:for="{{groupedTeas}}" wx:key="catKey">
     <view class="tea-lib-group">
 
-      <!-- Category Header -->
       <view class="tea-lib-cat-header">
         <text class="tea-lib-cat-name">{{item.catName}}</text>
         <text class="tea-lib-cat-count">{{item.count}}款</text>
       </view>
 
-      <!-- Tea Items -->
-      <view class="tea-lib-item" wx:for="{{item.teas}}" wx:for-item="tea" wx:key="id">
+      <view
+        class="tea-lib-item {{tea.disabled ? 'is-disabled' : ''}}"
+        wx:for="{{item.teas}}"
+        wx:for-item="tea"
+        wx:key="id"
+        data-id="{{tea.id}}"
+        bindtap="onEditTea"
+      >
         <view class="tea-lib-cat-dot cat-dot-{{tea.cat}}"></view>
         <view class="tea-lib-name">
           <text>{{tea.name}}</text>
-          <text class="tea-lib-note" wx:if="{{tea.note}}">⚠</text>
+          <text wx:if="{{tea.disabled}}" class="tea-lib-disabled-tag">已停用</text>
+          <text wx:if="{{tea.note}}" class="tea-lib-note">⚠</text>
         </view>
         <view class="tea-lib-props">
           <text class="nature-mini-tag nature-{{tea.natureCls}}">{{tea.nature}}</text>
@@ -45,9 +57,100 @@
     </view>
   </block>
 
-  <!-- Empty state (when filter yields nothing) -->
-  <view class="tea-lib-empty" wx:if="{{groupedTeas.length === 0}}">
+  <!-- ========== Empty (browse mode) ========== -->
+  <view class="tea-lib-empty" wx:if="{{!editMode && groupedTeas.length === 0}}">
     <text>该分类下暂无茶叶</text>
   </view>
 
+  <!-- ========== Flat List (edit mode) ========== -->
+  <block wx:if="{{editMode}}">
+    <view
+      class="tea-lib-flat-item {{item.disabled ? 'is-disabled' : ''}}"
+      wx:for="{{flatTeas}}"
+      wx:key="id"
+    >
+      <view class="tea-lib-flat-main">
+        <view class="tea-lib-cat-dot cat-dot-{{item.cat}}"></view>
+        <view class="tea-lib-flat-info">
+          <view class="tea-lib-flat-name">
+            <text>{{item.name}}</text>
+            <text wx:if="{{item.disabled}}" class="tea-lib-disabled-tag">已停用</text>
+            <text wx:if="{{item.note}}" class="tea-lib-note">⚠</text>
+          </view>
+          <view class="tea-lib-flat-sub">
+            <text class="nature-mini-tag nature-{{item.natureCls}}">{{item.nature}}</text>
+            <text wx:if="{{item.year}}" class="tea-lib-year">{{item.year}}年</text>
+            <text class="tea-lib-caffeine">☕{{item.caffeine}}</text>
+            <text class="tea-lib-flat-cat">{{item.catName}}</text>
+          </view>
+        </view>
+      </view>
+      <view class="tea-lib-flat-actions">
+        <view class="tea-lib-act" data-id="{{item.id}}" bindtap="onMoveUp">↑</view>
+        <view class="tea-lib-act" data-id="{{item.id}}" bindtap="onMoveDown">↓</view>
+        <view class="tea-lib-act" data-id="{{item.id}}" bindtap="onEditTea">编</view>
+        <view class="tea-lib-act" data-id="{{item.id}}" bindtap="onToggleDisable">{{item.disabled ? '启' : '停'}}</view>
+        <view class="tea-lib-act danger" data-id="{{item.id}}" bindtap="onDeleteTea">删</view>
+      </view>
+    </view>
+    <view class="tea-lib-empty" wx:if="{{flatTeas.length === 0}}">
+      <text>茶库为空，点击上方添加</text>
+    </view>
+  </block>
+
+</view>
+
+<!-- ========== Add / Edit Form Popup ========== -->
+<view wx:if="{{showForm}}" class="tea-lib-mask" bindtap="onFormCancel">
+  <view class="tea-lib-form" catchtap="onStopPropagation">
+
+    <view class="tea-lib-form-title">{{formTitle}}</view>
+
+    <view class="tea-lib-field">
+      <text class="tea-lib-label">茶名 <text class="req">*</text></text>
+      <input class="tea-lib-input" value="{{form.name}}" bindinput="onNameInput" placeholder="如 蒙顶雪芽" placeholder-class="tea-lib-ph" />
+    </view>
+
+    <view class="tea-lib-field">
+      <text class="tea-lib-label">品牌</text>
+      <input class="tea-lib-input" value="{{form.brand}}" bindinput="onBrandInput" placeholder="选填" placeholder-class="tea-lib-ph" />
+    </view>
+
+    <view class="tea-lib-field">
+      <text class="tea-lib-label">茶类</text>
+      <picker bindchange="onCatChange" value="{{catIndex}}" range="{{catOptionNames}}">
+        <view class="tea-lib-picker">{{catOptionNames[catIndex]}}</view>
+      </picker>
+    </view>
+
+    <view class="tea-lib-field">
+      <text class="tea-lib-label">年份</text>
+      <input class="tea-lib-input" type="number" value="{{form.year}}" bindinput="onYearInput" bindblur="onYearBlur" placeholder="选填，如 2023" placeholder-class="tea-lib-ph" />
+    </view>
+
+    <view class="tea-lib-field">
+      <text class="tea-lib-label">茶性</text>
+      <picker bindchange="onNatureChange" value="{{natureIndex}}" range="{{natureOptionNames}}">
+        <view class="tea-lib-picker">{{natureOptionNames[natureIndex]}}</view>
+      </picker>
+    </view>
+
+    <view class="tea-lib-field">
+      <text class="tea-lib-label">咖啡因</text>
+      <picker bindchange="onCaffeineChange" value="{{caffeineIndex}}" range="{{caffeineOptionNames}}">
+        <view class="tea-lib-picker">{{caffeineOptionNames[caffeineIndex]}}</view>
+      </picker>
+    </view>
+
+    <view class="tea-lib-field">
+      <text class="tea-lib-label">备注</text>
+      <input class="tea-lib-input" value="{{form.note}}" bindinput="onNoteInput" placeholder="选填，如 疑似假货" placeholder-class="tea-lib-ph" />
+    </view>
+
+    <view class="tea-lib-form-actions">
+      <view class="tea-lib-form-btn cancel" bindtap="onFormCancel">取消</view>
+      <view class="tea-lib-form-btn save" bindtap="onFormSave">保存</view>
+    </view>
+
+  </view>
 </view>
