@@ -172,6 +172,21 @@
               <text class="tasting-img-add-icon">+</text>
               <text class="tasting-img-add-text">{{tastingImages.length}}/6</text>
             </view>
+            <view class="tasting-reaction">
+              <text class="tasting-reaction-label">喝后感</text>
+              <view class="tasting-reaction-row">
+                <text class="tasting-reaction-btn {{tastingReaction.rating === 'good' ? 'active good' : ''}}" data-rating="good" bindtap="onSetRating">👍不错</text>
+                <text class="tasting-reaction-btn {{tastingReaction.rating === 'neutral' ? 'active neutral' : ''}}" data-rating="neutral" bindtap="onSetRating">😐一般</text>
+                <text class="tasting-reaction-btn {{tastingReaction.rating === 'bad' ? 'active bad' : ''}}" data-rating="bad" bindtap="onSetRating">👎不太行</text>
+              </view>
+              <view class="tasting-reaction-effects" wx:if="{{tastingReaction && (tastingReaction.rating === 'good' || tastingReaction.rating === 'bad')}}">
+                <text class="tasting-effect-btn {{tastingReaction.effects.indexOf('失眠') >= 0 ? 'active' : ''}}" data-effect="失眠" bindtap="onToggleEffect">失眠</text>
+                <text class="tasting-effect-btn {{tastingReaction.effects.indexOf('胃不适') >= 0 ? 'active' : ''}}" data-effect="胃不适" bindtap="onToggleEffect">胃不适</text>
+                <text class="tasting-effect-btn {{tastingReaction.effects.indexOf('提神') >= 0 ? 'active' : ''}}" data-effect="提神" bindtap="onToggleEffect">提神</text>
+                <text class="tasting-effect-btn {{tastingReaction.effects.indexOf('舒适') >= 0 ? 'active' : ''}}" data-effect="舒适" bindtap="onToggleEffect">舒适</text>
+                <text class="tasting-effect-btn {{tastingReaction.effects.indexOf('口干') >= 0 ? 'active' : ''}}" data-effect="口干" bindtap="onToggleEffect">口干</text>
+              </view>
+            </view>
             <view class="tasting-actions">
               <text class="tasting-count">{{tastingDraft.length}}/500</text>
               <button class="tasting-save-btn" bindtap="onSaveTasting">保存</button>
@@ -184,6 +199,10 @@
                 <image class="tasting-img-thumb" src="{{item.fileID}}" mode="aspectFill" data-src="{{item.fileID}}" bindtap="onPreviewImage"></image>
                 <text class="tasting-img-caption-text" wx:if="{{item.caption}}">{{item.caption}}</text>
               </view>
+            </view>
+            <view class="tasting-reaction-display" wx:if="{{tastingReaction}}">
+              <text class="tasting-reaction-tag {{tastingReaction.rating}}">{{tastingReaction.rating === 'good' ? '👍不错' : (tastingReaction.rating === 'bad' ? '👎不佳' : '😐一般')}}</text>
+              <text class="tasting-reaction-tag effect" wx:for="{{tastingReaction.effects}}" wx:key="*this">{{item}}</text>
             </view>
             <text class="tasting-edit-link" bindtap="onShowTasting">修改</text>
           </view>

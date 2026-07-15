@@ -59,6 +59,7 @@ Page({
     showTasting: false,
     tastingDraft: '',
     tastingImages: [],
+    tastingReaction: null,
     tastingSaved: false,
     tastingSavedText: ''
   },
@@ -492,7 +493,7 @@ Page({
     this.setData({
       checkedIn: true, isSkip: false,
       checkinMsg: '今天喝了「' + (tea ? tea.name : teaName) + '」(' + (typeNames[type] || type) + ')',
-      showTasting: false, tastingDraft: '', tastingImages: [], tastingSaved: false, tastingSavedText: ''
+      showTasting: false, tastingDraft: '', tastingImages: [], tastingReaction: null, tastingSaved: false, tastingSavedText: ''
     });
     wx.showToast({ title: '已记录', icon: 'success', duration: 1500 });
   },
@@ -501,10 +502,12 @@ Page({
   onShowTasting: function () {
     var idx = this._lastCheckinIdx;
     var existingImages = [];
+    var existingReaction = null;
     if (idx !== undefined && idx >= 0 && this._appData && this._appData.history[idx]) {
       existingImages = (this._appData.history[idx].imageFileIDs || []).slice();
+      existingReaction = this._appData.history[idx].reaction || null;
     }
-    this.setData({ showTasting: true, tastingSaved: false, tastingImages: existingImages });
+    this.setData({ showTasting: true, tastingSaved: false, tastingImages: existingImages, tastingReaction: existingReaction });
   },
 
   onTastingInput: function (e) {
@@ -614,10 +617,27 @@ Page({
     }
   },
 
+  onSetRating: function (e) {
+    var rating = e.currentTarget.dataset.rating;
+    var r = this.data.tastingReaction || {};
+    this.setData({ tastingReaction: { rating: rating, effects: r.effects || [] } });
+  },
+
+  onToggleEffect: function (e) {
+    var eff = e.currentTarget.dataset.effect;
+    var r = this.data.tastingReaction || { rating: 'bad', effects: [] };
+    var effects = (r.effects || []).slice();
+    var i = effects.indexOf(eff);
+    if (i >= 0) effects.splice(i, 1);
+    else effects.push(eff);
+    this.setData({ tastingReaction: { rating: r.rating, effects: effects } });
+  },
+
   onSaveTasting: function () {
     var text = (this.data.tastingDraft || '').trim();
     var imgs = this.data.tastingImages || [];
-    if (!text && imgs.length === 0) {
+    var reaction = this.data.tastingReaction;
+    if (!text && imgs.length === 0 && !reaction) {
       wx.showToast({ title: '请输入感受或添加图片', icon: 'none' });
       return;
     }
@@ -626,6 +646,7 @@ Page({
     if (idx !== undefined && idx >= 0 && idx < appData.history.length) {
       appData.history[idx].tastingNotes = text;
       appData.history[idx].imageFileIDs = imgs.slice();
+      if (reaction) appData.history[idx].reaction = reaction;
       data.save(appData);
       this._appData = appData;
     }

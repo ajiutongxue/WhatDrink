@@ -56,6 +56,10 @@
                 <text class="history-img-caption-text" wx:if="{{img.caption}}">{{img.caption}}</text>
               </view>
             </view>
+            <view class="history-reaction-display" wx:if="{{item.reaction}}">
+              <text class="history-reaction-tag {{item.reaction.rating}}">{{item.reaction.rating === 'good' ? '👍不错' : (item.reaction.rating === 'bad' ? '👎不佳' : '😐一般')}}</text>
+              <text class="history-reaction-tag effect" wx:for="{{item.reaction.effects}}" wx:key="*this">{{item}}</text>
+            </view>
           </view>
 
           <!-- Editing area -->
@@ -79,6 +83,21 @@
             <view class="history-img-add" wx:if="{{editingImages.length < 6}}" bindtap="onChooseImage">
               <text class="history-img-add-icon">+</text>
               <text class="history-img-add-text">{{editingImages.length}}/6</text>
+            </view>
+            <view class="history-reaction">
+              <text class="history-reaction-label">喝后感</text>
+              <view class="history-reaction-row">
+                <text class="history-reaction-btn {{editingReaction.rating === 'good' ? 'active good' : ''}}" data-rating="good" bindtap="onSetRating">👍不错</text>
+                <text class="history-reaction-btn {{editingReaction.rating === 'neutral' ? 'active neutral' : ''}}" data-rating="neutral" bindtap="onSetRating">😐一般</text>
+                <text class="history-reaction-btn {{editingReaction.rating === 'bad' ? 'active bad' : ''}}" data-rating="bad" bindtap="onSetRating">👎不太行</text>
+              </view>
+              <view class="history-reaction-effects" wx:if="{{editingReaction && (editingReaction.rating === 'good' || editingReaction.rating === 'bad')}}">
+                <text class="history-effect-btn {{editingReaction.effects.indexOf('失眠') >= 0 ? 'active' : ''}}" data-effect="失眠" bindtap="onToggleEffect">失眠</text>
+                <text class="history-effect-btn {{editingReaction.effects.indexOf('胃不适') >= 0 ? 'active' : ''}}" data-effect="胃不适" bindtap="onToggleEffect">胃不适</text>
+                <text class="history-effect-btn {{editingReaction.effects.indexOf('提神') >= 0 ? 'active' : ''}}" data-effect="提神" bindtap="onToggleEffect">提神</text>
+                <text class="history-effect-btn {{editingReaction.effects.indexOf('舒适') >= 0 ? 'active' : ''}}" data-effect="舒适" bindtap="onToggleEffect">舒适</text>
+                <text class="history-effect-btn {{editingReaction.effects.indexOf('口干') >= 0 ? 'active' : ''}}" data-effect="口干" bindtap="onToggleEffect">口干</text>
+              </view>
             </view>
             <view class="history-notes-actions">
               <text class="history-notes-count">{{editingText.length}}/500</text>
