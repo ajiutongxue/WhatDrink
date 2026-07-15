@@ -162,9 +162,10 @@
               focus="{{showTasting}}"
             />
             <view class="tasting-img-grid" wx:if="{{tastingImages.length > 0}}">
-              <view class="tasting-img-item" wx:for="{{tastingImages}}" wx:key="*this">
-                <image class="tasting-img-thumb" src="{{item}}" mode="aspectFill" data-src="{{item}}" bindtap="onPreviewImage"></image>
+              <view class="tasting-img-item" wx:for="{{tastingImages}}" wx:key="fileID">
+                <image class="tasting-img-thumb" src="{{item.fileID}}" mode="aspectFill" data-src="{{item.fileID}}" bindtap="onPreviewImage"></image>
                 <view class="tasting-img-del" data-idx="{{index}}" catchtap="onRemoveImage">×</view>
+                <input class="tasting-img-caption" value="{{item.caption}}" data-idx="{{index}}" bindinput="onCaptionInput" placeholder="说明" maxlength="40" />
               </view>
             </view>
             <view class="tasting-img-add" wx:if="{{tastingImages.length < 6}}" bindtap="onChooseImage">
@@ -179,7 +180,10 @@
           <view class="tasting-saved" wx:if="{{tastingSaved}}">
             <text class="tasting-saved-text" wx:if="{{tastingSavedText}}">{{tastingSavedText}}</text>
             <view class="tasting-img-grid" wx:if="{{tastingImages.length > 0}}">
-              <image class="tasting-img-thumb" wx:for="{{tastingImages}}" wx:key="*this" src="{{item}}" mode="aspectFill" data-src="{{item}}" bindtap="onPreviewImage"></image>
+              <view class="tasting-img-saved-item" wx:for="{{tastingImages}}" wx:key="fileID">
+                <image class="tasting-img-thumb" src="{{item.fileID}}" mode="aspectFill" data-src="{{item.fileID}}" bindtap="onPreviewImage"></image>
+                <text class="tasting-img-caption-text" wx:if="{{item.caption}}">{{item.caption}}</text>
+              </view>
             </view>
             <text class="tasting-edit-link" bindtap="onShowTasting">修改</text>
           </view>

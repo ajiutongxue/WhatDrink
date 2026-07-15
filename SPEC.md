@@ -168,7 +168,7 @@ interface HistoryEntry {
   teaBrand: string;    // 品牌，自定义时为空
   type: 'primary' | 'alt' | 'custom' | 'skip';
   tastingNotes?: string;    // 品饮感受（可选），打卡后或从历史页面补充
-  imageFileIDs?: string[];  // 品饮图片 fileID 数组（可选），最多 6 张，云存储
+  imageFileIDs?: Array<{ fileID: string; caption: string }>;  // 品饮图片（可选），最多 6 张云存储 fileID，每张可配 40 字说明
 }
 ```
 

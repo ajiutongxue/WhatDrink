@@ -51,7 +51,10 @@
           <view class="history-notes-display" wx:if="{{item.hasNotes && editingIdx !== item.idx}}">
             <text wx:if="{{item.tastingNotes}}">{{item.tastingNotes}}</text>
             <view class="history-img-grid" wx:if="{{item.imageFileIDs.length > 0}}">
-              <image class="history-img-thumb" wx:for="{{item.imageFileIDs}}" wx:for-item="img" wx:for-index="imgIdx" wx:key="*this" src="{{img}}" mode="aspectFill" data-src="{{img}}" data-list-idx="{{index}}" bindtap="onPreviewImage"></image>
+              <view class="history-img-saved-item" wx:for="{{item.imageFileIDs}}" wx:for-item="img" wx:for-index="imgIdx" wx:key="fileID">
+                <image class="history-img-thumb" src="{{img.fileID}}" mode="aspectFill" data-src="{{img.fileID}}" data-list-idx="{{index}}" bindtap="onPreviewImage"></image>
+                <text class="history-img-caption-text" wx:if="{{img.caption}}">{{img.caption}}</text>
+              </view>
             </view>
           </view>
 
@@ -67,9 +70,10 @@
               focus="{{editingIdx === item.idx}}"
             />
             <view class="history-img-grid" wx:if="{{editingImages.length > 0}}">
-              <view class="history-img-item" wx:for="{{editingImages}}" wx:key="*this">
-                <image class="history-img-thumb" src="{{item}}" mode="aspectFill" data-src="{{item}}" bindtap="onPreviewImage"></image>
+              <view class="history-img-item" wx:for="{{editingImages}}" wx:key="fileID">
+                <image class="history-img-thumb" src="{{item.fileID}}" mode="aspectFill" data-src="{{item.fileID}}" bindtap="onPreviewImage"></image>
                 <view class="history-img-del" data-idx="{{index}}" catchtap="onRemoveImage">×</view>
+                <input class="history-img-caption" value="{{item.caption}}" data-idx="{{index}}" bindinput="onCaptionInput" placeholder="说明" maxlength="40" />
               </view>
             </view>
             <view class="history-img-add" wx:if="{{editingImages.length < 6}}" bindtap="onChooseImage">

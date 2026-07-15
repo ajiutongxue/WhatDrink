@@ -120,7 +120,7 @@ Page({
             cloudPath: cloudPath,
             filePath: f.tempFilePath,
             success: function (upRes) {
-              uploaded.push(upRes.fileID);
+              uploaded.push({ fileID: upRes.fileID, caption: '' });
             },
             fail: function (err) {
               console.warn('upload failed', cloudPath, err);
@@ -141,18 +141,19 @@ Page({
   onPreviewImage: function (e) {
     var src = e.currentTarget.dataset.src;
     var listIdx = e.currentTarget.dataset.listIdx;
-    var urls;
+    var images;
     if (listIdx !== undefined && listIdx !== '') {
       var item = this.data.historyList[listIdx];
-      urls = (item && item.imageFileIDs) || [];
+      images = (item && item.imageFileIDs) || [];
     } else {
-      urls = this.data.editingImages || [];
+      images = this.data.editingImages || [];
     }
-    if (urls.length === 0) return;
-    var srcIdx = urls.indexOf(src);
+    if (images.length === 0) return;
+    var fileIDs = images.map(function (img) { return img.fileID; });
+    var srcIdx = fileIDs.indexOf(src);
     wx.showLoading({ title: '加载中' });
     wx.cloud.getTempFileURL({
-      fileList: urls,
+      fileList: fileIDs,
       success: function (res) {
         wx.hideLoading();
         var httpsUrls = (res.fileList || []).map(function (f) { return f.tempFileURL; }).filter(Boolean);
@@ -171,7 +172,7 @@ Page({
     var idx = e.currentTarget.dataset.idx;
     var self = this;
     var images = (this.data.editingImages || []).slice();
-    var fileId = images[idx];
+    var fileId = images[idx] ? images[idx].fileID : '';
     if (!fileId) return;
     wx.showModal({
       title: '删除图片',
@@ -186,6 +187,15 @@ Page({
         });
       }
     });
+  },
+
+  onCaptionInput: function (e) {
+    var idx = e.currentTarget.dataset.idx;
+    var images = (this.data.editingImages || []).slice();
+    if (images[idx]) {
+      images[idx] = { fileID: images[idx].fileID, caption: e.detail.value };
+      this.setData({ editingImages: images });
+    }
   },
 
   onSaveNotes: function () {
@@ -203,6 +213,7 @@ Page({
     }
 
     this._loadHistory();
+    this.setData({ editingIdx: -1, editingText: '', editingImages: [] });
     wx.showToast({ title: (text || imgs.length > 0) ? '已保存' : '已清空', icon: 'success', duration: 1200 });
   }
 });

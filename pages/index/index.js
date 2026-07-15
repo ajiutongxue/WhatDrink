@@ -487,7 +487,7 @@ Page({
             cloudPath: cloudPath,
             filePath: f.tempFilePath,
             success: function (upRes) {
-              uploaded.push(upRes.fileID);
+              uploaded.push({ fileID: upRes.fileID, caption: '' });
             },
             fail: function (err) {
               console.warn('upload failed', cloudPath, err);
@@ -507,12 +507,13 @@ Page({
 
   onPreviewImage: function (e) {
     var src = e.currentTarget.dataset.src;
-    var urls = this.data.tastingImages || [];
-    if (urls.length === 0) return;
-    var srcIdx = urls.indexOf(src);
+    var images = this.data.tastingImages || [];
+    if (images.length === 0) return;
+    var fileIDs = images.map(function (img) { return img.fileID; });
+    var srcIdx = fileIDs.indexOf(src);
     wx.showLoading({ title: '加载中' });
     wx.cloud.getTempFileURL({
-      fileList: urls,
+      fileList: fileIDs,
       success: function (res) {
         wx.hideLoading();
         var httpsUrls = (res.fileList || []).map(function (f) { return f.tempFileURL; }).filter(Boolean);
@@ -531,7 +532,7 @@ Page({
     var idx = e.currentTarget.dataset.idx;
     var self = this;
     var images = (this.data.tastingImages || []).slice();
-    var fileId = images[idx];
+    var fileId = images[idx] ? images[idx].fileID : '';
     if (!fileId) return;
     wx.showModal({
       title: '删除图片',
@@ -546,6 +547,15 @@ Page({
         });
       }
     });
+  },
+
+  onCaptionInput: function (e) {
+    var idx = e.currentTarget.dataset.idx;
+    var images = (this.data.tastingImages || []).slice();
+    if (images[idx]) {
+      images[idx] = { fileID: images[idx].fileID, caption: e.detail.value };
+      this.setData({ tastingImages: images });
+    }
   },
 
   onSaveTasting: function () {
