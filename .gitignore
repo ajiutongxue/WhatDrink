@@ -14,3 +14,6 @@ desktop.ini
 
 # WeChat DevTools
 miniprogram_npm/
+
+# WorkBuddy AI workspace
+.workbuddy/
