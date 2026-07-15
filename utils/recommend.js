@@ -1,7 +1,8 @@
 /**
  * recommend.js - Tea recommendation scoring engine
- * Full scoring engine with nature matching, season, body states, caffeine,
- * anti-repetition, and quality filtering.
+ * Enhanced: time-slot awareness, graded anti-repetition, category rotation,
+ *           reaction feedback loop, today's nature balance.
+ * LLM acts as primary recommender; this engine serves as offline fallback.
  * CommonJS module for WeChat Mini Program
  */
 
@@ -14,23 +15,49 @@ var NATURE_MAP = { '寒': -2, '凉': -1, '平': 0, '温': 1, '热': 2 };
 var NATURE_NAMES = { '-2': '寒', '-1': '凉', '0': '平', '1': '温', '2': '热' };
 
 // ============================================================
+// Time slot configuration
+// ============================================================
+var TIME_SLOTS = [
+  { name: '早晨', start: 6,  end: 10, caffeinePref: '高', natureShift: 0.3,  desc: '升阳提神' },
+  { name: '午间', start: 10, end: 14, caffeinePref: '中', natureShift: 0,    desc: '正常' },
+  { name: '下午', start: 14, end: 18, caffeinePref: '中', natureShift: -0.1, desc: '渐降咖啡因' },
+  { name: '晚间', start: 18, end: 24, caffeinePref: '低', natureShift: -0.3, desc: '安神护胃' },
+  { name: '深夜', start: 0,  end: 6,  caffeinePref: '低', natureShift: -0.3, desc: '安神' }
+];
+
+function _getTimeSlot(hour) {
+  for (var i = 0; i < TIME_SLOTS.length; i++) {
+    if (hour >= TIME_SLOTS[i].start && hour < TIME_SLOTS[i].end) return TIME_SLOTS[i];
+  }
+  return TIME_SLOTS[3];
+}
+
+// ============================================================
 // getIdealNature - Compute ideal tea nature value
 // ============================================================
 
 /**
- * Calculate the ideal tea nature based on season, weather, body states, and constitution.
- * Returns a numeric value on the scale: 寒(-2), 凉(-1), 平(0), 温(+1), 热(+2).
- *
- * @param {string} season - Current season: '春'|'夏'|'秋'|'冬'
- * @param {Object|null} weather - WeatherData or null
- * @param {string[]} states - Detected body states
- * @param {string|null} constitution - '偏寒'|'平和'|'偏热' or null
- * @returns {number} Ideal nature value (clamped -2 to 2)
+ * @param {string} season - '春'|'夏'|'秋'|'冬'
+ * @param {Object|null} weather
+ * @param {string[]} states - body states
+ * @param {string|null} constitution
+ * @param {number} [hour] - current hour (0-23), adds time-slot shift
+ * @param {number} [todayNatureShift] - accumulated nature shift from today's drinks
+ * @returns {number} ideal nature (-2 to 2)
  */
-function getIdealNature(season, weather, states, constitution) {
-  // Season base
+function getIdealNature(season, weather, states, constitution, hour, todayNatureShift) {
   var seasonBase = { '春': -0.5, '夏': -1.2, '秋': 0.3, '冬': 1.2 };
   var base = seasonBase[season] || 0;
+
+  // Time-slot shift
+  if (typeof hour === 'number') {
+    base += _getTimeSlot(hour).natureShift;
+  }
+
+  // Today's accumulated nature balance
+  if (typeof todayNatureShift === 'number') {
+    base += todayNatureShift;
+  }
 
   // Temperature correction
   if (weather) {
@@ -40,7 +67,6 @@ function getIdealNature(season, weather, states, constitution) {
     else if (temp <= 0) base += 0.6;
     else if (temp <= 8) base += 0.3;
 
-    // Humidity correction
     var humidity = weather.humidity;
     if (humidity >= 75) base += 0.3;
     else if (humidity <= 25) base -= 0.2;
@@ -49,8 +75,7 @@ function getIdealNature(season, weather, states, constitution) {
   // Body state corrections
   if (states && Array.isArray(states)) {
     for (var i = 0; i < states.length; i++) {
-      var s = states[i];
-      switch (s) {
+      switch (states[i]) {
         case '热证':   base -= 1.0; break;
         case '脾胃寒': base += 1.0; break;
         case '阳虚':   base += 0.8; break;
@@ -63,32 +88,63 @@ function getIdealNature(season, weather, states, constitution) {
     }
   }
 
-  // Constitution adjustment
+  // Constitution
   if (constitution === '偏寒') base += 0.5;
   else if (constitution === '偏热') base -= 0.5;
 
-  // Clamp to [-2, 2]
   return Math.max(-2, Math.min(2, base));
 }
 
 // ============================================================
-// Main recommendation function
+// filterEligible - Hard filter for both LLM and rule engine
 // ============================================================
 
 /**
- * Score and rank teas for recommendation.
- *
- * @param {Array} teaLibrary - Full tea library (Tea[])
- * @param {Object} parsed - ParsedInput from parser
- * @param {Object|null} weather - WeatherData or null
- * @param {Array} history - HistoryEntry[] (drinking records)
- * @param {number} avoidDays - Anti-repetition window in days (default 5)
- * @param {string|null} constitution - '偏寒'|'平和'|'偏热' or null
- * @returns {Object} RecommendResult { primary, alt, candidates }
+ * Filter tea library: remove disabled / today-drunk / avoidCats / quality concern.
+ * Returns Tea[] without scoring or sorting.
+ */
+function filterEligible(teaLibrary, parsed, history) {
+  var safeParsed = parsed || {};
+  var safeAvoidCats = Array.isArray(safeParsed.avoidCats) ? safeParsed.avoidCats : [];
+  var safeHistory = Array.isArray(history) ? history : [];
+  var today = _formatDate(new Date());
+
+  var todayTeaIds = {};
+  for (var i = 0; i < safeHistory.length; i++) {
+    if (safeHistory[i].date === today && safeHistory[i].teaId >= 0) {
+      todayTeaIds[safeHistory[i].teaId] = true;
+    }
+  }
+
+  var eligible = [];
+  for (var j = 0; j < teaLibrary.length; j++) {
+    var tea = teaLibrary[j];
+    if (!tea || !tea.name) continue;
+    if (tea.disabled) continue;
+    if (todayTeaIds[tea.id]) continue;
+    if (safeAvoidCats.indexOf(tea.cat) >= 0) continue;
+    if (tea.note && tea.note.indexOf('疑似假货') >= 0) continue;
+    eligible.push(tea);
+  }
+  return eligible;
+}
+
+// ============================================================
+// Main recommendation function (offline fallback)
+// ============================================================
+
+/**
+ * @param {Array} teaLibrary
+ * @param {Object} parsed - ParsedInput
+ * @param {Object|null} weather
+ * @param {Array} history - HistoryEntry[]
+ * @param {number} avoidDays - anti-repetition window (default 5)
+ * @param {string|null} constitution
+ * @returns {Object} { primary, alt, candidates, filteredCount }
  */
 function recommend(teaLibrary, parsed, weather, history, avoidDays, constitution) {
   if (!teaLibrary || !teaLibrary.length) {
-    return { primary: null, alt: null, candidates: [] };
+    return { primary: null, alt: null, candidates: [], filteredCount: 0 };
   }
 
   var safeAvoidDays = (typeof avoidDays === 'number' && avoidDays > 0) ? avoidDays : 5;
@@ -99,22 +155,29 @@ function recommend(teaLibrary, parsed, weather, history, avoidDays, constitution
   var safeMood = safeParsed.mood || null;
   var safeHistory = Array.isArray(history) ? history : [];
 
-  // Determine current season
   var season = _getCurrentSeason();
-  var idealNature = getIdealNature(season, weather, safeStates, constitution);
-
-  // Get current hour for caffeine+time scoring
   var hour = new Date().getHours();
+  var slot = _getTimeSlot(hour);
 
-  // Build set of recently drunk tea IDs for anti-repetition
-  var recentTeaIds = _getRecentTeaIds(safeHistory, safeAvoidDays);
+  // Today's accumulated nature shift (balance)
+  var todayNatureShift = _getTodayNatureShift(safeHistory, teaLibrary);
+  var idealNature = getIdealNature(season, weather, safeStates, constitution, hour, todayNatureShift);
 
-  // Score all teas
+  // Graded anti-repetition stats
+  var recentStats = _getRecentTeaStats(safeHistory, safeAvoidDays);
+
+  // Category frequency (last 3 days) for rotation
+  var catFreq = _getCatFrequency(safeHistory, 3);
+
+  // Reaction scores (last 30 days, time-slot aware)
+  var reactionScores = _getReactionScores(safeHistory, 30, hour);
+
+  // Score all eligible teas
   var candidates = [];
   for (var i = 0; i < teaLibrary.length; i++) {
     var tea = teaLibrary[i];
     if (!tea || !tea.name) continue;
-    if (tea.disabled) continue; // 停用的茶不参与推荐
+    if (tea.disabled) continue;
 
     var scored = _scoreTea(tea, {
       idealNature: idealNature,
@@ -124,7 +187,10 @@ function recommend(teaLibrary, parsed, weather, history, avoidDays, constitution
       preferCats: safePreferCats,
       mood: safeMood,
       hour: hour,
-      recentTeaIds: recentTeaIds
+      slot: slot,
+      recentStats: recentStats,
+      catFreq: catFreq,
+      reactionScores: reactionScores
     });
 
     candidates.push(scored);
@@ -138,13 +204,9 @@ function recommend(teaLibrary, parsed, weather, history, avoidDays, constitution
     }
   }
 
-  // Sort eligible by score descending
   eligible.sort(function(a, b) { return b.score - a.score; });
 
-  // Select primary (highest score)
   var primary = eligible.length > 0 ? eligible[0] : null;
-
-  // Select alt (first tea with different category from primary, or second-highest)
   var alt = null;
   if (primary && eligible.length > 1) {
     for (var k = 1; k < eligible.length; k++) {
@@ -153,16 +215,14 @@ function recommend(teaLibrary, parsed, weather, history, avoidDays, constitution
         break;
       }
     }
-    // If no different-category tea found, take second-highest
-    if (!alt) {
-      alt = eligible[1];
-    }
+    if (!alt) alt = eligible[1];
   }
 
   return {
     primary: primary,
     alt: alt,
-    candidates: eligible
+    candidates: eligible,
+    filteredCount: eligible.length
   };
 }
 
@@ -170,14 +230,8 @@ function recommend(teaLibrary, parsed, weather, history, avoidDays, constitution
 // Individual tea scoring
 // ============================================================
 
-/**
- * Score a single tea against the current context.
- * @param {Object} tea - Tea object
- * @param {Object} ctx - Scoring context
- * @returns {Object} ScoredTea
- */
 function _scoreTea(tea, ctx) {
-  var score = 50; // base score
+  var score = 50;
   var reasons = [];
   var avoids = [];
   var hardFiltered = false;
@@ -192,11 +246,11 @@ function _scoreTea(tea, ctx) {
     avoids.push('品质存疑');
   }
 
-  // --- Hard filter: anti-repetition ---
-  if (ctx.recentTeaIds && ctx.recentTeaIds[tea.id]) {
+  // --- Hard filter: today already drunk ---
+  if (ctx.recentStats && ctx.recentStats[tea.id] && ctx.recentStats[tea.id].today) {
     score -= 80;
     hardFiltered = true;
-    avoids.push('近期内已饮用');
+    avoids.push('今天已饮用');
   }
 
   // --- Hard filter: user avoid ---
@@ -206,9 +260,31 @@ function _scoreTea(tea, ctx) {
     avoids.push('用户指定不想喝');
   }
 
+  // --- Graded anti-repetition (not hard filter) ---
+  if (ctx.recentStats && ctx.recentStats[tea.id]) {
+    var stats = ctx.recentStats[tea.id];
+    if (stats.recent2 && !stats.today) {
+      score -= 15;
+    } else if (stats.recent5 && !stats.today) {
+      score -= 5;
+    }
+  }
+
+  // --- Category rotation (last 3 days) ---
+  if (ctx.catFreq && ctx.catFreq[tea.cat] >= 2) {
+    score -= 10;
+    if (avoids.length < 2) avoids.push('近3天已多次饮用同类');
+  }
+
+  // --- Reaction feedback loop ---
+  if (ctx.reactionScores && typeof ctx.reactionScores[tea.id] === 'number') {
+    var rs = ctx.reactionScores[tea.id];
+    score += rs;
+    if (rs <= -15 && reasons.length < 3) reasons.push('历史反馈不佳');
+  }
+
   // --- Nature match (0 ~ +30) ---
   var natureDiff = Math.abs(natureVal - ctx.idealNature);
-  // Round to nearest integer for comparison
   var natureDiffRounded = Math.round(natureDiff);
   if (natureDiffRounded === 0) {
     score += 30;
@@ -216,77 +292,59 @@ function _scoreTea(tea, ctx) {
   } else if (natureDiffRounded === 1) {
     score += 15;
   } else {
-    // diff >= 2
     score -= (natureDiffRounded - 1) * 15;
-    if (natureDiffRounded >= 3) {
-      avoids.push('茶性与需求偏差较大');
-    }
+    if (natureDiffRounded >= 3) avoids.push('茶性与需求偏差较大');
   }
 
   // --- Season match (-12 ~ +15) ---
   if (tea.seasons && tea.seasons.indexOf(ctx.season) >= 0) {
     score += 15;
-    if (reasons.length < 3) {
-      reasons.push('当季适宜饮用');
-    }
+    if (reasons.length < 3) reasons.push('当季适宜饮用');
   }
   if (tea.avoidSeasons && tea.avoidSeasons.indexOf(ctx.season) >= 0) {
     score -= 12;
-    if (avoids.length < 2) {
-      avoids.push('非当季推荐');
-    }
+    if (avoids.length < 2) avoids.push('非当季推荐');
   }
 
   // --- User prefer (+20) ---
   if (ctx.preferCats && ctx.preferCats.indexOf(tea.cat) >= 0) {
     score += 20;
-    if (reasons.length < 3) {
-      reasons.push('符合你的口味偏好');
-    }
+    if (reasons.length < 3) reasons.push('符合你的口味偏好');
   }
 
   // --- Mood (+8) ---
   if (ctx.mood) {
-    if (ctx.mood === 'light') {
-      // Prefer low caffeine + cold/cool/neutral nature
-      if (tea.caffeine === '低' && (natureVal <= 0)) {
-        score += 8;
-      }
-    } else if (ctx.mood === 'strong') {
-      // Prefer high caffeine
-      if (tea.caffeine === '高') {
-        score += 8;
-      }
-    } else if (ctx.mood === 'sweet') {
-      // Prefer white tea, jasmine, ripe puerh
-      if (tea.cat === 'white' || tea.cat === 'flavored_jasmine' || tea.cat === 'puerh_ripe') {
-        score += 8;
-      }
+    if (ctx.mood === 'light' && tea.caffeine === '低' && natureVal <= 0) {
+      score += 8;
+    } else if (ctx.mood === 'strong' && tea.caffeine === '高') {
+      score += 8;
+    } else if (ctx.mood === 'sweet' && (tea.cat === 'white' || tea.cat === 'flavored_jasmine' || tea.cat === 'puerh_ripe')) {
+      score += 8;
     }
   }
 
   // --- Body state rules (12 categories) ---
   _applyBodyStateRules(tea, ctx.states, score, reasons, avoids, function(s, r, a) {
-    score = s;
-    reasons = r;
-    avoids = a;
+    score = s; reasons = r; avoids = a;
   });
 
-  // --- Caffeine + time of day ---
-  if (ctx.hour >= 18 || ctx.hour < 6) {
-    // Evening/night
-    if (tea.caffeine === '高') {
-      score -= 10;
-      if (avoids.length < 2) avoids.push('晚间不宜高咖啡因');
-    } else if (tea.caffeine === '低') {
+  // --- Time-slot scoring ---
+  if (ctx.slot) {
+    var caf = tea.caffeine || '中';
+    if (ctx.slot.caffeinePref === '高' && caf === '高') {
       score += 8;
+      if (reasons.length < 3) reasons.push(ctx.slot.name + '宜提神');
+    } else if (ctx.slot.caffeinePref === '低') {
+      if (caf === '低') {
+        score += 10;
+        if (reasons.length < 3) reasons.push(ctx.slot.name + '宜低咖啡因');
+      } else if (caf === '高') {
+        score -= 15;
+        if (avoids.length < 2) avoids.push(ctx.slot.name + '不宜高咖啡因');
+      }
     }
-  } else if (tea.caffeine === '低') {
-    // Daytime low caffeine mild bonus
-    score += 2;
   }
 
-  // Limit reasons and avoids
   reasons = reasons.slice(0, 3);
   avoids = avoids.slice(0, 2);
 
@@ -301,7 +359,6 @@ function _scoreTea(tea, ctx) {
 
 /**
  * Apply body state scoring rules (12 categories).
- * Uses callback pattern to update score/reasons/avoids.
  */
 function _applyBodyStateRules(tea, states, score, reasons, avoids, callback) {
   if (!states || !states.length) {
@@ -438,12 +495,8 @@ function _applyBodyStateRules(tea, states, score, reasons, avoids, callback) {
 // Helper functions
 // ============================================================
 
-/**
- * Get current season based on month.
- * @returns {string} '春'|'夏'|'秋'|'冬'
- */
 function _getCurrentSeason() {
-  var month = new Date().getMonth() + 1; // 1-12
+  var month = new Date().getMonth() + 1;
   if (month >= 3 && month <= 5) return '春';
   if (month >= 6 && month <= 8) return '夏';
   if (month >= 9 && month <= 11) return '秋';
@@ -451,40 +504,114 @@ function _getCurrentSeason() {
 }
 
 /**
- * Get a set of tea IDs drunk within the avoid window.
- * @param {Array} history - HistoryEntry[]
- * @param {number} avoidDays - Number of days to look back
- * @returns {Object} Map of teaId -> true
+ * Graded anti-repetition: returns per-tea stats with today/recent2/recent5 flags.
  */
-function _getRecentTeaIds(history, avoidDays) {
+function _getRecentTeaStats(history, avoidDays) {
   var result = {};
   if (!history || !history.length) return result;
 
   var now = new Date();
-  var cutoff = new Date(now.getTime() - avoidDays * 24 * 60 * 60 * 1000);
-  var cutoffStr = _formatDate(cutoff);
+  var today = _formatDate(now);
+  var cutoff2 = _formatDate(new Date(now.getTime() - 2 * 86400000));
+  var cutoff5 = _formatDate(new Date(now.getTime() - avoidDays * 86400000));
 
   for (var i = 0; i < history.length; i++) {
     var entry = history[i];
-    if (!entry || !entry.date) continue;
-
-    if (entry.date >= cutoffStr && entry.teaId >= 0) {
-      result[entry.teaId] = true;
-    }
+    if (!entry || !entry.date || entry.teaId == null || entry.teaId < 0) continue;
+    if (!result[entry.teaId]) result[entry.teaId] = { today: false, recent2: false, recent5: false };
+    if (entry.date === today) result[entry.teaId].today = true;
+    if (entry.date >= cutoff2) result[entry.teaId].recent2 = true;
+    if (entry.date >= cutoff5) result[entry.teaId].recent5 = true;
   }
-
   return result;
 }
 
 /**
- * Format a Date as YYYY-MM-DD.
+ * Category frequency in last N days (for rotation incentive).
  */
+function _getCatFrequency(history, days) {
+  var result = {};
+  if (!history || !history.length) return result;
+  var cutoff = _formatDate(new Date(Date.now() - days * 86400000));
+
+  for (var i = 0; i < history.length; i++) {
+    var entry = history[i];
+    if (!entry || !entry.date || entry.date < cutoff) continue;
+    if (entry.type === 'skip') continue;
+    var cat = entry.teaCat || 'unknown';
+    result[cat] = (result[cat] || 0) + 1;
+  }
+  return result;
+}
+
+/**
+ * Reaction scores in last N days, time-slot aware.
+ * Returns { teaId: netScore } where netScore accounts for rating + effects + current slot.
+ */
+function _getReactionScores(history, days, hour) {
+  var result = {};
+  if (!history || !history.length) return result;
+  var cutoff = _formatDate(new Date(Date.now() - days * 86400000));
+  var slot = _getTimeSlot(hour);
+  var isEvening = slot.name === '晚间' || slot.name === '深夜';
+  var isMorning = slot.name === '早晨';
+
+  for (var i = 0; i < history.length; i++) {
+    var entry = history[i];
+    if (!entry || !entry.date || entry.date < cutoff) continue;
+    if (!entry.reaction || entry.teaId == null || entry.teaId < 0) continue;
+
+    var r = entry.reaction;
+    var tid = entry.teaId;
+    if (!result[tid]) result[tid] = 0;
+
+    if (r.rating === 'bad') result[tid] -= 15;
+    if (r.rating === 'good') result[tid] += 8;
+
+    if (r.effects && Array.isArray(r.effects)) {
+      for (var j = 0; j < r.effects.length; j++) {
+        var eff = r.effects[j];
+        if (eff === '失眠' && isEvening) result[tid] -= 20;
+        if (eff === '胃不适') result[tid] -= 10;
+        if (eff === '提神' && isMorning) result[tid] += 10;
+      }
+    }
+  }
+  return result;
+}
+
+/**
+ * Today's accumulated nature shift for balance.
+ * Each drink shifts idealNature by 0.15 * natureVal, clamped to [-0.6, 0.6].
+ */
+function _getTodayNatureShift(history, teaLibrary) {
+  if (!history || !history.length) return 0;
+  var today = _formatDate(new Date());
+
+  var libMap = {};
+  if (teaLibrary) {
+    for (var k = 0; k < teaLibrary.length; k++) {
+      if (teaLibrary[k] && teaLibrary[k].id != null) libMap[teaLibrary[k].id] = teaLibrary[k];
+    }
+  }
+
+  var shift = 0;
+  for (var i = 0; i < history.length; i++) {
+    var entry = history[i];
+    if (!entry || entry.date !== today || entry.type === 'skip') continue;
+    var tea = libMap[entry.teaId];
+    if (!tea) continue;
+    var nature = tea.nature || tea.baseNature || '平';
+    shift += (NATURE_MAP[nature] || 0) * 0.15;
+  }
+  return Math.max(-0.6, Math.min(0.6, shift));
+}
+
 function _formatDate(d) {
   if (!d || typeof d.getFullYear !== 'function') return '';
-  var year = d.getFullYear();
-  var month = ('0' + (d.getMonth() + 1)).slice(-2);
-  var day = ('0' + d.getDate()).slice(-2);
-  return year + '-' + month + '-' + day;
+  return d.getFullYear() + '-' +
+    ('0' + (d.getMonth() + 1)).slice(-2) + '-' +
+    ('0' + d.getDate()).slice(-2);
 }
 
 // ============================================================
@@ -493,6 +620,8 @@ function _formatDate(d) {
 
 module.exports = {
   recommend: recommend,
+  filterEligible: filterEligible,
   getIdealNature: getIdealNature,
+  getTimeSlot: _getTimeSlot,
   adjustNature: teaData.adjustNature
 };
