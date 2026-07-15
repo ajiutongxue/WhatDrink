@@ -334,6 +334,10 @@ function _mergeData(cloudData, localData) {
         if (!h.tastingNotes && existing.tastingNotes) {
           h.tastingNotes = existing.tastingNotes;
         }
+        // Keep cloud imageFileIDs if local doesn't have any
+        if ((!h.imageFileIDs || h.imageFileIDs.length === 0) && existing.imageFileIDs && existing.imageFileIDs.length > 0) {
+          h.imageFileIDs = existing.imageFileIDs;
+        }
       }
       historyMap[key] = h;
     }
