@@ -101,7 +101,7 @@ Page({
     var self = this;
     if (self._parseTimer) clearTimeout(self._parseTimer);
     self._parseTimer = setTimeout(function () {
-      parser.parseInput(text, { parserEnabled: false }).then(function (parsed) {
+      parser.parseInput(text, (self._appData && self._appData.llm) || {}).then(function (parsed) {
         self._renderParsedTags(parsed);
       });
     }, 300);

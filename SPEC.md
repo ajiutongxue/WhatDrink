@@ -76,7 +76,7 @@ whatToDrinkToday/
 │       └── settings.wxss
 │
 ├── utils/
-│   ├── teaData.js                  # 88款茶叶初始数据
+│   ├── teaData.js                  # 89款茶叶初始数据
 │   ├── data.js                     # 数据层（本地缓存 + 云同步，统一接口）
 │   ├── recommend.js                # 推荐引擎（评分、排序、反重复）
 │   ├── parser.js                   # 自由文本解析器
@@ -511,7 +511,7 @@ function importJSON(json: string): boolean         // 导入，校验格式后�
 function reset(): void                             // 重置为默认值
 
 // === 内部 ===
-function getDefaultData(): AppData                 // 默认数据（含 88 款茶叶）
+function getDefaultData(): AppData                 // 默认数据（含 89 款茶叶）
 ```
 
 **同步时机**：

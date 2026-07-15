@@ -38,6 +38,11 @@ Page({
     this._compute();
   },
 
+  // Called by app.js after cloud sync completes
+  reloadData: function () {
+    this._compute();
+  },
+
   // 首次渲染后 canvas 节点就绪，补绘一次（onShow 在 onReady 之前首调）
   onReady: function () {
     this._drawDonut(this.data.catDist, this.data.monthTotal);
