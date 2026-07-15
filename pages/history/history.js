@@ -61,7 +61,14 @@ Page({
       });
     }
 
-    this.setData({ historyList: list, editingIdx: -1, editingText: '', editingImages: [] });
+    // 编辑中不重置编辑状态（避免 chooseMedia 返回触发 sync→reloadData 退出编辑）
+    var update = { historyList: list };
+    if (this.data.editingIdx < 0) {
+      update.editingIdx = -1;
+      update.editingText = '';
+      update.editingImages = [];
+    }
+    this.setData(update);
   },
 
   // ==== Tasting Notes ====
