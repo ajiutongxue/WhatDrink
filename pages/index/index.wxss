@@ -2,16 +2,45 @@
    Index Page — 今日推荐
    ============================================================ */
 
-/* Header subtitle (season/solar term) */
-.header-sub {
+/* Header info: 节气/日期/星期/农历/天气 */
+.header-info {
   text-align: center;
-  padding: 8rpx 0 20rpx;
+  padding: 16rpx 0 24rpx;
 }
 
-.season-info {
+.term-badge {
+  display: inline-block;
+  padding: 4rpx 20rpx;
+  background: var(--accent);
+  color: #fff;
   font-size: 24rpx;
-  color: #B5A89A;
+  border-radius: var(--r-sm);
+  margin-bottom: 8rpx;
+}
+
+.big-date {
+  font-size: 120rpx;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.1;
+}
+
+.date-sub {
+  font-size: 26rpx;
+  color: var(--text2);
   letter-spacing: 2rpx;
+  margin-top: 4rpx;
+}
+
+.weather-line {
+  font-size: 24rpx;
+  color: var(--text3);
+  margin-top: 8rpx;
+}
+
+.weather-temp {
+  color: var(--accent);
+  margin: 0 8rpx;
 }
 
 /* Textarea placeholder style */

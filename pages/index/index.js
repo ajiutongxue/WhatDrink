@@ -4,6 +4,7 @@ var weather = require('../../utils/weather');
 var llm = require('../../utils/llm');
 var recommend = require('../../utils/recommend');
 var teaData = require('../../utils/teaData');
+var lunarLib = require('../../utils/lunar');
 
 var CAT_ICONS = {
   green: '🍃', black: '🫖', white: '🤍',
@@ -43,6 +44,10 @@ Page({
   data: {
     season: '',
     solarTerm: '',
+    day: '',
+    week: '',
+    lunarDate: '',
+    weather: null,
     inputValue: '',
     btnText: '开始推荐',
     loading: false,
@@ -70,7 +75,16 @@ Page({
   _parseTimer: null,
 
   onLoad: function () {
-    this.setData({ season: getSeason(), solarTerm: getSolarTerm() });
+    var now = new Date();
+    var weekNames = ['日','一','二','三','四','五','六'];
+    var Lunar = lunarLib.Lunar || lunarLib;
+    var ln = Lunar.fromDate(now);
+    this.setData({
+      season: getSeason(), solarTerm: getSolarTerm(),
+      day: now.getDate(),
+      week: '周' + weekNames[now.getDay()],
+      lunarDate: ln.getMonthInChinese() + '月' + ln.getDayInChinese()
+    });
   },
 
   onShow: function () {
@@ -436,7 +450,7 @@ Page({
   _fetchWeather: function (city) {
     var self = this;
     weather.fetchWeather(city).then(function (w) {
-      if (w) self._weatherData = w;
+      if (w) { self._weatherData = w; self.setData({ weather: w }); }
     });
   },
 

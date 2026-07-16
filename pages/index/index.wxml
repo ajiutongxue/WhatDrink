@@ -1,8 +1,15 @@
 <view class="page-container">
 
-  <!-- ========== Header Subtitle ========== -->
-  <view class="header-sub">
-    <text class="season-info">{{season}} · {{solarTerm}}</text>
+  <!-- ========== Header Info: 节气/日期/星期/农历/天气 ========== -->
+  <view class="header-info">
+    <view class="term-badge" wx:if="{{solarTerm}}">{{solarTerm}}</view>
+    <view class="big-date">{{day}}</view>
+    <view class="date-sub">{{week}} · 农历{{lunarDate}}</view>
+    <view class="weather-line" wx:if="{{weather}}">
+      <text>{{weather.city}}</text>
+      <text class="weather-temp">{{weather.temp}}°</text>
+      <text>湿度{{weather.humidity}}%</text>
+    </view>
   </view>
 
   <!-- ========== Input Card ========== -->
