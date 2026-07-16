@@ -294,7 +294,12 @@ Page({
   _showLLMResult: function (llmRes, parsed) {
     var primaryTea = this._matchTeaByName(llmRes.primary && llmRes.primary.name);
     var altTea = this._matchTeaByName(llmRes.alternative && llmRes.alternative.name);
-    if (!primaryTea) { this.setData({ loading: false, noResult: true, btnText: '开始推荐' }); return; }
+    if (!primaryTea) {
+      console.warn('[llm] primary tea not matched, fallback to rule. LLM name:', llmRes.primary && llmRes.primary.name);
+      var ad = this._appData || {};
+      this._fallbackRule(parsed, ad, ad.history || [], (ad.profile && ad.profile.constitution) || null, (ad.settings && ad.settings.avoidDays) || 5);
+      return;
+    }
 
     var catName = teaData.CAT_NAMES[primaryTea.cat] || primaryTea.cat;
     var brew = teaData.BREW_GUIDE[primaryTea.cat] || teaData.BREW_GUIDE.oolong_other;
