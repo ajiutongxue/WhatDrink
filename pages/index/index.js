@@ -298,11 +298,17 @@ Page({
         name: primaryTea.name, brand: primaryTea.brand, nature: primaryTea.nature,
         natureCls: NATURE_CLS[primaryTea.nature] || 'ping',
         catName: catName, caffeine: primaryTea.caffeine, year: primaryTea.year,
-        reason: (llmRes.primary && llmRes.primary.reason) || '',
+        tagline: (llmRes.primary && llmRes.primary.tagline) || '',
+        reasons: (llmRes.primary && Array.isArray(llmRes.primary.reasons)) ? llmRes.primary.reasons : [],
+        reason: (llmRes.primary && Array.isArray(llmRes.primary.reasons)) ? llmRes.primary.reasons.join('；') : '',
+        taste_note: (llmRes.primary && llmRes.primary.taste_note) || '',
+        brew_tip: (llmRes.primary && llmRes.primary.brew_tip) || '',
+        best_before: (llmRes.primary && llmRes.primary.best_before) || '',
+        pairing: (llmRes.primary && llmRes.primary.pairing) || '',
         brew: { temp: brew.temp, ratio: brew.ratio, time: brew.time },
         _teaId: primaryTea.id
       },
-      avoidInfo: llmRes.excluded || '',
+      avoidInfo: llmRes.today_avoid_note || '',
       alt: null
     };
 
@@ -313,7 +319,10 @@ Page({
         name: altTea.name, brand: altTea.brand, nature: altTea.nature,
         natureCls: NATURE_CLS[altTea.nature] || 'ping',
         catName: altCat, icon: CAT_ICONS[altTea.cat] || '🍵',
-        reason: (llmRes.alternative && llmRes.alternative.reason) || '',
+        why_different: (llmRes.alternative && llmRes.alternative.why_different) || '',
+        reasons: (llmRes.alternative && Array.isArray(llmRes.alternative.reasons)) ? llmRes.alternative.reasons : [],
+        reason: (llmRes.alternative && Array.isArray(llmRes.alternative.reasons)) ? llmRes.alternative.reasons.join('；') : '',
+        brew_tip: (llmRes.alternative && llmRes.alternative.brew_tip) || '',
         brew: { temp: altBrew.temp, ratio: altBrew.ratio },
         _teaId: altTea.id
       };

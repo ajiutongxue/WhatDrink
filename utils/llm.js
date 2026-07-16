@@ -245,14 +245,21 @@ function callLLM(eligibleTeas, context, config) {
       '请严格按JSON返回：\n' +
       '{\n' +
       '  "primary": {\n' +
-      '    "name": "茶叶名称（必须与候选完全一致）",\n' +
-      '    "reason": "推荐理由（100-200字，含时段分析和茶性平衡说明）"\n' +
+      '    "name": "茶名，必须和候选里完全一致",\n' +
+      '    "tagline": "一句话标签，比如「午后温中和胃之选」",\n' +
+      '    "reasons": ["理由1，短句子", "理由2，短句子", "理由3，短句子"],\n' +
+      '    "taste_note": "喝起来什么感觉，比如「焙火香明显，入口醇厚有回甘」",\n' +
+      '    "brew_tip": "冲泡小建议，比如「沸水，15秒出汤，别闷」",\n' +
+      '    "best_before": "最佳饮用时段提醒，比如「下午4点前喝比较好」",\n' +
+      '    "pairing": "可选，搭配建议，比如「配点坚果不错」"\n' +
       '  },\n' +
       '  "alternative": {\n' +
-      '    "name": "备选茶叶名称（尽量不同茶类）",\n' +
-      '    "reason": "备选理由（50-100字）"\n' +
+      '    "name": "备选茶名",\n' +
+      '    "why_different": "和主推的区别，比如「想喝清爽点的选这个」",\n' +
+      '    "reasons": ["理由1", "理由2"],\n' +
+      '    "brew_tip": "冲泡建议"\n' +
       '  },\n' +
-      '  "excluded": "排除原因（30字内）"\n' +
+      '  "today_avoid_note": "一句话说说为什么今天不推荐某类茶，比如「今天就别喝绿茶了，脾胃寒加上下雨容易不舒服」"\n' +
       '}';
 
     var url = _buildUrl(config.endpoint, '/chat/completions');
@@ -273,7 +280,7 @@ function callLLM(eligibleTeas, context, config) {
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt }
         ],
-        temperature: 0.7,
+        temperature: 0.5,
         max_tokens: 2000
       },
       success: function(res) {
@@ -297,13 +304,20 @@ function callLLM(eligibleTeas, context, config) {
           var result = {
             primary: {
               name: parsed.primary.name || '',
-              reason: parsed.primary.reason || ''
+              tagline: parsed.primary.tagline || '',
+              reasons: Array.isArray(parsed.primary.reasons) ? parsed.primary.reasons : [],
+              taste_note: parsed.primary.taste_note || '',
+              brew_tip: parsed.primary.brew_tip || '',
+              best_before: parsed.primary.best_before || '',
+              pairing: parsed.primary.pairing || ''
             },
             alternative: {
               name: (parsed.alternative && parsed.alternative.name) ? parsed.alternative.name : '',
-              reason: (parsed.alternative && parsed.alternative.reason) ? parsed.alternative.reason : ''
+              why_different: (parsed.alternative && parsed.alternative.why_different) ? parsed.alternative.why_different : '',
+              reasons: (parsed.alternative && Array.isArray(parsed.alternative.reasons)) ? parsed.alternative.reasons : [],
+              brew_tip: (parsed.alternative && parsed.alternative.brew_tip) ? parsed.alternative.brew_tip : ''
             },
-            excluded: parsed.excluded || ''
+            today_avoid_note: parsed.today_avoid_note || ''
           };
 
           if (!nameMap[result.primary.name]) {
