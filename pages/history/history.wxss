@@ -36,11 +36,22 @@
   padding: 28rpx 0;
 }
 
+.history-date-col {
+  display: flex;
+  flex-direction: column;
+  min-width: 92rpx;
+}
+
 .history-date {
   font-size: 24rpx;
   color: #B5A89A;
-  min-width: 92rpx;
   font-weight: 500;
+}
+
+.history-time {
+  font-size: 20rpx;
+  color: #C9BFB3;
+  margin-top: 4rpx;
 }
 
 .history-dot {

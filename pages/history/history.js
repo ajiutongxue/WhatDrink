@@ -48,6 +48,7 @@ Page({
       list.push({
         idx: i,  // original index in history array
         dateShort: h.date.slice(5),
+        checkinTime: h.checkinTime || '',
         teaName: h.teaName,
         teaBrand: h.teaBrand || '',
         teaCat: h.teaCat || 'green',

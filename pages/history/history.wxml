@@ -20,7 +20,9 @@
 
         <!-- Skip Entry (muted) -->
         <view class="history-item" wx:if="{{item.isSkip}}">
-          <text class="history-date">{{item.dateShort}}</text>
+          <view class="history-date-col">
+            <text class="history-date">{{item.dateShort}}</text>
+          </view>
           <view class="history-dot cat-dot-skip"></view>
           <view class="history-tea">
             <view class="history-tea-name skip-name">{{item.teaName}}</view>
@@ -30,7 +32,10 @@
         <!-- Normal Entry -->
         <view class="history-item-wrap" wx:else>
           <view class="history-item">
-            <text class="history-date">{{item.dateShort}}</text>
+            <view class="history-date-col">
+              <text class="history-date">{{item.dateShort}}</text>
+              <text class="history-time" wx:if="{{item.checkinTime}}">{{item.checkinTime}}</text>
+            </view>
             <view class="history-dot cat-dot-{{item.teaCat}}"></view>
             <view class="history-tea">
               <view class="history-tea-name">
