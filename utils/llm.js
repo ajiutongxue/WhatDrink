@@ -199,13 +199,6 @@ function callLLM(eligibleTeas, context, config) {
       }).join('、');
     }
 
-    var reactionDesc = '无';
-    if (ctx.recentReactions && ctx.recentReactions.length) {
-      reactionDesc = ctx.recentReactions.map(function(r) {
-        return r.name + '(' + r.rating + (r.effects && r.effects.length ? ':' + r.effects.join('/') : '') + ')';
-      }).join('、');
-    }
-
     var avoidDesc = '';
     if (ctx.avoidCats && ctx.avoidCats.length) {
       avoidDesc = '不想喝：' + ctx.avoidCats.map(function(k) { return _catName(k); }).join('、');
@@ -230,7 +223,7 @@ function callLLM(eligibleTeas, context, config) {
     }
 
     var systemPrompt =
-      '你是一位专业的中医茶饮顾问。根据用户的当前时段、天气、身体状况、今日已饮茶、历史反应等综合因素，' +
+      '你是一位专业的中医茶饮顾问。根据用户的当前时段、天气、身体状况、今日已饮茶等综合因素，' +
       '从候选茶叶中选出最适合当下饮用的茶。推荐需有中医茶疗理论支撑。\n\n' +
       '茶性知识：寒清热降火/凉清凉解热/平温和四季宜/温暖胃暖身/热大热之品\n' +
       '时段原则：早晨宜提神(高咖啡因+温性升阳)/下午渐降咖啡因/晚间宜低咖啡因安神(避免寒凉伤胃)';
@@ -243,12 +236,11 @@ function callLLM(eligibleTeas, context, config) {
       '【身体状况】' + statesDesc + '\n' +
       '【体质】' + constitutionDesc + '\n' +
       '【今日已饮】' + todayDesc + '（请避开这些茶，并注意今日茶性平衡）\n' +
-      '【历史反应】' + reactionDesc + '（bad表示反馈不佳，请降权）\n' +
       (avoidDesc ? '【回避】' + avoidDesc + '\n' : '') +
       (preferDesc ? '【偏好】' + preferDesc + '\n' : '') +
       (moodDesc ? '【口味】' + moodDesc + '\n' : '') +
       '\n【候选茶叶】（已过滤今日已喝和不想喝的）：\n' + candidateList.join('\n') + '\n\n' +
-      '请综合时段、天气、身体状况、今日已饮茶（注意茶性平衡）和历史反应，选出主推和备选各一款。' +
+      '请综合时段、天气、身体状况、今日已饮茶（注意茶性平衡），选出主推和备选各一款。' +
       '理由需包含时段分析和今日已饮茶的平衡考量。\n\n' +
       '请严格按JSON返回：\n' +
       '{\n' +

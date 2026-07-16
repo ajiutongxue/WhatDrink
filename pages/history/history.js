@@ -6,8 +6,7 @@ Page({
     historyList: [],
     editingIdx: -1,   // currently editing history index (-1 = none)
     editingText: '',
-    editingImages: [],
-    editingReaction: null
+    editingImages: []
   },
 
   _appData: null,
@@ -56,10 +55,9 @@ Page({
         isSkip: h.type === 'skip',
         typeName: typeMap[h.type] || '',
         typeBadgeClass: badgeMap[h.type] || '',
-        hasNotes: !!(h.tastingNotes && h.tastingNotes.length > 0) || !!(h.imageFileIDs && h.imageFileIDs.length > 0) || !!(h.reaction),
+        hasNotes: !!(h.tastingNotes && h.tastingNotes.length > 0) || !!(h.imageFileIDs && h.imageFileIDs.length > 0),
         tastingNotes: h.tastingNotes || '',
-        imageFileIDs: h.imageFileIDs || [],
-        reaction: h.reaction || null
+        imageFileIDs: h.imageFileIDs || []
       });
     }
 
@@ -69,7 +67,6 @@ Page({
       update.editingIdx = -1;
       update.editingText = '';
       update.editingImages = [];
-      update.editingReaction = null;
     }
     this.setData(update);
   },
@@ -78,13 +75,12 @@ Page({
   onToggleNotes: function (e) {
     var idx = parseInt(e.currentTarget.dataset.idx);
     if (this.data.editingIdx === idx) {
-      this.setData({ editingIdx: -1, editingText: '', editingImages: [], editingReaction: null });
+      this.setData({ editingIdx: -1, editingText: '', editingImages: [] });
     } else {
       var history = (this._appData && this._appData.history) || [];
       var existing = (history[idx] && history[idx].tastingNotes) || '';
       var existingImgs = (history[idx] && history[idx].imageFileIDs) ? history[idx].imageFileIDs.slice() : [];
-      var existingReaction = (history[idx] && history[idx].reaction) || null;
-      this.setData({ editingIdx: idx, editingText: existing, editingImages: existingImgs, editingReaction: existingReaction });
+      this.setData({ editingIdx: idx, editingText: existing, editingImages: existingImgs });
     }
   },
 
@@ -202,26 +198,9 @@ Page({
     }
   },
 
-  onSetRating: function (e) {
-    var rating = e.currentTarget.dataset.rating;
-    var r = this.data.editingReaction || {};
-    this.setData({ editingReaction: { rating: rating, effects: r.effects || [] } });
-  },
-
-  onToggleEffect: function (e) {
-    var eff = e.currentTarget.dataset.effect;
-    var r = this.data.editingReaction || { rating: 'bad', effects: [] };
-    var effects = (r.effects || []).slice();
-    var i = effects.indexOf(eff);
-    if (i >= 0) effects.splice(i, 1);
-    else effects.push(eff);
-    this.setData({ editingReaction: { rating: r.rating, effects: effects } });
-  },
-
   onSaveNotes: function () {
     var text = (this.data.editingText || '').trim();
     var imgs = this.data.editingImages || [];
-    var reaction = this.data.editingReaction;
     var idx = this.data.editingIdx;
     if (idx < 0) return;
 
@@ -229,13 +208,12 @@ Page({
     if (idx < appData.history.length) {
       appData.history[idx].tastingNotes = text;
       appData.history[idx].imageFileIDs = imgs.slice();
-      if (reaction) appData.history[idx].reaction = reaction;
       data.save(appData);
       this._appData = appData;
     }
 
     this._loadHistory();
-    this.setData({ editingIdx: -1, editingText: '', editingImages: [], editingReaction: null });
-    wx.showToast({ title: (text || imgs.length > 0 || reaction) ? '已保存' : '已清空', icon: 'success', duration: 1200 });
+    this.setData({ editingIdx: -1, editingText: '', editingImages: [] });
+    wx.showToast({ title: (text || imgs.length > 0) ? '已保存' : '已清空', icon: 'success', duration: 1200 });
   }
 });

@@ -170,10 +170,6 @@ interface HistoryEntry {
   tastingNotes?: string;    // 品饮感受（可选），打卡后或从历史页面补充
   imageFileIDs?: Array<{ fileID: string; caption: string }>;  // 品饮图片（可选），最多 6 张云存储 fileID，每张可配 40 字说明
   checkinTime?: string;  // 打卡时间 'HH:MM'（可选），用于时段感知推荐
-  reaction?: {           // 喝后感（可选），反馈到推荐引擎
-    rating: 'good' | 'neutral' | 'bad';
-    effects?: string[];  // ['失眠','胃不适','提神','舒适','口干']
-  };
 }
 ```
 

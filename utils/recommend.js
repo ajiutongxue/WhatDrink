@@ -169,9 +169,6 @@ function recommend(teaLibrary, parsed, weather, history, avoidDays, constitution
   // Category frequency (last 3 days) for rotation
   var catFreq = _getCatFrequency(safeHistory, 3);
 
-  // Reaction scores (last 30 days, time-slot aware)
-  var reactionScores = _getReactionScores(safeHistory, 30, hour);
-
   // Score all eligible teas
   var candidates = [];
   for (var i = 0; i < teaLibrary.length; i++) {
@@ -189,8 +186,7 @@ function recommend(teaLibrary, parsed, weather, history, avoidDays, constitution
       hour: hour,
       slot: slot,
       recentStats: recentStats,
-      catFreq: catFreq,
-      reactionScores: reactionScores
+      catFreq: catFreq
     });
 
     candidates.push(scored);
@@ -274,13 +270,6 @@ function _scoreTea(tea, ctx) {
   if (ctx.catFreq && ctx.catFreq[tea.cat] >= 2) {
     score -= 10;
     if (avoids.length < 2) avoids.push('近3天已多次饮用同类');
-  }
-
-  // --- Reaction feedback loop ---
-  if (ctx.reactionScores && typeof ctx.reactionScores[tea.id] === 'number') {
-    var rs = ctx.reactionScores[tea.id];
-    score += rs;
-    if (rs <= -15 && reasons.length < 3) reasons.push('历史反馈不佳');
   }
 
   // --- Nature match (0 ~ +30) ---
@@ -540,42 +529,6 @@ function _getCatFrequency(history, days) {
     if (entry.type === 'skip') continue;
     var cat = entry.teaCat || 'unknown';
     result[cat] = (result[cat] || 0) + 1;
-  }
-  return result;
-}
-
-/**
- * Reaction scores in last N days, time-slot aware.
- * Returns { teaId: netScore } where netScore accounts for rating + effects + current slot.
- */
-function _getReactionScores(history, days, hour) {
-  var result = {};
-  if (!history || !history.length) return result;
-  var cutoff = _formatDate(new Date(Date.now() - days * 86400000));
-  var slot = _getTimeSlot(hour);
-  var isEvening = slot.name === '晚间' || slot.name === '深夜';
-  var isMorning = slot.name === '早晨';
-
-  for (var i = 0; i < history.length; i++) {
-    var entry = history[i];
-    if (!entry || !entry.date || entry.date < cutoff) continue;
-    if (!entry.reaction || entry.teaId == null || entry.teaId < 0) continue;
-
-    var r = entry.reaction;
-    var tid = entry.teaId;
-    if (!result[tid]) result[tid] = 0;
-
-    if (r.rating === 'bad') result[tid] -= 15;
-    if (r.rating === 'good') result[tid] += 8;
-
-    if (r.effects && Array.isArray(r.effects)) {
-      for (var j = 0; j < r.effects.length; j++) {
-        var eff = r.effects[j];
-        if (eff === '失眠' && isEvening) result[tid] -= 20;
-        if (eff === '胃不适') result[tid] -= 10;
-        if (eff === '提神' && isMorning) result[tid] += 10;
-      }
-    }
   }
   return result;
 }
