@@ -36,6 +36,17 @@ var VALID_STATES = ['热证', '脾胃寒', '感冒', '失眠', '疲劳', '燥', 
 var VALID_MOODS = ['light', 'strong', 'sweet'];
 
 // ============================================================
+// Error tracking (for user-facing messages)
+// ============================================================
+var _lastError = '';
+function getLastError() { return _lastError; }
+function _setError(msg) { _lastError = msg; }
+
+// Retriable HTTP status codes
+var RETRIABLE_CODES = [429, 500, 502, 503, 504];
+var MAX_RETRY = 2; // total attempts = MAX_RETRY + 1
+
+// ============================================================
 // parseWithLLM - Lightweight parser model
 // ============================================================
 
@@ -78,57 +89,83 @@ function parseWithLLM(input, config) {
 
     var url = _buildUrl(config.endpoint, '/chat/completions');
 
-    wx.request({
-      url: url,
-      method: 'POST',
-      timeout: 20000,
-      header: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + config.apiKey
-      },
-      data: {
-        model: config.parserModel,
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: userPrompt }
-        ],
-        temperature: 0.1,
-        max_tokens: 300
-      },
-      success: function(res) {
-        try {
-          var content = _extractContent(res.data);
-          if (!content) {
-            resolve(null);
+    var attempt = 0;
+    var doRequest = function() {
+      wx.request({
+        url: url,
+        method: 'POST',
+        timeout: 20000,
+        header: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + config.apiKey
+        },
+        data: {
+          model: config.parserModel,
+          messages: [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: userPrompt }
+          ],
+          temperature: 0.1,
+          max_tokens: 300
+        },
+        success: function(res) {
+          // Check HTTP status code — wx.request fires success for ALL responses
+          if (res.statusCode !== 200) {
+            var errMsg = _httpErrorMsg(res.statusCode, res.data);
+            if (RETRIABLE_CODES.indexOf(res.statusCode) >= 0 && attempt < MAX_RETRY) {
+              attempt++;
+              console.warn('[llm] parseWithLLM HTTP ' + res.statusCode + ', retry ' + attempt);
+              setTimeout(doRequest, attempt * 1000);
+            } else {
+              console.warn('[llm] parseWithLLM HTTP ' + res.statusCode + ':', errMsg);
+              _setError(errMsg);
+              resolve(null);
+            }
             return;
           }
 
-          var parsed = _parseJSON(content);
-          if (!parsed) {
+          try {
+            var content = _extractContent(res.data);
+            if (!content) {
+              resolve(null);
+              return;
+            }
+
+            var parsed = _parseJSON(content);
+            if (!parsed) {
+              resolve(null);
+              return;
+            }
+
+            // Post-process: map Chinese cat names to keys
+            var result = {
+              city: (typeof parsed.city === 'string' && parsed.city !== 'null') ? parsed.city : null,
+              states: _filterStates(parsed.states),
+              avoidCats: _mapCats(parsed.avoidCats),
+              preferCats: _mapCats(parsed.preferCats),
+              mood: (parsed.mood && VALID_MOODS.indexOf(parsed.mood) >= 0) ? parsed.mood : null
+            };
+
+            resolve(result);
+          } catch (e) {
+            console.warn('[llm] parseWithLLM parse error:', e);
             resolve(null);
-            return;
           }
-
-          // Post-process: map Chinese cat names to keys
-          var result = {
-            city: (typeof parsed.city === 'string' && parsed.city !== 'null') ? parsed.city : null,
-            states: _filterStates(parsed.states),
-            avoidCats: _mapCats(parsed.avoidCats),
-            preferCats: _mapCats(parsed.preferCats),
-            mood: (parsed.mood && VALID_MOODS.indexOf(parsed.mood) >= 0) ? parsed.mood : null
-          };
-
-          resolve(result);
-        } catch (e) {
-          console.warn('[llm] parseWithLLM parse error:', e);
-          resolve(null);
+        },
+        fail: function(err) {
+          if (attempt < MAX_RETRY) {
+            attempt++;
+            console.warn('[llm] parseWithLLM network fail, retry ' + attempt + ':', err);
+            setTimeout(doRequest, attempt * 1000);
+          } else {
+            console.warn('[llm] parseWithLLM failed after retries:', err);
+            _setError('网络连接失败');
+            resolve(null);
+          }
         }
-      },
-      fail: function(err) {
-        console.warn('[llm] parseWithLLM request failed:', err);
-        resolve(null);
-      }
-    });
+      });
+    };
+    doRequest();
   });
 }
 
@@ -266,81 +303,100 @@ function callLLM(eligibleTeas, context, config) {
 
     var attempt = 0;
     var doRequest = function() {
-    wx.request({
-      url: url,
-      method: 'POST',
-      timeout: 45000,
-      header: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + config.apiKey
-      },
-      data: {
-        model: config.recModel,
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: userPrompt }
-        ],
-        temperature: 0.5,
-        max_tokens: 2000
-      },
-      success: function(res) {
-        try {
-          var content = _extractContent(res.data);
-          if (!content) {
-            resolve(null);
+      wx.request({
+        url: url,
+        method: 'POST',
+        timeout: 45000,
+        header: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + config.apiKey
+        },
+        data: {
+          model: config.recModel,
+          messages: [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: userPrompt }
+          ],
+          temperature: 0.5,
+          max_tokens: 2000
+        },
+        success: function(res) {
+          // Check HTTP status code — wx.request fires success for ALL responses
+          if (res.statusCode !== 200) {
+            var errMsg = _httpErrorMsg(res.statusCode, res.data);
+            if (RETRIABLE_CODES.indexOf(res.statusCode) >= 0 && attempt < MAX_RETRY) {
+              attempt++;
+              console.warn('[llm] callLLM HTTP ' + res.statusCode + ', retry ' + attempt);
+              setTimeout(doRequest, attempt * 1500);
+            } else {
+              console.warn('[llm] callLLM HTTP ' + res.statusCode + ':', errMsg);
+              _setError(errMsg);
+              resolve(null);
+            }
             return;
           }
 
-          var parsed = _parseJSON(content);
-          if (!parsed || !parsed.primary || !parsed.primary.name) {
+          try {
+            var content = _extractContent(res.data);
+            if (!content) {
+              _setError('AI 返回内容为空');
+              resolve(null);
+              return;
+            }
+
+            var parsed = _parseJSON(content);
+            if (!parsed || !parsed.primary || !parsed.primary.name) {
+              _setError('AI 返回格式异常');
+              resolve(null);
+              return;
+            }
+
+            // Validate names exist in eligible teas
+            var nameMap = {};
+            eligibleTeas.forEach(function(t) { if (t && t.name) nameMap[t.name] = true; });
+
+            var result = {
+              primary: {
+                name: parsed.primary.name || '',
+                tagline: parsed.primary.tagline || '',
+                reasons: Array.isArray(parsed.primary.reasons) ? parsed.primary.reasons : [],
+                taste_note: parsed.primary.taste_note || '',
+                brew_tip: parsed.primary.brew_tip || '',
+                best_before: parsed.primary.best_before || '',
+                pairing: parsed.primary.pairing || ''
+              },
+              alternative: {
+                name: (parsed.alternative && parsed.alternative.name) ? parsed.alternative.name : '',
+                why_different: (parsed.alternative && parsed.alternative.why_different) ? parsed.alternative.why_different : '',
+                reasons: (parsed.alternative && Array.isArray(parsed.alternative.reasons)) ? parsed.alternative.reasons : [],
+                brew_tip: (parsed.alternative && parsed.alternative.brew_tip) ? parsed.alternative.brew_tip : ''
+              },
+              today_avoid_note: parsed.today_avoid_note || ''
+            };
+
+            if (!nameMap[result.primary.name]) {
+              console.warn('[llm] primary name not in eligible:', result.primary.name);
+            }
+
+            resolve(result);
+          } catch (e) {
+            console.warn('[llm] callLLM parse error:', e);
+            _setError('AI 返回解析失败');
             resolve(null);
-            return;
           }
-
-          // Validate names exist in eligible teas
-          var nameMap = {};
-          eligibleTeas.forEach(function(t) { if (t && t.name) nameMap[t.name] = true; });
-
-          var result = {
-            primary: {
-              name: parsed.primary.name || '',
-              tagline: parsed.primary.tagline || '',
-              reasons: Array.isArray(parsed.primary.reasons) ? parsed.primary.reasons : [],
-              taste_note: parsed.primary.taste_note || '',
-              brew_tip: parsed.primary.brew_tip || '',
-              best_before: parsed.primary.best_before || '',
-              pairing: parsed.primary.pairing || ''
-            },
-            alternative: {
-              name: (parsed.alternative && parsed.alternative.name) ? parsed.alternative.name : '',
-              why_different: (parsed.alternative && parsed.alternative.why_different) ? parsed.alternative.why_different : '',
-              reasons: (parsed.alternative && Array.isArray(parsed.alternative.reasons)) ? parsed.alternative.reasons : [],
-              brew_tip: (parsed.alternative && parsed.alternative.brew_tip) ? parsed.alternative.brew_tip : ''
-            },
-            today_avoid_note: parsed.today_avoid_note || ''
-          };
-
-          if (!nameMap[result.primary.name]) {
-            console.warn('[llm] primary name not in eligible:', result.primary.name);
+        },
+        fail: function(err) {
+          if (attempt < MAX_RETRY) {
+            attempt++;
+            console.warn('[llm] callLLM network fail, retry ' + attempt + ':', err);
+            setTimeout(doRequest, attempt * 1500);
+          } else {
+            console.warn('[llm] callLLM failed after retries:', err);
+            _setError('网络连接失败');
+            resolve(null);
           }
-
-          resolve(result);
-        } catch (e) {
-          console.warn('[llm] callLLM parse error:', e);
-          resolve(null);
         }
-      },
-      fail: function(err) {
-        attempt++;
-        if (attempt <= 1) {
-          console.warn('[llm] callLLM retry ' + attempt + ':', err);
-          setTimeout(doRequest, 1000);
-        } else {
-          console.warn('[llm] callLLM failed after retry:', err);
-          resolve(null);
-        }
-      }
-    });
+      });
     };
     doRequest();
   });
@@ -349,6 +405,25 @@ function callLLM(eligibleTeas, context, config) {
 // ============================================================
 // Internal helpers
 // ============================================================
+
+/**
+ * Generate a user-friendly error message from HTTP status code.
+ */
+function _httpErrorMsg(statusCode, data) {
+  if (statusCode === 429) return 'AI 服务限流，请稍后再试';
+  if (statusCode === 401 || statusCode === 403) return 'API Key 无效或已过期';
+  if (statusCode === 500) return 'AI 服务内部错误';
+  if (statusCode === 502 || statusCode === 503) return 'AI 服务暂时不可用';
+  if (statusCode === 504) return 'AI 服务响应超时';
+  // Try to extract error message from response body
+  var detail = '';
+  if (data && data.error && data.error.message) {
+    detail = data.error.message;
+  } else if (data && data.message) {
+    detail = data.message;
+  }
+  return 'AI 请求失败(HTTP ' + statusCode + ')' + (detail ? '：' + detail : '');
+}
 
 /**
  * Build the full API URL from endpoint and path.
@@ -456,5 +531,6 @@ function _catName(key) {
 
 module.exports = {
   parseWithLLM: parseWithLLM,
-  callLLM: callLLM
+  callLLM: callLLM,
+  getLastError: getLastError
 };

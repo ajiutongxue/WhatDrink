@@ -234,7 +234,8 @@ Page({
         if (llmRes) {
           self._showLLMResult(llmRes, parsed);
         } else {
-          wx.showToast({ title: 'AI 调用失败，使用规则推荐', icon: 'none', duration: 2000 });
+          var errMsg = llm.getLastError() || 'AI 调用失败';
+          wx.showToast({ title: errMsg + '，已切换规则推荐', icon: 'none', duration: 2500 });
           self._fallbackRule(parsed, appData, history, constitution, avoidDays);
         }
       })
