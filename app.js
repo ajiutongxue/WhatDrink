@@ -1,4 +1,5 @@
 const data = require('./utils/data.js');
+const tracker = require('./utils/tracker.js');
 
 var SYNC_THROTTLE_MS = 30000; // 热启动同步节流，避免频繁切前后台刷爆云函数
 
@@ -33,6 +34,7 @@ App({
       self._notifyCurrentPage();
     }).catch(function (err) {
       console.warn('[app] sync failed:', err);
+      tracker.track('sync_fail', { err: String(err && err.errMsg || err && err.message || err) });
       self.globalData.syncing = false;
       self._lastSyncAt = Date.now();
     });
@@ -53,6 +55,7 @@ App({
 
   globalData: {
     appData: null,
-    syncing: false
+    syncing: false,
+    version: '1.0.2'
   }
 });

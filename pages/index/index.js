@@ -5,6 +5,7 @@ var llm = require('../../utils/llm');
 var recommend = require('../../utils/recommend');
 var teaData = require('../../utils/teaData');
 var lunarLib = require('../../utils/lunar');
+var tracker = require('../../utils/tracker');
 
 var CAT_ICONS = {
   green: '🍃', black: '🫖', white: '🤍',
@@ -14,6 +15,10 @@ var CAT_ICONS = {
 };
 
 var NATURE_CLS = { '寒': 'han', '凉': 'liang', '平': 'ping', '温': 'wen', '热': 're' };
+
+// 解析阶段出现这些连接层错误时，跳过深度推荐直接规则兜底
+// （同一端点重试无意义，最坏情况可省约 2 分钟空等）
+var SKIP_LLM_REC_TYPES = { timeout: 1, offline: 1, network: 1, domain: 1, ssl: 1, abort: 1 };
 
 function getSeason() {
   var m = new Date().getMonth() + 1;
@@ -53,6 +58,8 @@ Page({
     inputValue: '',
     btnText: '推荐',
     loading: false,
+    loadingText: 'AI 正在分析',
+    showCancel: false,
     noResult: false,
     hasResult: false,
     rec: null,
@@ -67,7 +74,9 @@ Page({
     tastingDraft: '',
     tastingImages: [],
     tastingSaved: false,
-    tastingSavedText: ''
+    tastingSavedText: '',
+    // 页脚版本号（onLoad 从 globalData 读取）
+    version: ''
   },
 
   _appData: null,
@@ -82,12 +91,14 @@ Page({
     var weekNames = ['日','一','二','三','四','五','六'];
     var Lunar = lunarLib.Lunar || lunarLib;
     var ln = Lunar.fromDate(now);
+    var app = getApp();
     this.setData({
       statusBarHeight: sysInfo.statusBarHeight || 20,
       season: getSeason(), solarTerm: getSolarTerm(),
       day: now.getDate(),
       week: '周' + weekNames[now.getDay()],
-      lunarDate: ln.getMonthInChinese() + '月' + ln.getDayInChinese()
+      lunarDate: ln.getMonthInChinese() + '月' + ln.getDayInChinese(),
+      version: (app && app.globalData && app.globalData.version) || '1.0.2'
     });
   },
 
@@ -165,9 +176,71 @@ Page({
     var self = this;
     var appData = self._appData || data.load();
     self._appData = appData;
-    self.setData({ loading: true, noResult: false, hasResult: false, showInput: false, btnText: '分析中...' });
+    self._recT0 = Date.now();
+    self.setData({ loading: true, loadingText: 'AI 正在分析', showCancel: false, noResult: false, hasResult: false, showInput: false, btnText: '分析中...' });
+    self._startLoadingTimer();
 
     var llmConfig = appData.llm || {};
+
+    // 先探网络状态：无网时跳过 LLM 重试空转，直接规则推荐；网络类型计入埋点
+    wx.getNetworkType({
+      success: function (netRes) {
+        var net = (netRes && netRes.networkType) || 'unknown';
+        tracker.track('rec_start', {
+          net: net,
+          inputLen: (self.data.inputValue || '').length,
+          llmRec: !!(llmConfig.enabled && llmConfig.apiKey),
+          llmParse: !!(llmConfig.parserEnabled && llmConfig.apiKey)
+        });
+        if (net === 'none') {
+          tracker.track('rec_offline_fallback', {});
+          wx.showToast({ title: '当前无网络连接，已切换规则推荐', icon: 'none', duration: 2500 });
+          self._doRecommend({}); // 空配置 → 解析与推荐均走本地规则
+          return;
+        }
+        self._doRecommend(llmConfig);
+      },
+      fail: function () {
+        self._doRecommend(llmConfig);
+      }
+    });
+  },
+
+  // ==== Loading 计时与取消 ====
+  // loading 期间显示已耗时秒数，10 秒后出现取消按钮（手机上避免 1–2 分钟空白干等）
+  _startLoadingTimer: function () {
+    var self = this;
+    self._stopLoadingTimer();
+    self._loadingT0 = Date.now();
+    self._loadingTimer = setInterval(function () {
+      if (!self.data.loading) { self._stopLoadingTimer(); return; }
+      var sec = Math.round((Date.now() - (self._loadingT0 || Date.now())) / 1000);
+      var base = self._loadingBase || 'AI 正在分析';
+      self.setData({
+        loadingText: sec >= 3 ? base + ' · ' + sec + 's' : base,
+        showCancel: sec >= 10
+      });
+    }, 1000);
+  },
+
+  _stopLoadingTimer: function () {
+    if (this._loadingTimer) {
+      clearInterval(this._loadingTimer);
+      this._loadingTimer = null;
+    }
+  },
+
+  onCancelLLM: function () {
+    tracker.track('rec_cancel', { ms: Date.now() - (this._recT0 || Date.now()) });
+    // abort 后对应 Promise 以 null 结束 → 自动走规则兜底
+    llm.abortCurrent();
+  },
+
+  _doRecommend: function (llmConfig) {
+    var self = this;
+    var appData = self._appData || data.load();
+    llm.clearLastError(); // 清掉上一轮残留，保证 getLastErrorType 只反映本次推荐
+    self._loadingBase = '正在解析输入';
     parser.parseInput(self.data.inputValue, llmConfig).then(function (parsed) {
       self._parsed = parsed;
       self._renderParsedTags(parsed);
@@ -186,28 +259,42 @@ Page({
       var avoidDays = (appData.settings && appData.settings.avoidDays) || 5;
       var constitution = (appData.profile && appData.profile.constitution) || null;
 
-    // 硬过滤候选池（去掉今天已喝/disabled/avoidCats）
-    var eligibleTeas = recommend.filterEligible(teaLib, parsed, history);
-    if (!eligibleTeas || eligibleTeas.length === 0) {
-      self.setData({ loading: false, noResult: true, btnText: '推荐' });
-      return;
-    }
-
-    if (llmConfig.enabled && llmConfig.apiKey) {
-      self._callLLM(eligibleTeas, parsed, appData, history, constitution, avoidDays);
-    } else {
-      var result = recommend.recommend(teaLib, parsed, self._weatherData, history, avoidDays, constitution);
-      if (!result.primary) {
+      // 硬过滤候选池（去掉今天已喝/disabled/avoidCats）
+      var eligibleTeas = recommend.filterEligible(teaLib, parsed, history);
+      if (!eligibleTeas || eligibleTeas.length === 0) {
+        tracker.track('rec_empty', { stage: 'filter', ms: Date.now() - (self._recT0 || Date.now()) });
         self.setData({ loading: false, noResult: true, btnText: '推荐' });
         return;
       }
-      self._showRuleResult(result, parsed);
-    }
+
+      if (llmConfig.enabled && llmConfig.apiKey) {
+        // 解析阶段已因连接类错误失败 → 同一端点的深度推荐大概率同样失败，
+        // 直接规则兜底，避免用户再等一轮超时
+        var parseErrType = llm.getLastErrorType();
+        if (SKIP_LLM_REC_TYPES[parseErrType]) {
+          var skipMsg = llm.getLastError() || '网络连接失败';
+          tracker.track('llm_skip_rec', { errType: parseErrType, reason: skipMsg });
+          wx.showToast({ title: skipMsg + '，已切换规则推荐', icon: 'none', duration: 2500 });
+          self._fallbackRule(parsed, appData, history, constitution, avoidDays);
+          return;
+        }
+        self._callLLM(eligibleTeas, parsed, appData, history, constitution, avoidDays);
+      } else {
+        var result = recommend.recommend(teaLib, parsed, self._weatherData, history, avoidDays, constitution);
+        if (!result.primary) {
+          tracker.track('rec_empty', { stage: 'score', ms: Date.now() - (self._recT0 || Date.now()) });
+          self.setData({ loading: false, noResult: true, btnText: '推荐' });
+          return;
+        }
+        self._showRuleResult(result, parsed);
+      }
     }); // end .then()
   },
 
   _callLLM: function (eligibleTeas, parsed, appData, history, constitution, avoidDays) {
     var self = this;
+    self._loadingBase = 'AI 深度分析中';
+    self.setData({ loadingText: 'AI 深度分析中' });
     var hour = new Date().getHours();
     var slot = recommend.getTimeSlot(hour);
     var teaLib = appData.teaLibrary || teaData.TEAS;
@@ -244,11 +331,13 @@ Page({
           self._showLLMResult(llmRes, parsed);
         } else {
           var errMsg = llm.getLastError() || 'AI 调用失败';
+          tracker.track('llm_fallback', { reason: errMsg });
           wx.showToast({ title: errMsg + '，已切换规则推荐', icon: 'none', duration: 2500 });
           self._fallbackRule(parsed, appData, history, constitution, avoidDays);
         }
       })
-      .catch(function () {
+      .catch(function (e) {
+        tracker.track('llm_fallback', { reason: 'exception', err: String(e && e.message || e) });
         self._fallbackRule(parsed, appData, history, constitution, avoidDays);
       });
   },
@@ -258,6 +347,7 @@ Page({
     if (result.primary) {
       this._showRuleResult(result, parsed);
     } else {
+      tracker.track('rec_empty', { stage: 'fallback', ms: Date.now() - (this._recT0 || Date.now()) });
       this.setData({ loading: false, noResult: true, btnText: '推荐' });
     }
   },
@@ -301,6 +391,7 @@ Page({
       loading: false, hasResult: true, noResult: false,
       rec: rec, checkedIn: false, showCustom: false, btnText: '推荐'
     });
+    tracker.track('rec_done', { mode: 'rule', ms: Date.now() - (this._recT0 || Date.now()), tea: rec.primary.name });
   },
 
   _showLLMResult: function (llmRes, parsed) {
@@ -308,6 +399,7 @@ Page({
     var altTea = this._matchTeaByName(llmRes.alternative && llmRes.alternative.name);
     if (!primaryTea) {
       console.warn('[llm] primary tea not matched, fallback to rule. LLM name:', llmRes.primary && llmRes.primary.name);
+      tracker.track('llm_name_miss', { name: (llmRes.primary && llmRes.primary.name) || '' });
       var ad = this._appData || {};
       this._fallbackRule(parsed, ad, ad.history || [], (ad.profile && ad.profile.constitution) || null, (ad.settings && ad.settings.avoidDays) || 5);
       return;
@@ -356,6 +448,7 @@ Page({
       loading: false, hasResult: true, noResult: false,
       rec: rec, checkedIn: false, showCustom: false, btnText: '推荐'
     });
+    tracker.track('rec_done', { mode: 'ai', ms: Date.now() - (this._recT0 || Date.now()), tea: rec.primary.name });
   },
 
   _buildRuleReason: function (scored, parsed) {

@@ -1,4 +1,5 @@
 var data = require('../../utils/data');
+var tracker = require('../../utils/tracker');
 
 var QUIZ_QUESTIONS = [
   {
@@ -72,7 +73,10 @@ Page({
     avoidDays: 5,
     // Data management
     syncStatus: '未同步',
-    syncing: false
+    syncing: false,
+    // Diagnostics
+    showDiag: false,
+    diagLogs: []
   },
 
   _appData: null,
@@ -116,6 +120,7 @@ Page({
       avoidDays: s.avoidDays || 5,
       syncStatus: this._getSyncStatus()
     });
+    this._loadDiagLogs();
   },
 
   // ==== Quiz handlers ====
@@ -354,5 +359,53 @@ Page({
         }
       }
     });
+  },
+
+  // ==== 运行诊断 ====
+  onToggleDiag: function () {
+    this.setData({ showDiag: !this.data.showDiag });
+    if (this.data.showDiag) this._loadDiagLogs();
+  },
+
+  onRefreshDiag: function () {
+    this._loadDiagLogs();
+    wx.showToast({ title: '已刷新', icon: 'success', duration: 1200 });
+  },
+
+  onClearDiag: function () {
+    tracker.clear();
+    this._loadDiagLogs();
+    wx.showToast({ title: '日志已清空', icon: 'success', duration: 1200 });
+  },
+
+  _loadDiagLogs: function () {
+    var raw = tracker.getLogs().slice(0, 30);
+    var rows = raw.map(function (l, i) {
+      var d = l.d || {};
+      var dt = new Date(l.t);
+      var parts = [];
+      var keys = Object.keys(d);
+      for (var k = 0; k < keys.length; k++) {
+        var key = keys[k];
+        if (key === 'ms' || key === 'ok') continue;
+        var v = d[key];
+        if (v === '' || v === null || v === undefined) continue;
+        v = String(v);
+        if (v.length > 48) v = v.substring(0, 48) + '…';
+        parts.push(key + ': ' + v);
+      }
+      return {
+        id: l.t + '_' + i,
+        time: (dt.getMonth() + 1) + '/' + dt.getDate() + ' ' +
+          ('0' + dt.getHours()).slice(-2) + ':' +
+          ('0' + dt.getMinutes()).slice(-2) + ':' +
+          ('0' + dt.getSeconds()).slice(-2),
+        event: l.e,
+        ok: d.ok,
+        ms: (typeof d.ms === 'number') ? d.ms : '',
+        detail: parts.join(' · ')
+      };
+    });
+    this.setData({ diagLogs: rows });
   }
 });

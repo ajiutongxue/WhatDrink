@@ -5,6 +5,7 @@
  */
 
 var llm = require('./llm');
+var tracker = require('./tracker');
 
 // ============================================================
 // Body state keyword tables (12 categories)
@@ -113,6 +114,7 @@ function parseInput(text, llmConfig) {
       llmConfig.parserModel;
 
     if (useLLM) {
+      var t0 = Date.now();
       llm.parseWithLLM(trimmed, llmConfig).then(function(llmResult) {
         if (llmResult) {
           // LLM succeeded, merge with keyword-detected city (LLM city takes priority)
@@ -125,9 +127,11 @@ function parseInput(text, llmConfig) {
             preferCats: llmResult.preferCats.length > 0 ? llmResult.preferCats : keywordResult.preferCats,
             mood: llmResult.mood || keywordResult.mood || null
           };
+          tracker.track('parse', { mode: 'llm', ok: true, ms: Date.now() - t0, city: !!result.city, states: result.states.length });
           resolve(result);
         } else {
           // LLM failed, fall back to keyword matching
+          tracker.track('parse', { mode: 'llm', ok: false, ms: Date.now() - t0, fallback: 'keyword', err: llm.getLastError() || '' });
           resolve(_parseKeywords(trimmed));
         }
       });

@@ -174,6 +174,29 @@
   100% { width: 30rpx; }
 }
 
+/* ========== AI Loading 取消按钮 ========== */
+.ai-loading {
+  text-align: center;
+}
+
+.ai-cancel {
+  display: inline-block;
+  margin-top: 32rpx;
+  font-size: 24rpx;
+  color: var(--ink3);
+  letter-spacing: 2rpx;
+  padding: 12rpx 36rpx;
+  border: 1rpx solid rgba(176, 164, 148, 0.4);
+  border-radius: 36rpx;
+  transition: all 0.25s ease;
+}
+
+.ai-cancel:active {
+  color: var(--rose);
+  border-color: var(--rose);
+  transform: scale(0.96);
+}
+
 /* ============================================================
    AI Recommendation — Extended Fields
    ============================================================ */
@@ -476,4 +499,35 @@
   text-align: center;
   line-height: 1.4;
   word-break: break-all;
+}
+
+/* ============================================================
+   页脚版本号 — 画卷收笔，轻点即止
+   ============================================================ */
+.page-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 28rpx;
+  padding: 56rpx 0 16rpx;
+}
+
+.footer-rule {
+  width: 72rpx;
+  height: 1rpx;
+}
+
+.footer-rule.left {
+  background: linear-gradient(to right, transparent, rgba(176, 164, 148, 0.55));
+}
+
+.footer-rule.right {
+  background: linear-gradient(to left, transparent, rgba(176, 164, 148, 0.55));
+}
+
+.footer-ver {
+  font-size: 20rpx;
+  color: var(--ink4);
+  letter-spacing: 4rpx;
+  opacity: 0.75;
 }

@@ -201,4 +201,37 @@
     </view>
   </view>
 
+  <!-- ========== 运行诊断 ========== -->
+  <view class="card">
+    <view class="card-title diag-header" bindtap="onToggleDiag">
+      <text class="icon">🩺</text>
+      <text>运行诊断</text>
+      <text class="diag-meta">{{diagLogs.length ? diagLogs.length + ' 条记录' : '暂无记录'}}</text>
+      <text class="diag-toggle">{{showDiag ? '收起 ▴' : '展开 ▾'}}</text>
+    </view>
+
+    <block wx:if="{{showDiag}}">
+      <view class="diag-hint">自动记录推荐流程关键节点与失败原因（最近 30 条），推荐异常时先来这里看看。</view>
+
+      <view class="diag-empty" wx:if="{{diagLogs.length === 0}}">暂无日志，去首页点一次「推荐」试试</view>
+
+      <scroll-view class="diag-list" scroll-y wx:else>
+        <view class="diag-item {{item.ok === false ? 'err' : ''}}" wx:for="{{diagLogs}}" wx:key="id">
+          <view class="diag-line">
+            <text class="diag-time">{{item.time}}</text>
+            <text class="diag-event">{{item.event}}</text>
+            <text class="diag-ms" wx:if="{{item.ms !== ''}}">{{item.ms}}ms</text>
+            <text class="diag-fail" wx:if="{{item.ok === false}}">失败</text>
+          </view>
+          <view class="diag-detail" wx:if="{{item.detail}}">{{item.detail}}</view>
+        </view>
+      </scroll-view>
+
+      <view class="diag-actions">
+        <button class="setting-btn" bindtap="onRefreshDiag">刷新</button>
+        <button class="setting-btn danger" bindtap="onClearDiag">清空日志</button>
+      </view>
+    </block>
+  </view>
+
 </view>

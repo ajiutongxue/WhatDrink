@@ -47,8 +47,9 @@
     <!-- Loading State -->
     <view class="rec-hero ai-loading" wx:if="{{loading}}">
       <view class="ai-loading-icon">🧠</view>
-      <view class="ai-loading-text">AI 正在分析<text class="ai-loading-dots">...</text></view>
+      <view class="ai-loading-text">{{loadingText}}<text class="ai-loading-dots">...</text></view>
       <view class="ai-loading-sub">综合时令、天气与中医茶疗理论</view>
+      <view class="ai-cancel" wx:if="{{showCancel}}" bindtap="onCancelLLM">等太久了？取消，改用规则推荐</view>
     </view>
 
     <!-- No Result -->
@@ -64,7 +65,7 @@
       <!-- ===== Primary Recommendation ===== -->
       <view class="rec-hero">
         <text class="rec-hero-badge ai" wx:if="{{rec.isAI}}">AI 推荐</text>
-        <text class="rec-hero-badge primary" wx:else>今日推荐</text>
+        <text class="rec-hero-badge primary" wx:else>本地算法推荐</text>
 
         <view class="ai-notice" wx:if="{{rec.isAI}}">
           <text>✨ {{rec.aiModel}} 深度分析</text>
@@ -228,6 +229,13 @@
       </view>
 
     </view>
+  </view>
+
+  <!-- ========== 页脚版本号 ========== -->
+  <view class="page-footer">
+    <text class="footer-rule left"></text>
+    <text class="footer-ver">v{{version}}</text>
+    <text class="footer-rule right"></text>
   </view>
 
 </view>

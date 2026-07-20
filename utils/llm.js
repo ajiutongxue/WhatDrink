@@ -5,6 +5,8 @@
  * CommonJS module for WeChat Mini Program
  */
 
+var tracker = require('./tracker');
+
 // ============================================================
 // Tea category Chinese name → key mapping
 // ============================================================
@@ -39,12 +41,27 @@ var VALID_MOODS = ['light', 'strong', 'sweet'];
 // Error tracking (for user-facing messages)
 // ============================================================
 var _lastError = '';
+// 错误类型：timeout/domain/ssl/abort/offline/network/http/empty/parse/exception
+var _lastErrorType = '';
 function getLastError() { return _lastError; }
-function _setError(msg) { _lastError = msg; }
+function getLastErrorType() { return _lastErrorType; }
+function clearLastError() { _setError(''); }
+function _setError(msg, type) { _lastError = msg; _lastErrorType = type || ''; }
+
+// 当前进行中的请求任务（供用户主动取消）
+var _currentTask = null;
+function abortCurrent() {
+  if (_currentTask) {
+    try { _currentTask.abort(); } catch (e) {}
+    _currentTask = null;
+  }
+}
 
 // Retriable HTTP status codes
 var RETRIABLE_CODES = [429, 500, 502, 503, 504];
 var MAX_RETRY = 2; // total attempts = MAX_RETRY + 1
+// 超时类失败只额外重试 1 次（避免深度模型慢响应时 3 轮超时叠加等待过久）
+var MAX_TIMEOUT_RETRY = 1;
 
 // ============================================================
 // parseWithLLM - Lightweight parser model
@@ -66,10 +83,14 @@ var MAX_RETRY = 2; // total attempts = MAX_RETRY + 1
  */
 function parseWithLLM(input, config) {
   return new Promise(function(resolve) {
+    // 清理上一次的残留错误信息，避免误导本次提示
+    _setError('');
     if (!input || !config || !config.apiKey || !config.endpoint || !config.parserModel) {
       resolve(null);
       return;
     }
+
+    var t0 = Date.now();
 
     var systemPrompt = '你是一个茶饮推荐助手的文本解析模块。请严格按照JSON格式返回结果，不要添加任何额外文字。';
 
@@ -91,7 +112,7 @@ function parseWithLLM(input, config) {
 
     var attempt = 0;
     var doRequest = function() {
-      wx.request({
+      _currentTask = wx.request({
         url: url,
         method: 'POST',
         timeout: 20000,
@@ -118,7 +139,8 @@ function parseWithLLM(input, config) {
               setTimeout(doRequest, attempt * 1000);
             } else {
               console.warn('[llm] parseWithLLM HTTP ' + res.statusCode + ':', errMsg);
-              _setError(errMsg);
+              _setError(errMsg, 'http');
+              tracker.track('llm_parse', { ok: false, ms: Date.now() - t0, attempts: attempt + 1, http: res.statusCode, err: errMsg });
               resolve(null);
             }
             return;
@@ -127,12 +149,16 @@ function parseWithLLM(input, config) {
           try {
             var content = _extractContent(res.data);
             if (!content) {
+              _setError('AI 返回内容为空', 'empty');
+              tracker.track('llm_parse', { ok: false, ms: Date.now() - t0, attempts: attempt + 1, errType: 'empty' });
               resolve(null);
               return;
             }
 
             var parsed = _parseJSON(content);
             if (!parsed) {
+              _setError('AI 返回格式异常', 'parse');
+              tracker.track('llm_parse', { ok: false, ms: Date.now() - t0, attempts: attempt + 1, errType: 'parse' });
               resolve(null);
               return;
             }
@@ -146,20 +172,37 @@ function parseWithLLM(input, config) {
               mood: (parsed.mood && VALID_MOODS.indexOf(parsed.mood) >= 0) ? parsed.mood : null
             };
 
+            tracker.track('llm_parse', { ok: true, ms: Date.now() - t0, attempts: attempt + 1 });
             resolve(result);
           } catch (e) {
             console.warn('[llm] parseWithLLM parse error:', e);
+            _setError('AI 返回解析失败', 'exception');
+            tracker.track('llm_parse', { ok: false, ms: Date.now() - t0, attempts: attempt + 1, errType: 'exception', err: String(e && e.message || e) });
             resolve(null);
           }
         },
         fail: function(err) {
-          if (attempt < MAX_RETRY) {
+          var cls = _classifyNetError(err);
+          // 用户主动中断：不重试，直接结束
+          if (cls.type === 'abort') {
+            _setError(cls.text, cls.type);
+            tracker.track('llm_parse', { ok: false, ms: Date.now() - t0, attempts: attempt + 1, errType: 'abort' });
+            resolve(null);
+            return;
+          }
+          // 仅超时/未知网络错误可能为瞬时，值得重试；
+          // domain/ssl/offline 为确定性失败，重试无意义，立即走兜底
+          var canRetry = (cls.type === 'timeout')
+            ? attempt < MAX_TIMEOUT_RETRY
+            : (cls.type === 'network' ? attempt < MAX_RETRY : false);
+          if (canRetry) {
             attempt++;
-            console.warn('[llm] parseWithLLM network fail, retry ' + attempt + ':', err);
+            console.warn('[llm] parseWithLLM ' + cls.type + ', retry ' + attempt + ':', err);
             setTimeout(doRequest, attempt * 1000);
           } else {
             console.warn('[llm] parseWithLLM failed after retries:', err);
-            _setError('网络连接失败');
+            _setError(cls.text, cls.type);
+            tracker.track('llm_parse', { ok: false, ms: Date.now() - t0, attempts: attempt + 1, errType: cls.type, err: cls.raw });
             resolve(null);
           }
         }
@@ -190,10 +233,14 @@ function parseWithLLM(input, config) {
  */
 function callLLM(eligibleTeas, context, config) {
   return new Promise(function(resolve) {
+    // 清理上一次的残留错误信息，避免误导本次提示
+    _setError('');
     if (!eligibleTeas || !eligibleTeas.length || !config || !config.apiKey || !config.endpoint || !config.recModel) {
       resolve(null);
       return;
     }
+
+    var t0 = Date.now();
 
     // Build candidate list from eligible teas (no scores, LLM decides freely)
     var candidateList = [];
@@ -303,10 +350,10 @@ function callLLM(eligibleTeas, context, config) {
 
     var attempt = 0;
     var doRequest = function() {
-      wx.request({
+      _currentTask = wx.request({
         url: url,
         method: 'POST',
-        timeout: 45000,
+        timeout: 60000,
         header: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer ' + config.apiKey
@@ -330,7 +377,8 @@ function callLLM(eligibleTeas, context, config) {
               setTimeout(doRequest, attempt * 1500);
             } else {
               console.warn('[llm] callLLM HTTP ' + res.statusCode + ':', errMsg);
-              _setError(errMsg);
+              _setError(errMsg, 'http');
+              tracker.track('llm_rec', { ok: false, ms: Date.now() - t0, attempts: attempt + 1, model: config.recModel, http: res.statusCode, err: errMsg });
               resolve(null);
             }
             return;
@@ -339,14 +387,16 @@ function callLLM(eligibleTeas, context, config) {
           try {
             var content = _extractContent(res.data);
             if (!content) {
-              _setError('AI 返回内容为空');
+              _setError('AI 返回内容为空', 'empty');
+              tracker.track('llm_rec', { ok: false, ms: Date.now() - t0, attempts: attempt + 1, model: config.recModel, errType: 'empty' });
               resolve(null);
               return;
             }
 
             var parsed = _parseJSON(content);
             if (!parsed || !parsed.primary || !parsed.primary.name) {
-              _setError('AI 返回格式异常');
+              _setError('AI 返回格式异常', 'parse');
+              tracker.track('llm_rec', { ok: false, ms: Date.now() - t0, attempts: attempt + 1, model: config.recModel, errType: 'parse' });
               resolve(null);
               return;
             }
@@ -378,21 +428,37 @@ function callLLM(eligibleTeas, context, config) {
               console.warn('[llm] primary name not in eligible:', result.primary.name);
             }
 
+            tracker.track('llm_rec', { ok: true, ms: Date.now() - t0, attempts: attempt + 1, model: config.recModel });
             resolve(result);
           } catch (e) {
             console.warn('[llm] callLLM parse error:', e);
-            _setError('AI 返回解析失败');
+            _setError('AI 返回解析失败', 'exception');
+            tracker.track('llm_rec', { ok: false, ms: Date.now() - t0, attempts: attempt + 1, model: config.recModel, errType: 'exception', err: String(e && e.message || e) });
             resolve(null);
           }
         },
         fail: function(err) {
-          if (attempt < MAX_RETRY) {
+          var cls = _classifyNetError(err);
+          // 用户主动中断：不重试，直接结束
+          if (cls.type === 'abort') {
+            _setError(cls.text, cls.type);
+            tracker.track('llm_rec', { ok: false, ms: Date.now() - t0, attempts: attempt + 1, model: config.recModel, errType: 'abort' });
+            resolve(null);
+            return;
+          }
+          // 仅超时/未知网络错误可能为瞬时，值得重试；
+          // domain/ssl/offline 为确定性失败，重试无意义，立即走兜底
+          var canRetry = (cls.type === 'timeout')
+            ? attempt < MAX_TIMEOUT_RETRY
+            : (cls.type === 'network' ? attempt < MAX_RETRY : false);
+          if (canRetry) {
             attempt++;
-            console.warn('[llm] callLLM network fail, retry ' + attempt + ':', err);
+            console.warn('[llm] callLLM ' + cls.type + ', retry ' + attempt + ':', err);
             setTimeout(doRequest, attempt * 1500);
           } else {
             console.warn('[llm] callLLM failed after retries:', err);
-            _setError('网络连接失败');
+            _setError(cls.text, cls.type);
+            tracker.track('llm_rec', { ok: false, ms: Date.now() - t0, attempts: attempt + 1, model: config.recModel, errType: cls.type, err: cls.raw });
             resolve(null);
           }
         }
@@ -426,12 +492,48 @@ function _httpErrorMsg(statusCode, data) {
 }
 
 /**
+ * Classify wx.request fail error into actionable user-facing message.
+ * 手机上 fail 的常见原因：超时、域名白名单、SSL、无网络等，
+ * 统一报「网络连接失败」无法排查，这里分类给出具体提示。
+ */
+function _classifyNetError(err) {
+  var raw = (err && err.errMsg) ? String(err.errMsg) : 'unknown error';
+  var msg = raw.toLowerCase();
+  if (msg.indexOf('timeout') >= 0) {
+    return { type: 'timeout', text: 'AI 请求超时，请稍后重试', raw: raw };
+  }
+  if (msg.indexOf('domain') >= 0 || msg.indexOf('whitelist') >= 0 || msg.indexOf('url not in') >= 0) {
+    return { type: 'domain', text: '请求域名不在合法域名列表，请检查后台域名配置或开启调试模式', raw: raw };
+  }
+  if (msg.indexOf('ssl') >= 0 || msg.indexOf('certificate') >= 0) {
+    return { type: 'ssl', text: 'SSL 证书校验失败，请检查端点配置', raw: raw };
+  }
+  if (msg.indexOf('abort') >= 0) {
+    return { type: 'abort', text: '请求被中断', raw: raw };
+  }
+  if (msg.indexOf('not reach') >= 0 || msg.indexOf('offline') >= 0 || msg.indexOf('network') >= 0) {
+    return { type: 'offline', text: '网络不可用，请检查手机联网', raw: raw };
+  }
+  return { type: 'network', text: '网络连接失败', raw: raw };
+}
+
+/**
  * Build the full API URL from endpoint and path.
- * Handles trailing slashes in endpoint.
+ * Handles trailing slashes, pasted whitespace, missing scheme,
+ * and endpoints that already contain /chat/completions.
  */
 function _buildUrl(endpoint, path) {
   if (!endpoint) return path;
-  var base = endpoint.replace(/\/+$/, '');
+  var base = String(endpoint).trim();
+  if (!/^https?:\/\//i.test(base)) {
+    base = 'https://' + base;
+  }
+  base = base.replace(/\/+$/, '');
+  // 用户直接粘贴了完整的 /chat/completions URL 时，去掉尾部路径避免重复拼接
+  var suffix = '/chat/completions';
+  if (base.length > suffix.length && base.indexOf(suffix) === base.length - suffix.length) {
+    base = base.substring(0, base.length - suffix.length);
+  }
   return base + path;
 }
 
@@ -532,5 +634,8 @@ function _catName(key) {
 module.exports = {
   parseWithLLM: parseWithLLM,
   callLLM: callLLM,
-  getLastError: getLastError
+  getLastError: getLastError,
+  getLastErrorType: getLastErrorType,
+  clearLastError: clearLastError,
+  abortCurrent: abortCurrent
 };
