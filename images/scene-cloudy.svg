@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 750 1624" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#D4CFC8"/>
+      <stop offset="35%" stop-color="#E2DDD6"/>
+      <stop offset="70%" stop-color="#EDEAE4"/>
+      <stop offset="100%" stop-color="#F5F3EF"/>
+    </linearGradient>
+    <linearGradient id="m1" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#A8A090" stop-opacity="0.45"/>
+      <stop offset="100%" stop-color="#A8A090" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="m2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#989080" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#989080" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="m3" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#888070" stop-opacity="0.18"/>
+      <stop offset="100%" stop-color="#888070" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <rect width="750" height="1624" fill="url(#sky)"/>
+  <!-- Cloud masses - soft horizontal ellipses -->
+  <ellipse cx="250" cy="180" rx="280" ry="60" fill="#C8C2B8" opacity="0.3"/>
+  <ellipse cx="550" cy="240" rx="220" ry="45" fill="#C0BAB0" opacity="0.25"/>
+  <ellipse cx="380" cy="140" rx="180" ry="40" fill="#D0CAC0" opacity="0.2"/>
+  <!-- Far mountain -->
+  <path d="M0 680 Q180 590 375 645 Q570 590 750 665 L750 900 Q570 830 375 865 Q180 830 0 885Z" fill="url(#m1)"/>
+  <!-- Mid mountain -->
+  <path d="M0 830 Q200 750 400 800 Q600 750 750 810 L750 1030 Q550 970 375 1000 Q180 970 0 1010Z" fill="url(#m2)"/>
+  <!-- Near hill -->
+  <path d="M0 970 Q250 910 500 950 Q650 920 750 940 L750 1130 Q500 1090 250 1110 Q100 1090 0 1100Z" fill="url(#m3)"/>
+  <!-- Heavy mist -->
+  <rect x="0" y="720" width="750" height="120" fill="#E2DDD6" opacity="0.6"/>
+  <rect x="0" y="900" width="750" height="60" fill="#EDEAE4" opacity="0.4"/>
+</svg>

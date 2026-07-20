@@ -48,8 +48,10 @@ Page({
     week: '',
     lunarDate: '',
     weather: null,
+    scene: 'sunny',
+    showInput: false,
     inputValue: '',
-    btnText: '开始推荐',
+    btnText: '推荐',
     loading: false,
     noResult: false,
     hasResult: false,
@@ -75,11 +77,13 @@ Page({
   _parseTimer: null,
 
   onLoad: function () {
+    var sysInfo = wx.getSystemInfoSync();
     var now = new Date();
     var weekNames = ['日','一','二','三','四','五','六'];
     var Lunar = lunarLib.Lunar || lunarLib;
     var ln = Lunar.fromDate(now);
     this.setData({
+      statusBarHeight: sysInfo.statusBarHeight || 20,
       season: getSeason(), solarTerm: getSolarTerm(),
       day: now.getDate(),
       week: '周' + weekNames[now.getDay()],
@@ -103,6 +107,11 @@ Page({
       this._weatherCity = newCity;
       this._fetchWeather(newCity);
     }
+  },
+
+  // ==== Glass Input Panel ====
+  onShowInput: function () {
+    this.setData({ showInput: true });
   },
 
   // ==== Input ====
@@ -156,7 +165,7 @@ Page({
     var self = this;
     var appData = self._appData || data.load();
     self._appData = appData;
-    self.setData({ loading: true, noResult: false, hasResult: false, btnText: '分析中...' });
+    self.setData({ loading: true, noResult: false, hasResult: false, showInput: false, btnText: '分析中...' });
 
     var llmConfig = appData.llm || {};
     parser.parseInput(self.data.inputValue, llmConfig).then(function (parsed) {
@@ -180,7 +189,7 @@ Page({
     // 硬过滤候选池（去掉今天已喝/disabled/avoidCats）
     var eligibleTeas = recommend.filterEligible(teaLib, parsed, history);
     if (!eligibleTeas || eligibleTeas.length === 0) {
-      self.setData({ loading: false, noResult: true, btnText: '开始推荐' });
+      self.setData({ loading: false, noResult: true, btnText: '推荐' });
       return;
     }
 
@@ -189,7 +198,7 @@ Page({
     } else {
       var result = recommend.recommend(teaLib, parsed, self._weatherData, history, avoidDays, constitution);
       if (!result.primary) {
-        self.setData({ loading: false, noResult: true, btnText: '开始推荐' });
+        self.setData({ loading: false, noResult: true, btnText: '推荐' });
         return;
       }
       self._showRuleResult(result, parsed);
@@ -249,7 +258,7 @@ Page({
     if (result.primary) {
       this._showRuleResult(result, parsed);
     } else {
-      this.setData({ loading: false, noResult: true, btnText: '开始推荐' });
+      this.setData({ loading: false, noResult: true, btnText: '推荐' });
     }
   },
 
@@ -290,7 +299,7 @@ Page({
 
     this.setData({
       loading: false, hasResult: true, noResult: false,
-      rec: rec, checkedIn: false, showCustom: false, btnText: '开始推荐'
+      rec: rec, checkedIn: false, showCustom: false, btnText: '推荐'
     });
   },
 
@@ -345,7 +354,7 @@ Page({
 
     this.setData({
       loading: false, hasResult: true, noResult: false,
-      rec: rec, checkedIn: false, showCustom: false, btnText: '开始推荐'
+      rec: rec, checkedIn: false, showCustom: false, btnText: '推荐'
     });
   },
 
@@ -451,8 +460,19 @@ Page({
   _fetchWeather: function (city) {
     var self = this;
     weather.fetchWeather(city).then(function (w) {
-      if (w) { self._weatherData = w; self.setData({ weather: w }); }
+      if (w) {
+        self._weatherData = w;
+        var scene = self._weatherToScene(w.desc || '');
+        self.setData({ weather: w, scene: scene });
+      }
     });
+  },
+
+  _weatherToScene: function (desc) {
+    var d = desc.toLowerCase();
+    if (/雨|rain|drizzle|shower|thunder|storm|sleet/.test(d)) return 'rainy';
+    if (/云|cloud|overcast|fog|mist|haze|阴|霾/.test(d)) return 'cloudy';
+    return 'sunny';
   },
 
   // ==== Checkin ====

@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 750 1624" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#B8B4AC"/>
+      <stop offset="35%" stop-color="#CCC8C0"/>
+      <stop offset="70%" stop-color="#DDDBD4"/>
+      <stop offset="100%" stop-color="#EAE8E2"/>
+    </linearGradient>
+    <linearGradient id="m1" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#8A8478" stop-opacity="0.5"/>
+      <stop offset="100%" stop-color="#8A8478" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="m2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#7A7468" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#7A7468" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="m3" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#6A6458" stop-opacity="0.2"/>
+      <stop offset="100%" stop-color="#6A6458" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <rect width="750" height="1624" fill="url(#sky)"/>
+  <!-- Dark cloud mass at top -->
+  <ellipse cx="375" cy="100" rx="420" ry="90" fill="#9A9488" opacity="0.35"/>
+  <ellipse cx="200" cy="160" rx="250" ry="55" fill="#A09A8E" opacity="0.25"/>
+  <!-- Rain lines - very subtle, thin -->
+  <g stroke="#9A9488" stroke-width="0.5" opacity="0.2" stroke-linecap="round">
+    <line x1="120" y1="280" x2="115" y2="380"/>
+    <line x1="250" y1="260" x2="245" y2="370"/>
+    <line x1="380" y1="290" x2="375" y2="400"/>
+    <line x1="500" y1="270" x2="495" y2="375"/>
+    <line x1="620" y1="285" x2="615" y2="390"/>
+    <line x1="180" y1="420" x2="175" y2="520"/>
+    <line x1="440" y1="410" x2="435" y2="510"/>
+    <line x1="580" y1="430" x2="575" y2="530"/>
+  </g>
+  <!-- Far mountain - darker -->
+  <path d="M0 680 Q180 585 375 640 Q570 585 750 660 L750 900 Q570 825 375 860 Q180 825 0 880Z" fill="url(#m1)"/>
+  <!-- Mid mountain -->
+  <path d="M0 825 Q200 745 400 795 Q600 745 750 805 L750 1025 Q550 965 375 995 Q180 965 0 1005Z" fill="url(#m2)"/>
+  <!-- Near hill -->
+  <path d="M0 965 Q250 905 500 945 Q650 915 750 935 L750 1125 Q500 1085 250 1105 Q100 1085 0 1095Z" fill="url(#m3)"/>
+  <!-- Dense mist layers -->
+  <rect x="0" y="700" width="750" height="100" fill="#CCC8C0" opacity="0.5"/>
+  <rect x="0" y="880" width="750" height="70" fill="#DDDBD4" opacity="0.45"/>
+</svg>

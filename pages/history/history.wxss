@@ -4,25 +4,26 @@
 
 .history-empty {
   text-align: center;
-  color: #B5A89A;
-  padding: 80rpx 40rpx;
+  color: var(--ink4);
+  padding: 100rpx 40rpx;
   font-size: 28rpx;
-  line-height: 1.8;
+  line-height: 2;
 }
 
 .history-empty-icon {
-  font-size: 72rpx;
-  margin-bottom: 20rpx;
+  font-size: 48rpx;
+  margin-bottom: 24rpx;
+  opacity: 0.5;
 }
 
 .history-empty-hint {
   font-size: 24rpx;
-  color: #B5A89A;
+  color: var(--ink4);
   margin-top: 8rpx;
 }
 
 .history-item-wrap {
-  border-bottom: 1rpx solid #F0EBE3;
+  border-bottom: 1rpx solid rgba(176, 164, 148, 0.2);
 }
 
 .history-item-wrap:last-child {
@@ -44,19 +45,19 @@
 
 .history-date {
   font-size: 24rpx;
-  color: #B5A89A;
-  font-weight: 500;
+  color: var(--ink4);
 }
 
 .history-time {
   font-size: 20rpx;
-  color: #C9BFB3;
+  color: var(--ink4);
+  opacity: 0.7;
   margin-top: 4rpx;
 }
 
 .history-dot {
-  width: 16rpx;
-  height: 16rpx;
+  width: 12rpx;
+  height: 12rpx;
   border-radius: 50%;
   flex-shrink: 0;
 }
@@ -67,58 +68,58 @@
 
 .history-tea-name {
   font-size: 28rpx;
-  font-weight: 600;
-  color: #3A2A1E;
+  font-weight: 500;
+  color: var(--ink);
+  letter-spacing: 1rpx;
 }
 
 .history-tea-cat {
   font-size: 22rpx;
-  color: #B5A89A;
+  color: var(--ink4);
   margin-top: 4rpx;
 }
 
 .history-badge {
   font-size: 20rpx;
-  padding: 4rpx 12rpx;
-  border-radius: 20rpx;
-  font-weight: 500;
+  padding: 2rpx 12rpx;
+  border-radius: 4rpx;
   margin-left: 8rpx;
+  letter-spacing: 1rpx;
 }
 
 .badge-primary {
-  background: #C4793B;
-  color: #FFFFFF;
+  background: var(--gold-dim);
+  color: var(--gold);
 }
 
 .badge-alt {
-  background: #F0E8DA;
-  color: #8A7668;
+  background: rgba(176, 164, 148, 0.1);
+  color: var(--ink3);
 }
 
 .badge-custom {
-  background: #E0F2F1;
-  color: #00695C;
+  background: rgba(122, 139, 111, 0.1);
+  color: var(--sage);
 }
 
 .skip-name {
-  color: #B5A89A;
-  font-weight: 400;
+  color: var(--ink4);
 }
 
 /* Category dot colors */
-.cat-dot-green { background: #6A9B5C; }
-.cat-dot-black { background: #8D6E63; }
-.cat-dot-white { background: #B0BEC5; }
+.cat-dot-green { background: #7A8B6F; }
+.cat-dot-black { background: #8A7060; }
+.cat-dot-white { background: #A8B0A8; }
 .cat-dot-oolong_tieguanyin,
 .cat-dot-oolong_wuyi,
-.cat-dot-oolong_dancong { background: #D4943A; }
-.cat-dot-puerh_raw { background: #6A9B5C; }
-.cat-dot-puerh_ripe { background: #5D4037; }
+.cat-dot-oolong_dancong { background: #B8956B; }
+.cat-dot-puerh_raw { background: #7A8B6F; }
+.cat-dot-puerh_ripe { background: #5A4A3A; }
 .cat-dot-flavored_jasmine,
-.cat-dot-flavored_other { background: #C27070; }
-.cat-dot-unknown { background: #C4793B; }
+.cat-dot-flavored_other { background: #A67B7B; }
+.cat-dot-unknown { background: var(--gold); }
 .cat-dot-none,
-.cat-dot-skip { background: #B5A89A; }
+.cat-dot-skip { background: var(--ink4); }
 
 /* ============================================================
    Tasting Notes (history page)
@@ -127,13 +128,14 @@
   font-size: 32rpx;
   flex-shrink: 0;
   padding: 8rpx;
+  opacity: 0.6;
 }
 
 .history-notes-display {
   padding: 0 0 20rpx 132rpx;
   font-size: 24rpx;
-  color: #8A7668;
-  line-height: 1.7;
+  color: var(--ink3);
+  line-height: 1.8;
 }
 
 .history-notes-edit {
@@ -143,13 +145,13 @@
 .history-notes-textarea {
   width: 100%;
   min-height: 100rpx;
-  border: 3rpx solid #F0EBE3;
-  border-radius: 20rpx;
+  border: 1rpx solid rgba(176, 164, 148, 0.3);
+  border-radius: var(--r-md);
   padding: 20rpx 24rpx;
   font-size: 26rpx;
-  color: #3A2A1E;
-  background: #FAF5ED;
-  line-height: 1.6;
+  color: var(--ink);
+  background: rgba(255, 253, 248, 0.4);
+  line-height: 1.8;
   box-sizing: border-box;
 }
 
@@ -162,17 +164,17 @@
 
 .history-notes-count {
   font-size: 22rpx;
-  color: #B5A89A;
+  color: var(--ink4);
 }
 
 .history-notes-save {
   padding: 10rpx 28rpx;
   border: none;
-  border-radius: 40rpx;
-  background: #C4793B;
-  color: #FFFFFF;
+  border-radius: var(--r-md);
+  background: var(--ink);
+  color: #FDFBF7;
   font-size: 24rpx;
-  font-weight: 500;
+  letter-spacing: 2rpx;
   line-height: 1.4;
 }
 
@@ -196,8 +198,8 @@
 .history-img-thumb {
   width: 180rpx;
   height: 180rpx;
-  border-radius: 12rpx;
-  background: #F0E8DA;
+  border-radius: var(--r-sm);
+  background: rgba(176, 164, 148, 0.1);
 }
 
 .history-img-del {
@@ -208,10 +210,10 @@
   height: 36rpx;
   line-height: 32rpx;
   text-align: center;
-  background: rgba(0, 0, 0, 0.55);
-  color: #fff;
+  background: rgba(44, 36, 24, 0.6);
+  color: #FDFBF7;
   border-radius: 50%;
-  font-size: 26rpx;
+  font-size: 24rpx;
 }
 
 .history-img-add {
@@ -222,20 +224,20 @@
   width: 180rpx;
   height: 180rpx;
   margin-top: 12rpx;
-  border: 2rpx dashed #D3C3B0;
-  border-radius: 12rpx;
-  background: #FAF5ED;
+  border: 1rpx dashed rgba(176, 164, 148, 0.5);
+  border-radius: var(--r-sm);
+  background: rgba(255, 253, 248, 0.3);
 }
 
 .history-img-add-icon {
-  font-size: 52rpx;
-  color: #B5A89A;
+  font-size: 48rpx;
+  color: var(--ink4);
   line-height: 1;
 }
 
 .history-img-add-text {
   font-size: 20rpx;
-  color: #B5A89A;
+  color: var(--ink4);
   margin-top: 8rpx;
 }
 
@@ -243,11 +245,12 @@
   width: 180rpx;
   margin-top: 8rpx;
   font-size: 20rpx;
-  color: #3A2A1E;
-  border: 1rpx solid #E5DDD0;
-  border-radius: 6rpx;
+  color: var(--ink);
+  border: 1rpx solid rgba(176, 164, 148, 0.3);
+  border-radius: var(--r-sm);
   padding: 4rpx 8rpx;
   text-align: center;
+  background: transparent;
 }
 
 .history-img-saved-item {
@@ -260,18 +263,19 @@
   width: 180rpx;
   margin-top: 6rpx;
   font-size: 20rpx;
-  color: #888780;
+  color: var(--ink4);
   text-align: center;
-  line-height: 1.3;
+  line-height: 1.4;
   word-break: break-all;
 }
 
 /* Stats entry button */
 .history-stats-btn {
   margin-left: auto;
-  font-size: 24rpx;
-  color: #C4793B;
-  background: #FAF0E6;
-  padding: 8rpx 22rpx;
-  border-radius: 24rpx;
+  font-size: 22rpx;
+  color: var(--gold);
+  background: var(--gold-dim);
+  padding: 8rpx 20rpx;
+  border-radius: var(--r-sm);
+  letter-spacing: 1rpx;
 }

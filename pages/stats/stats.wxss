@@ -13,12 +13,13 @@
 .stats-title {
   font-size: 36rpx;
   font-weight: 600;
-  color: #3A2A1E;
+  color: var(--ink);
+  letter-spacing: 2rpx;
 }
 
 .stats-month {
   font-size: 24rpx;
-  color: #B5A89A;
+  color: var(--ink4);
 }
 
 .stats-card {
@@ -44,7 +45,7 @@
   gap: 14rpx 28rpx;
   margin-top: 16rpx;
   padding-top: 16rpx;
-  border-top: 1rpx solid #F0EBE3;
+  border-top: 1rpx solid rgba(176, 164, 148, 0.2);
 }
 
 .stats-legend-item {
@@ -55,17 +56,17 @@
 }
 
 .stats-legend-dot {
-  width: 16rpx;
-  height: 16rpx;
+  width: 12rpx;
+  height: 12rpx;
   border-radius: 50%;
 }
 
 .stats-legend-name {
-  color: #3A2A1E;
+  color: var(--ink2);
 }
 
 .stats-legend-val {
-  color: #B5A89A;
+  color: var(--ink4);
 }
 
 /* ---- Bars (nature + top) ---- */
@@ -83,32 +84,32 @@
 .stats-bar-label {
   width: 48rpx;
   font-size: 26rpx;
-  color: #6B4F3A;
+  color: var(--ink2);
   flex-shrink: 0;
 }
 
 .stats-bar-track {
   flex: 1;
-  height: 20rpx;
-  background: #F0E8DA;
-  border-radius: 10rpx;
+  height: 16rpx;
+  background: rgba(176, 164, 148, 0.15);
+  border-radius: 8rpx;
   overflow: hidden;
 }
 
 .stats-bar-fill {
   height: 100%;
-  border-radius: 10rpx;
+  border-radius: 8rpx;
 }
 
 .stats-bar-fill.accent {
-  background: #C4793B;
+  background: var(--gold);
 }
 
 .stats-bar-val {
   width: 80rpx;
   text-align: right;
   font-size: 24rpx;
-  color: #8A7668;
+  color: var(--ink3);
   flex-shrink: 0;
 }
 
@@ -130,16 +131,15 @@
   line-height: 44rpx;
   text-align: center;
   border-radius: 50%;
-  background: #F0E8DA;
-  color: #8A7668;
+  background: rgba(176, 164, 148, 0.15);
+  color: var(--ink3);
   font-size: 24rpx;
-  font-weight: 600;
   flex-shrink: 0;
 }
 
-.stats-top-rank.rank-1 { background: #D4943A; color: #FFFFFF; }
-.stats-top-rank.rank-2 { background: #C7A882; color: #FFFFFF; }
-.stats-top-rank.rank-3 { background: #B5A89A; color: #FFFFFF; }
+.stats-top-rank.rank-1 { background: var(--gold); color: #FDFBF7; }
+.stats-top-rank.rank-2 { background: rgba(184, 149, 107, 0.6); color: #FDFBF7; }
+.stats-top-rank.rank-3 { background: rgba(176, 164, 148, 0.5); color: #FDFBF7; }
 
 .stats-top-info {
   flex: 1;
@@ -148,13 +148,14 @@
 
 .stats-top-name {
   font-size: 26rpx;
-  color: #3A2A1E;
-  font-weight: 500;
+  color: var(--ink);
+  font-weight: 400;
   margin-bottom: 8rpx;
   display: block;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
+  letter-spacing: 1rpx;
 }
 
 /* ---- Frequency ---- */
@@ -185,7 +186,7 @@
   display: flex;
   justify-content: space-between;
   font-size: 20rpx;
-  color: #B5A89A;
+  color: var(--ink4);
   margin-top: 12rpx;
   padding: 0 4rpx;
 }
@@ -195,20 +196,20 @@
   justify-content: center;
   gap: 12rpx;
   font-size: 24rpx;
-  color: #6B4F3A;
+  color: var(--ink2);
   margin-top: 16rpx;
   padding-top: 16rpx;
-  border-top: 1rpx solid #F0EBE3;
+  border-top: 1rpx solid rgba(176, 164, 148, 0.2);
 }
 
 .stats-freq-summary .dot {
-  color: #D4C9BC;
+  color: var(--ink4);
 }
 
 /* ---- Empty ---- */
 .stats-empty {
   text-align: center;
-  color: #B5A89A;
+  color: var(--ink4);
   padding: 48rpx 0;
   font-size: 26rpx;
 }
