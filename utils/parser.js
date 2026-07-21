@@ -168,7 +168,7 @@ function _parseKeywords(text) {
   if (cityMatch && cityMatch[1]) {
     // Strip trailing administrative suffix for cleaner city name
     var city = cityMatch[1];
-    // Keep the suffix as part of the name for better wttr.in matching
+    // Keep the suffix as part of the name for better 高德 geocoding matching
     result.city = city;
   }
 

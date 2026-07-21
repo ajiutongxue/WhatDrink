@@ -2,6 +2,9 @@
 node_modules/
 cloudfunctions/*/node_modules/
 
+# Cloud function secrets (API keys) - never commit
+cloudfunctions/*/config.json
+
 # IDE
 .project
 .idea/

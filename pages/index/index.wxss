@@ -25,24 +25,36 @@
   margin-bottom: 36rpx;
 }
 
-/* Solar-term seal (印章) */
-.seal {
-  width: 96rpx;
-  height: 96rpx;
-  border-radius: 24rpx;
-  background: var(--coral);
+/* Solar term — name + meaning, text only (no background block) */
+.solar {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 10rpx 24rpx rgba(222, 130, 96, 0.32);
-  border: 3rpx solid rgba(255, 255, 255, 0.4);
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6rpx;
 }
 
-.seal-text {
-  color: #FFF;
-  font-size: 34rpx;
-  font-weight: 600;
+.solar-name {
+  font-family: "Songti SC","STSongti-SC","STSong","SimSun","Noto Serif SC","Source Han Serif SC",serif;
+  font-size: 36rpx;
+  font-weight: 700;
+  color: var(--coral-deep);
+  letter-spacing: 4rpx;
+}
+
+.solar-meaning {
+  font-family: "Songti SC","STSongti-SC","STSong","SimSun","Noto Serif SC","Source Han Serif SC",serif;
+  font-size: 21rpx;
+  color: var(--ink3);
   letter-spacing: 2rpx;
+  line-height: 1.5;
+}
+
+.solar-custom {
+  font-family: "Songti SC","STSongti-SC","STSong","SimSun","Noto Serif SC","Source Han Serif SC",serif;
+  font-size: 21rpx;
+  color: var(--ink2);
+  letter-spacing: 2rpx;
+  line-height: 1.5;
 }
 
 .hero-weather {
@@ -50,12 +62,6 @@
   flex-direction: column;
   align-items: flex-end;
   gap: 4rpx;
-  background: var(--card);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  padding: 12rpx 22rpx;
-  border-radius: var(--r-pill);
-  border: 1rpx solid var(--card-border);
   font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", "Microsoft YaHei", "Segoe UI", sans-serif;
 }
 

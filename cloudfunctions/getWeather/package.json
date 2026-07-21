@@ -1,7 +1,7 @@
 {
   "name": "getWeather",
   "version": "1.0.0",
-  "description": "Tea Doctor weather proxy cloud function - fetches wttr.in server-side to bypass mini-program domain whitelist",
+  "description": "Tea Doctor weather proxy cloud function - fetches Amap (高德) weather server-side, bypassing mini-program domain whitelist",
   "main": "index.js",
   "dependencies": {}
 }

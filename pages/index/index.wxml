@@ -5,17 +5,19 @@
 
   <!-- ========== Hero Header ========== -->
   <view class="hero" style="padding-top: {{statusBarHeight + 36}}px">
-    <!-- Top row: 节气 seal + weather -->
+    <!-- Top row: 节气 + weather -->
     <view class="hero-top">
-      <view class="seal" wx:if="{{solarTerm}}">
-        <text class="seal-text">{{solarTerm}}</text>
+      <view class="solar" wx:if="{{solarTerm}}">
+        <text class="solar-name">{{solarTerm}}</text>
+        <text class="solar-meaning" wx:if="{{solarMeaning}}">{{solarMeaning}}</text>
+        <text class="solar-custom" wx:if="{{solarCustom}}">{{solarCustom}}</text>
       </view>
       <view class="hero-weather" wx:if="{{weather}}">
         <view class="hw-main">
-          <text class="hw-temp">{{weather.temp}}°</text>
+          <text class="hw-temp">{{weather.temp}}℃</text>
           <text class="hw-desc">{{weather.desc}}</text>
         </view>
-        <view class="hw-sub">{{weather.city}} · 湿度 {{weather.humidity}}%</view>
+        <view class="hw-sub">{{weather.city}} · {{weather.humidity}}% RH</view>
       </view>
     </view>
 

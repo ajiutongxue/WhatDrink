@@ -50,6 +50,64 @@ function presetQuote() {
 // （同一端点重试无意义，最坏情况可省约 2 分钟空等）
 var SKIP_LLM_REC_TYPES = { timeout: 1, offline: 1, network: 1, domain: 1, ssl: 1, abort: 1 };
 
+// 二十四节气寓意文案（固定文案，随节气展示）
+var SOLAR_MEANING = {
+  '小寒': '寒气渐盛，围炉正暖',
+  '大寒': '岁寒将尽，静候春归',
+  '立春': '春回大地，万物始生',
+  '雨水': '好雨知时，草木萌动',
+  '惊蛰': '春雷始鸣，蛰虫惊走',
+  '春分': '昼夜平分，春色正中',
+  '清明': '气清景明，新茶初上',
+  '谷雨': '雨生百谷，春茶正香',
+  '立夏': '夏日初长，绿荫渐浓',
+  '小满': '小得盈满，麦穗初黄',
+  '芒种': '仲夏将至，梅子黄时',
+  '夏至': '日长之至，蝉鸣始盛',
+  '小暑': '温风初至，暑气渐升',
+  '大暑': '炎热至极，心静自凉',
+  '立秋': '凉风有信，暑去秋来',
+  '处暑': '暑气渐止，秋意初显',
+  '白露': '露凝而白，夜凉如水',
+  '秋分': '平分秋色，桂子飘香',
+  '寒露': '露气寒凉，秋深叶落',
+  '霜降': '霜始降下，层林尽染',
+  '立冬': '万物收藏，冬之始也',
+  '小雪': '寒气渐盛，初雪将至',
+  '大雪': '瑞雪将至，天地素白',
+  '冬至': '阴极阳生，数九寒天',
+  '冬至后': '寒尽将暖，静候春生'
+};
+
+// 二十四节气民俗习惯（固定文案，随节气展示）
+var SOLAR_CUSTOM = {
+  '小寒': '煮腊八粥，踏雪寻梅',
+  '大寒': '食糯御寒，除旧迎新',
+  '立春': '咬春吃饼，鞭打春牛',
+  '雨水': '回门省亲，接寿祈福',
+  '惊蛰': '食梨润燥，祭虎驱邪',
+  '春分': '竖蛋踏青，簪花祈福',
+  '清明': '扫墓踏青，插柳吃青',
+  '谷雨': '采饮新茶，赏牡丹花',
+  '立夏': '称人吃蛋，尝新迎夏',
+  '小满': '祭蚕祈丰，食苦尝鲜',
+  '芒种': '饯送花神，煮梅酿酒',
+  '夏至': '吃面祭地，消夏避伏',
+  '小暑': '食新晒伏，头伏饺子',
+  '大暑': '饮伏茶，晒伏姜',
+  '立秋': '贴秋膘，啃秋迎凉',
+  '处暑': '吃鸭放灯，祈安迎秋',
+  '白露': '收露烹茶，食龙眼',
+  '秋分': '竖蛋祭月，吃秋菜',
+  '寒露': '登高赏菊，饮菊花酒',
+  '霜降': '吃柿赏菊，进补御寒',
+  '立冬': '吃饺酿酒，补冬进补',
+  '小雪': '腌腊味，打糍粑',
+  '大雪': '腌肉藏冬，围炉夜话',
+  '冬至': '北吃饺子南吃圆',
+  '冬至后': '画消寒图，数九盼春'
+};
+
 function getSeason() {
   var m = new Date().getMonth() + 1;
   if (m >= 3 && m <= 5) return '春';
@@ -79,6 +137,8 @@ Page({
   data: {
     season: '',
     solarTerm: '',
+    solarMeaning: '',
+    solarCustom: '',
     day: '',
     week: '',
     lunarDate: '',
@@ -124,9 +184,12 @@ Page({
     var Lunar = lunarLib.Lunar || lunarLib;
     var ln = Lunar.fromDate(now);
     var app = getApp();
+    var term = getSolarTerm();
     this.setData({
       statusBarHeight: sysInfo.statusBarHeight || 20,
-      season: getSeason(), solarTerm: getSolarTerm(),
+      season: getSeason(), solarTerm: term,
+      solarMeaning: SOLAR_MEANING[term] || '',
+      solarCustom: SOLAR_CUSTOM[term] || '',
       day: now.getDate(),
       week: '周' + weekNames[now.getDay()],
       lunarDate: ln.getMonthInChinese() + '月' + ln.getDayInChinese(),
