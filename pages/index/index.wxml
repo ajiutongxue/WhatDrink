@@ -1,30 +1,48 @@
 <!-- SVG Full-page Background (fixed, behind everything) -->
 <image class="scene-bg" src="/images/scene-{{scene}}.svg" mode="aspectFill" />
 
-<view class="page-container">
+<view class="page-container" bindtap="onPageTap">
 
-  <!-- ========== Date Typography (seamless, no container) ========== -->
-  <view class="date-block" style="padding-top: {{statusBarHeight + 48}}px">
-    <view class="date-row">
-      <text class="date-day">{{day}}</text>
-      <view class="date-meta">
-        <text class="date-term" wx:if="{{solarTerm}}">{{solarTerm}}</text>
-        <text class="date-sub">{{week}} · 农历{{lunarDate}}</text>
+  <!-- ========== Hero Header ========== -->
+  <view class="hero" style="padding-top: {{statusBarHeight + 36}}px">
+    <!-- Top badge row: solar-term seal + weather -->
+    <view class="hero-top">
+      <view class="seal" wx:if="{{solarTerm}}">
+        <text class="seal-text">{{solarTerm}}</text>
+      </view>
+      <view class="hero-weather" wx:if="{{weather}}">
+        <text class="hero-weather-dot">✦</text>
+        <text>{{weather.city}} {{weather.temp}}° · 湿度{{weather.humidity}}%</text>
       </view>
     </view>
-    <text class="date-weather" wx:if="{{weather}}">{{weather.city}} {{weather.temp}}° · 湿度{{weather.humidity}}%</text>
+
+    <!-- Big date + week/lunar -->
+    <view class="hero-date">
+      <text class="hero-day">{{day}}</text>
+      <view class="hero-date-divider"></view>
+      <view class="hero-date-side">
+        <text class="hero-week">{{week}}</text>
+        <text class="hero-lunar">农历{{lunarDate}}</text>
+      </view>
+    </view>
+
+    <!-- Poetic sub line -->
+    <view class="hero-sub">
+      <text class="hero-sub-script">顺时而饮</text>
+      <text class="hero-sub-text">让一杯茶，回应此刻的天气与身体</text>
+    </view>
   </view>
 
   <!-- ========== Input Zone ========== -->
-  <!-- Hidden state: invisible tap area, shows summary if text exists -->
-  <view class="input-zone" bindtap="onShowInput" wx:if="{{!showInput}}">
+  <!-- Invisible tap area by default; only shows summary when text exists -->
+  <view class="input-zone" catchtap="onShowInput" wx:if="{{!showInput}}">
     <text class="input-summary" wx:if="{{inputValue}}">{{inputValue}}</text>
   </view>
 
-  <!-- Glass input: pure textarea, no chrome -->
-  <view class="glass-input" wx:if="{{showInput}}">
+  <!-- Soft input panel: textarea + tags -->
+  <view class="soft-input" catchtap="noop" wx:if="{{showInput}}">
     <textarea
-      class="glass-textarea"
+      class="soft-textarea"
       value="{{inputValue}}"
       bindinput="onInput"
       maxlength="500"
@@ -39,7 +57,9 @@
   </view>
 
   <!-- ========== Recommend Button ========== -->
-  <button class="btn-rec" bindtap="onRecommend" disabled="{{loading}}">{{btnText}}</button>
+  <view class="btn-rec-wrap">
+    <button class="btn-rec" bindtap="onRecommend" disabled="{{loading}}">{{btnText}}</button>
+  </view>
 
   <!-- ========== Recommendation Area ========== -->
   <view id="rec-area">

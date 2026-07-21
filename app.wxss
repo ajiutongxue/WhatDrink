@@ -1,25 +1,46 @@
 /* ============================================================
-   今天喝点什么茶 — Design System v3
-   文人画卷：留白即意境，背景即设计
+   今天喝点什么茶 — Design System v4 「暖屿」
+   融合暖调：奶油底色 + 珊瑚橙 + 鼠尾草绿 + 深棕锚点
+   柔和、圆润、有情绪温度，像一杯刚沏好的茶
    ============================================================ */
 
 page {
-  --ink: #2C2418;
-  --ink2: #5A4D3E;
-  --ink3: #8A7D6C;
-  --ink4: #B0A494;
-  --gold: #B8956B;
-  --gold-dim: rgba(184, 149, 107, 0.15);
-  --glass: rgba(255, 253, 248, 0.55);
-  --glass-border: rgba(255, 255, 255, 0.4);
-  --sage: #7A8B6F;
-  --rose: #A67B7B;
-  --r-sm: 12rpx;
-  --r-md: 24rpx;
-  --r-lg: 36rpx;
+  /* —— 底色 —— */
+  --cream: #FBF3E7;
+  --cream2: #F6EADB;
+  --blush: #F5DCC9;
+  --blush-soft: #FAEADD;
+
+  /* —— 主色：珊瑚橙 —— */
+  --coral: #DE8260;
+  --coral-deep: #C96B4C;
+  --coral-soft: rgba(222, 130, 96, 0.14);
+
+  /* —— 辅色：鼠尾草绿 —— */
+  --sage: #8FAE87;
+  --sage-deep: #6F9468;
+  --sage-soft: #DDE9D6;
+
+  /* —— 点缀：柔紫（雨天）—— */
+  --lav: #B4A8C8;
+
+  /* —— 深棕锚点 & 文字阶 —— */
+  --cocoa: #3E2F2B;
+  --ink: #4A3A33;
+  --ink2: #75625A;
+  --ink3: #A08D83;
+  --ink4: #C9B8AD;
+
+  /* —— 卡片 & 圆角 —— */
+  --card: rgba(255, 252, 246, 0.78);
+  --card-border: rgba(222, 130, 96, 0.16);
+  --r-sm: 16rpx;
+  --r-md: 28rpx;
+  --r-lg: 40rpx;
+  --r-pill: 999rpx;
 
   font-family: "Songti SC", "STSongti-SC", "STSong", "SimSun", "Noto Serif SC", "Source Han Serif SC", serif;
-  background: #F5F0E8;
+  background: var(--cream);
   color: var(--ink);
   line-height: 1.8;
   -webkit-font-smoothing: antialiased;
@@ -27,63 +48,54 @@ page {
 }
 
 /* ============================================================
-   Page Container — content floats on SVG background
+   Page Container
    ============================================================ */
 .page-container {
   position: relative;
   z-index: 1;
-  padding: 0 48rpx;
-  padding-bottom: 60rpx;
+  padding: 0 40rpx;
+  padding-bottom: 64rpx;
   min-height: 100vh;
 }
 
 /* ============================================================
-   Glass Panel — the ONLY container metaphor
-   ============================================================ */
-.glass {
-  background: var(--glass);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1rpx solid var(--glass-border);
-  border-radius: var(--r-lg);
-}
-
-/* ============================================================
-   Card — subtle section container for sub-pages
+   Card — 柔和粉彩容器
    ============================================================ */
 .card {
-  background: rgba(255, 253, 248, 0.45);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1rpx solid rgba(255, 255, 255, 0.35);
+  background: var(--card);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1rpx solid var(--card-border);
   border-radius: var(--r-lg);
-  padding: 36rpx 40rpx;
-  margin-bottom: 32rpx;
+  padding: 36rpx 38rpx;
+  margin-bottom: 28rpx;
+  box-shadow: 0 12rpx 36rpx rgba(150, 110, 90, 0.06);
 }
 
 .card-title {
-  font-size: 22rpx;
-  color: var(--ink4);
-  margin-bottom: 24rpx;
-  letter-spacing: 3rpx;
+  font-size: 24rpx;
+  color: var(--ink2);
+  margin-bottom: 26rpx;
+  letter-spacing: 2rpx;
   display: flex;
   align-items: center;
   gap: 12rpx;
+  font-weight: 600;
 }
 
 .card-title .icon {
-  font-size: 28rpx;
-  opacity: 0.6;
+  font-size: 30rpx;
 }
 
 /* ============================================================
    Typography
    ============================================================ */
 .t-display {
-  font-size: 140rpx;
+  font-size: 132rpx;
   font-weight: 300;
   line-height: 1;
   letter-spacing: -2rpx;
+  color: var(--cocoa);
 }
 
 .t-title {
@@ -91,6 +103,7 @@ page {
   font-weight: 600;
   line-height: 1.4;
   letter-spacing: 2rpx;
+  color: var(--cocoa);
 }
 
 .t-body {
@@ -112,71 +125,71 @@ page {
 }
 
 /* ============================================================
-   Parsed Tags — minimal, text-only with subtle bg
+   Parsed Tags — 圆润胶囊
    ============================================================ */
 .parsed-tags {
   display: flex;
   flex-wrap: wrap;
   gap: 12rpx;
-  margin-top: 20rpx;
+  margin-top: 22rpx;
 }
 
 .tag {
   display: inline-flex;
   align-items: center;
   gap: 6rpx;
-  padding: 6rpx 18rpx;
-  border-radius: 6rpx;
+  padding: 8rpx 20rpx;
+  border-radius: var(--r-pill);
   font-size: 22rpx;
   font-weight: 400;
   letter-spacing: 1rpx;
 }
 
-.tag-state { background: rgba(184, 149, 107, 0.12); color: var(--ink2); }
-.tag-city { background: rgba(122, 139, 111, 0.12); color: #4A5E40; }
-.tag-mood { background: rgba(90, 120, 150, 0.10); color: #3A5A70; }
-.tag-avoid { background: rgba(166, 123, 123, 0.12); color: #7A4A4A; }
-.tag-prefer { background: rgba(122, 139, 111, 0.12); color: #4A5E40; }
+.tag-state { background: var(--coral-soft); color: var(--coral-deep); }
+.tag-city { background: var(--sage-soft); color: var(--sage-deep); }
+.tag-mood { background: rgba(180, 168, 200, 0.16); color: #7A6B96; }
+.tag-avoid { background: rgba(200, 120, 110, 0.14); color: #B05A4A; }
+.tag-prefer { background: var(--sage-soft); color: var(--sage-deep); }
 
 /* ============================================================
-   Recommendation — Primary (glass panel)
+   Recommendation — Primary (柔和卡片)
    ============================================================ */
 .rec-hero {
-  background: var(--glass);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1rpx solid var(--glass-border);
+  background: var(--card);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1rpx solid var(--card-border);
   border-radius: var(--r-lg);
-  padding: 48rpx 44rpx;
-  margin-bottom: 32rpx;
+  padding: 46rpx 42rpx;
+  margin-bottom: 28rpx;
   position: relative;
+  box-shadow: 0 16rpx 44rpx rgba(150, 110, 90, 0.08);
 }
 
 .rec-hero-badge {
   display: inline-block;
   font-size: 20rpx;
-  font-weight: 400;
+  font-weight: 600;
   letter-spacing: 3rpx;
-  color: var(--ink3);
-  margin-bottom: 28rpx;
-  padding-bottom: 8rpx;
-  border-bottom: 1rpx solid var(--ink4);
+  padding: 6rpx 20rpx;
+  border-radius: var(--r-pill);
+  margin-bottom: 26rpx;
 }
 
 .rec-hero-badge.ai {
-  color: var(--gold);
-  border-bottom-color: var(--gold);
+  color: #FFFFFF;
+  background: var(--coral);
 }
 
 .rec-hero-badge.primary {
-  color: var(--ink3);
-  border-bottom-color: var(--ink4);
+  color: var(--sage-deep);
+  background: var(--sage-soft);
 }
 
 .rec-hero-name {
-  font-size: 44rpx;
+  font-size: 46rpx;
   font-weight: 600;
-  color: var(--ink);
+  color: var(--cocoa);
   line-height: 1.3;
   margin-bottom: 4rpx;
   letter-spacing: 3rpx;
@@ -185,58 +198,60 @@ page {
 .rec-hero-brand {
   font-size: 26rpx;
   color: var(--ink3);
-  margin-bottom: 28rpx;
+  margin-bottom: 26rpx;
   letter-spacing: 2rpx;
 }
 
 .rec-hero-tags {
   display: flex;
-  gap: 16rpx;
+  gap: 14rpx;
   flex-wrap: wrap;
-  margin-bottom: 32rpx;
+  margin-bottom: 30rpx;
 }
 
 .rec-hero-tag {
   font-size: 22rpx;
-  padding: 4rpx 0;
+  padding: 6rpx 18rpx;
   font-weight: 400;
   letter-spacing: 1rpx;
-  color: var(--ink3);
-  border-bottom: 1rpx solid rgba(176, 164, 148, 0.4);
+  color: var(--ink2);
+  background: var(--cream2);
+  border-radius: var(--r-pill);
 }
 
 .nature-tag {
   font-size: 22rpx;
-  padding: 4rpx 16rpx;
-  border-radius: 4rpx;
+  padding: 6rpx 18rpx;
+  border-radius: var(--r-pill);
   color: #FFFFFF;
   font-weight: 400;
   letter-spacing: 2rpx;
 }
 
-.nature-han { background: #6A8FA8; }
-.nature-liang { background: #7AAAB8; }
-.nature-ping { background: #9A9A90; }
-.nature-wen { background: #B8885A; }
-.nature-re { background: #A86A5A; }
+.nature-han { background: #7FA6C0; }
+.nature-liang { background: #8FC0C8; }
+.nature-ping { background: #A8A89C; }
+.nature-wen { background: #D99A6A; }
+.nature-re { background: #CE7A66; }
 
 .cat-tag {
-  color: var(--ink2);
-  border-bottom-color: rgba(90, 77, 62, 0.3);
+  color: var(--sage-deep);
+  background: var(--sage-soft);
 }
 
 .info-tag {
-  color: var(--ink4);
-  border-bottom-color: rgba(176, 164, 148, 0.3);
+  color: var(--ink3);
+  background: var(--cream2);
 }
 
 .rec-hero-reason {
   font-size: 28rpx;
   color: var(--ink2);
   line-height: 2;
-  margin-bottom: 28rpx;
-  padding-left: 24rpx;
-  border-left: 2rpx solid var(--gold);
+  margin-bottom: 26rpx;
+  padding: 22rpx 26rpx;
+  background: var(--blush-soft);
+  border-radius: var(--r-md);
 }
 
 .rec-hero-reason text {
@@ -246,48 +261,51 @@ page {
 
 .rec-hero-brew {
   display: flex;
-  gap: 36rpx;
+  gap: 32rpx;
+  flex-wrap: wrap;
   font-size: 24rpx;
-  color: var(--ink3);
-  padding-top: 24rpx;
-  border-top: 1rpx solid rgba(176, 164, 148, 0.25);
+  color: var(--ink2);
+  padding: 22rpx 26rpx;
+  background: var(--sage-soft);
+  border-radius: var(--r-md);
   letter-spacing: 1rpx;
 }
 
 .avoid-info {
   font-size: 24rpx;
-  color: var(--ink3);
-  margin-top: 24rpx;
-  padding-left: 24rpx;
-  border-left: 2rpx solid var(--rose);
+  color: #B05A4A;
+  margin-top: 22rpx;
+  padding: 18rpx 24rpx;
+  background: rgba(200, 120, 110, 0.1);
+  border-radius: var(--r-md);
   line-height: 1.7;
 }
 
 /* ============================================================
-   Alt Card — lighter glass
+   Alt Card — 更浅的粉彩
    ============================================================ */
 .rec-alt {
-  background: rgba(255, 253, 248, 0.4);
+  background: rgba(255, 252, 246, 0.6);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1rpx solid rgba(255, 255, 255, 0.3);
+  border: 1rpx solid rgba(143, 174, 135, 0.2);
   border-radius: var(--r-lg);
-  padding: 36rpx 40rpx;
-  margin-bottom: 32rpx;
+  padding: 34rpx 36rpx;
+  margin-bottom: 28rpx;
   display: flex;
-  gap: 28rpx;
+  gap: 26rpx;
   align-items: flex-start;
 }
 
 .rec-alt-icon {
-  width: 72rpx;
-  height: 72rpx;
+  width: 76rpx;
+  height: 76rpx;
   border-radius: 50%;
-  background: rgba(184, 149, 107, 0.1);
+  background: var(--sage-soft);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 32rpx;
+  font-size: 34rpx;
   flex-shrink: 0;
 }
 
@@ -296,15 +314,16 @@ page {
 .rec-alt-badge {
   display: inline-block;
   font-size: 20rpx;
-  color: var(--ink4);
+  color: var(--sage-deep);
   letter-spacing: 2rpx;
   margin-bottom: 8rpx;
+  font-weight: 600;
 }
 
 .rec-alt-name {
   font-size: 32rpx;
   font-weight: 600;
-  color: var(--ink);
+  color: var(--cocoa);
   letter-spacing: 2rpx;
 }
 
@@ -340,8 +359,8 @@ page {
    ============================================================ */
 .ai-notice {
   font-size: 20rpx;
-  color: var(--gold);
-  margin-bottom: 24rpx;
+  color: var(--coral-deep);
+  margin-bottom: 22rpx;
   letter-spacing: 2rpx;
 }
 
@@ -349,9 +368,10 @@ page {
   font-size: 28rpx;
   color: var(--ink2);
   line-height: 2;
-  margin-bottom: 28rpx;
-  padding-left: 24rpx;
-  border-left: 2rpx solid var(--gold);
+  margin-bottom: 26rpx;
+  padding: 22rpx 26rpx;
+  background: var(--blush-soft);
+  border-radius: var(--r-md);
 }
 
 .rec-reason-ai text {
@@ -364,24 +384,30 @@ page {
   padding: 80rpx 40rpx;
 }
 
-.ai-loading-icon { font-size: 56rpx; margin-bottom: 28rpx; opacity: 0.6; }
+.ai-loading-icon { font-size: 56rpx; margin-bottom: 28rpx; }
 .ai-loading-text { font-size: 28rpx; color: var(--ink2); letter-spacing: 3rpx; }
 .ai-loading-sub { font-size: 22rpx; color: var(--ink4); margin-top: 12rpx; }
 .ai-loading-dots { display: inline-block; width: 30rpx; text-align: left; }
 
 /* ============================================================
-   Checkin — minimal, no card
+   Checkin — 圆润胶囊按钮
    ============================================================ */
 .checkin-card {
-  padding: 40rpx 0;
-  margin-bottom: 32rpx;
+  padding: 36rpx 38rpx;
+  margin-bottom: 28rpx;
+  background: var(--card);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1rpx solid var(--card-border);
+  border-radius: var(--r-lg);
 }
 
 .checkin-title {
   font-size: 24rpx;
-  color: var(--ink4);
+  color: var(--ink2);
   margin-bottom: 24rpx;
-  letter-spacing: 3rpx;
+  letter-spacing: 2rpx;
+  font-weight: 600;
 }
 
 .checkin-row {
@@ -393,12 +419,10 @@ page {
 .checkin-pill {
   flex: 1;
   min-width: 0;
-  padding: 20rpx 12rpx;
-  border: 1rpx solid rgba(176, 164, 148, 0.4);
+  padding: 22rpx 12rpx;
+  border: none;
   border-radius: var(--r-md);
-  background: rgba(255, 253, 248, 0.5);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: var(--cream2);
   font-size: 26rpx;
   color: var(--ink2);
   text-align: center;
@@ -408,9 +432,9 @@ page {
 }
 
 .checkin-pill::after { border: none; }
-.checkin-pill.hero { border-color: var(--gold); color: var(--ink); }
-.checkin-pill.secondary { border-style: dashed; }
-.checkin-pill.muted { color: var(--ink4); border-color: rgba(176, 164, 148, 0.25); }
+.checkin-pill.hero { background: var(--coral); color: #FFFFFF; }
+.checkin-pill.secondary { background: var(--sage-soft); color: var(--sage-deep); }
+.checkin-pill.muted { color: var(--ink3); background: var(--cream2); }
 
 .checkin-custom {
   display: flex;
@@ -421,21 +445,21 @@ page {
 
 .checkin-custom input {
   flex: 1;
-  border: 1rpx solid rgba(176, 164, 148, 0.4);
+  border: 1rpx solid var(--card-border);
   border-radius: var(--r-md);
   padding: 18rpx 28rpx;
   font-size: 26rpx;
-  background: rgba(255, 253, 248, 0.5);
+  background: var(--cream);
   color: var(--ink);
   outline: none;
 }
 
 .checkin-custom-btn {
-  padding: 18rpx 32rpx;
+  padding: 18rpx 34rpx;
   border: none;
   border-radius: var(--r-md);
-  background: var(--ink);
-  color: #FDFBF7;
+  background: var(--cocoa);
+  color: var(--cream);
   font-size: 24rpx;
   letter-spacing: 2rpx;
 }
@@ -450,40 +474,40 @@ page {
   align-items: center;
   gap: 24rpx;
   padding: 28rpx 0;
-  border-bottom: 1rpx solid rgba(176, 164, 148, 0.2);
+  border-bottom: 1rpx solid rgba(201, 184, 173, 0.3);
 }
 
 .history-item:last-child { border-bottom: none; }
 .history-date { font-size: 24rpx; color: var(--ink4); min-width: 92rpx; }
-.history-dot { width: 12rpx; height: 12rpx; border-radius: 50%; flex-shrink: 0; }
+.history-dot { width: 14rpx; height: 14rpx; border-radius: 50%; flex-shrink: 0; }
 .history-tea { flex: 1; }
-.history-tea-name { font-size: 28rpx; font-weight: 500; color: var(--ink); letter-spacing: 1rpx; }
+.history-tea-name { font-size: 28rpx; font-weight: 500; color: var(--cocoa); letter-spacing: 1rpx; }
 .history-tea-cat { font-size: 22rpx; color: var(--ink4); margin-top: 4rpx; }
 
 .history-badge {
   font-size: 20rpx;
-  padding: 2rpx 12rpx;
-  border-radius: 4rpx;
+  padding: 4rpx 14rpx;
+  border-radius: var(--r-pill);
   margin-left: 8rpx;
   letter-spacing: 1rpx;
 }
 
-.badge-primary { background: var(--gold-dim); color: var(--gold); }
-.badge-alt { background: rgba(176, 164, 148, 0.1); color: var(--ink3); }
-.badge-custom { background: rgba(122, 139, 111, 0.1); color: var(--sage); }
+.badge-primary { background: var(--coral-soft); color: var(--coral-deep); }
+.badge-alt { background: var(--cream2); color: var(--ink3); }
+.badge-custom { background: var(--sage-soft); color: var(--sage-deep); }
 
 .history-empty { text-align: center; color: var(--ink4); padding: 100rpx 40rpx; font-size: 28rpx; line-height: 2; }
-.history-empty-icon { font-size: 48rpx; margin-bottom: 24rpx; opacity: 0.5; }
+.history-empty-icon { font-size: 52rpx; margin-bottom: 24rpx; }
 
 /* Category dots */
-.cat-dot-green { background: #7A8B6F; }
-.cat-dot-black { background: #8A7060; }
-.cat-dot-white { background: #A8B0A8; }
-.cat-dot-oolong_tieguanyin, .cat-dot-oolong_wuyi, .cat-dot-oolong_dancong { background: #B8956B; }
-.cat-dot-puerh_raw { background: #7A8B6F; }
-.cat-dot-puerh_ripe { background: #5A4A3A; }
-.cat-dot-flavored_jasmine, .cat-dot-flavored_other { background: #A67B7B; }
-.cat-dot-unknown { background: var(--gold); }
+.cat-dot-green { background: #8FAE87; }
+.cat-dot-black { background: #9C7B6A; }
+.cat-dot-white { background: #BCC4BC; }
+.cat-dot-oolong_tieguanyin, .cat-dot-oolong_wuyi, .cat-dot-oolong_dancong { background: #DE8260; }
+.cat-dot-puerh_raw { background: #8FAE87; }
+.cat-dot-puerh_ripe { background: #6B5344; }
+.cat-dot-flavored_jasmine, .cat-dot-flavored_other { background: #C98A9A; }
+.cat-dot-unknown { background: var(--coral); }
 .cat-dot-none, .cat-dot-skip { background: var(--ink4); }
 
 /* ============================================================
@@ -493,7 +517,7 @@ page {
 
 .setting-label {
   font-size: 22rpx;
-  color: var(--ink4);
+  color: var(--ink3);
   margin-bottom: 12rpx;
   display: block;
   letter-spacing: 2rpx;
@@ -501,12 +525,11 @@ page {
 
 .setting-input {
   width: 100%;
-  border: none;
-  border-bottom: 1rpx solid rgba(176, 164, 148, 0.4);
-  border-radius: 0;
-  padding: 16rpx 4rpx;
+  border: 1rpx solid var(--card-border);
+  border-radius: var(--r-md);
+  padding: 18rpx 26rpx;
   font-size: 28rpx;
-  background: transparent;
+  background: var(--cream);
   color: var(--ink);
   outline: none;
 }
@@ -518,16 +541,16 @@ page {
 .radio-group label { display: flex; align-items: center; gap: 10rpx; font-size: 28rpx; }
 
 .setting-btn {
-  padding: 16rpx 32rpx;
-  border: 1rpx solid rgba(176, 164, 148, 0.4);
-  border-radius: var(--r-md);
-  background: transparent;
+  padding: 18rpx 34rpx;
+  border: 1rpx solid var(--card-border);
+  border-radius: var(--r-pill);
+  background: var(--cream);
   font-size: 26rpx;
   color: var(--ink2);
 }
 
 .setting-btn::after { border: none; }
-.setting-btn.danger { color: var(--rose); border-color: rgba(166, 123, 123, 0.4); }
+.setting-btn.danger { color: #B05A4A; border-color: rgba(200, 120, 110, 0.4); background: rgba(200,120,110,0.06); }
 
 .data-btn-row { display: flex; gap: 16rpx; flex-wrap: wrap; }
 .sync-status { font-size: 22rpx; color: var(--ink4); margin-bottom: 16rpx; }
@@ -545,29 +568,29 @@ page {
    Quiz
    ============================================================ */
 .quiz-q { margin: 32rpx 0; }
-.quiz-q-text { font-size: 28rpx; font-weight: 500; margin-bottom: 16rpx; letter-spacing: 1rpx; }
+.quiz-q-text { font-size: 28rpx; font-weight: 500; margin-bottom: 16rpx; letter-spacing: 1rpx; color: var(--cocoa); }
 .quiz-opts { display: flex; gap: 16rpx; flex-wrap: wrap; }
 
 .quiz-opt {
-  padding: 14rpx 28rpx;
-  border: 1rpx solid rgba(176, 164, 148, 0.4);
-  border-radius: var(--r-md);
+  padding: 16rpx 30rpx;
+  border: 1rpx solid var(--card-border);
+  border-radius: var(--r-pill);
   font-size: 26rpx;
-  background: transparent;
+  background: var(--cream);
   color: var(--ink2);
 }
 
 .quiz-opt.selected {
-  background: var(--ink);
-  color: #FDFBF7;
-  border-color: var(--ink);
+  background: var(--coral);
+  color: #FFFFFF;
+  border-color: var(--coral);
 }
 
 .quiz-result {
   margin-top: 28rpx;
-  padding: 28rpx 32rpx;
-  padding-left: 24rpx;
-  border-left: 2rpx solid var(--gold);
+  padding: 26rpx 30rpx;
+  background: var(--blush-soft);
+  border-radius: var(--r-md);
   font-size: 26rpx;
   color: var(--ink2);
   line-height: 1.8;
@@ -584,21 +607,21 @@ page {
 
 .tea-lib-filter-item {
   display: inline-block;
-  padding: 10rpx 24rpx;
-  border-radius: var(--r-md);
+  padding: 12rpx 28rpx;
+  border-radius: var(--r-pill);
   font-size: 24rpx;
   margin-right: 16rpx;
-  background: transparent;
+  background: var(--cream);
   color: var(--ink3);
-  border: 1rpx solid rgba(176, 164, 148, 0.3);
+  border: 1rpx solid var(--card-border);
   flex-shrink: 0;
   letter-spacing: 1rpx;
 }
 
 .tea-lib-filter-item.active {
-  background: var(--ink);
-  color: #FDFBF7;
-  border-color: var(--ink);
+  background: var(--coral);
+  color: #FFFFFF;
+  border-color: var(--coral);
 }
 
 .tea-lib-cat-header {
@@ -608,7 +631,7 @@ page {
   padding: 16rpx 0 8rpx;
 }
 
-.tea-lib-cat-name { font-size: 28rpx; color: var(--ink); font-weight: 600; letter-spacing: 2rpx; }
+.tea-lib-cat-name { font-size: 28rpx; color: var(--cocoa); font-weight: 600; letter-spacing: 2rpx; }
 .tea-lib-cat-count { font-size: 22rpx; color: var(--ink4); }
 
 .tea-lib-item {
@@ -616,13 +639,13 @@ page {
   align-items: center;
   gap: 20rpx;
   padding: 20rpx 0;
-  border-bottom: 1rpx solid rgba(176, 164, 148, 0.15);
+  border-bottom: 1rpx solid rgba(201, 184, 173, 0.25);
   font-size: 26rpx;
 }
 
 .tea-lib-item:last-child { border-bottom: none; }
-.tea-lib-cat-dot { width: 10rpx; height: 10rpx; border-radius: 50%; flex-shrink: 0; }
-.tea-lib-name { flex: 1; font-weight: 400; letter-spacing: 1rpx; }
+.tea-lib-cat-dot { width: 12rpx; height: 12rpx; border-radius: 50%; flex-shrink: 0; }
+.tea-lib-name { flex: 1; font-weight: 400; letter-spacing: 1rpx; color: var(--ink); }
 .tea-lib-props { font-size: 22rpx; color: var(--ink4); display: flex; gap: 8rpx; }
 
 /* ============================================================
@@ -642,4 +665,4 @@ page {
    ============================================================ */
 .muted-text { color: var(--ink4); }
 .skip-name { color: var(--ink4); }
-.nature-mini-tag { font-size: 20rpx; padding: 2rpx 8rpx; border-radius: 4rpx; color: #FFF; }
+.nature-mini-tag { font-size: 20rpx; padding: 2rpx 10rpx; border-radius: var(--r-pill); color: #FFF; }

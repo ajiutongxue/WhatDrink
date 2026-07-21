@@ -56,7 +56,7 @@ Page({
     scene: 'sunny',
     showInput: false,
     inputValue: '',
-    btnText: '推荐',
+    btnText: '今天喝点什么茶',
     loading: false,
     loadingText: 'AI 正在分析',
     showCancel: false,
@@ -124,6 +124,16 @@ Page({
   onShowInput: function () {
     this.setData({ showInput: true });
   },
+
+  // 点击页面空白区域：若输入框展开且无内容，则收起
+  onPageTap: function () {
+    if (this.data.showInput && !this.data.inputValue) {
+      this.setData({ showInput: false });
+    }
+  },
+
+  // 空处理：供输入面板 catchtap 阻止冒泡
+  noop: function () {},
 
   // ==== Input ====
   onInput: function (e) {
@@ -263,7 +273,7 @@ Page({
       var eligibleTeas = recommend.filterEligible(teaLib, parsed, history);
       if (!eligibleTeas || eligibleTeas.length === 0) {
         tracker.track('rec_empty', { stage: 'filter', ms: Date.now() - (self._recT0 || Date.now()) });
-        self.setData({ loading: false, noResult: true, btnText: '推荐' });
+        self.setData({ loading: false, noResult: true, btnText: '今天喝点什么茶' });
         return;
       }
 
@@ -283,7 +293,7 @@ Page({
         var result = recommend.recommend(teaLib, parsed, self._weatherData, history, avoidDays, constitution);
         if (!result.primary) {
           tracker.track('rec_empty', { stage: 'score', ms: Date.now() - (self._recT0 || Date.now()) });
-          self.setData({ loading: false, noResult: true, btnText: '推荐' });
+          self.setData({ loading: false, noResult: true, btnText: '今天喝点什么茶' });
           return;
         }
         self._showRuleResult(result, parsed);
@@ -348,7 +358,7 @@ Page({
       this._showRuleResult(result, parsed);
     } else {
       tracker.track('rec_empty', { stage: 'fallback', ms: Date.now() - (this._recT0 || Date.now()) });
-      this.setData({ loading: false, noResult: true, btnText: '推荐' });
+      this.setData({ loading: false, noResult: true, btnText: '今天喝点什么茶' });
     }
   },
 
@@ -389,7 +399,7 @@ Page({
 
     this.setData({
       loading: false, hasResult: true, noResult: false,
-      rec: rec, checkedIn: false, showCustom: false, btnText: '推荐'
+      rec: rec, checkedIn: false, showCustom: false, btnText: '今天喝点什么茶'
     });
     tracker.track('rec_done', { mode: 'rule', ms: Date.now() - (this._recT0 || Date.now()), tea: rec.primary.name });
   },
@@ -446,7 +456,7 @@ Page({
 
     this.setData({
       loading: false, hasResult: true, noResult: false,
-      rec: rec, checkedIn: false, showCustom: false, btnText: '推荐'
+      rec: rec, checkedIn: false, showCustom: false, btnText: '今天喝点什么茶'
     });
     tracker.track('rec_done', { mode: 'ai', ms: Date.now() - (this._recT0 || Date.now()), tea: rec.primary.name });
   },

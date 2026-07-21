@@ -8,14 +8,14 @@
   ],
   "window": {
     "navigationBarTitleText": "今天喝点什么茶",
-    "navigationBarBackgroundColor": "#F5F0E8",
+    "navigationBarBackgroundColor": "#FBF3E7",
     "navigationBarTextStyle": "black",
-    "backgroundColor": "#F5F0E8"
+    "backgroundColor": "#FBF3E7"
   },
   "tabBar": {
-    "color": "#B0A494",
-    "selectedColor": "#2C2418",
-    "backgroundColor": "#FDFBF7",
+    "color": "#A08D83",
+    "selectedColor": "#C96B4C",
+    "backgroundColor": "#FFFDF8",
     "borderStyle": "white",
     "list": [
       {

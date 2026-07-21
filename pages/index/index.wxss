@@ -1,6 +1,6 @@
 /* ============================================================
-   Index Page — 今日推荐
-   文人画卷：背景即设计，界面消隐于山水
+   Index Page — 今日推荐 「暖屿」
+   柔和粉彩 + 印章点缀 + 手写体标题，像一张温暖的茶笺
    ============================================================ */
 
 /* ========== SVG Full-page Background ========== */
@@ -13,56 +13,127 @@
   z-index: 0;
 }
 
-/* ========== Date Typography — floats on background ========== */
-.date-block {
-  padding-bottom: 48rpx;
+/* ========== Hero Header ========== */
+.hero {
+  padding-bottom: 40rpx;
 }
 
-.date-row {
+.hero-top {
   display: flex;
-  align-items: flex-end;
-  gap: 24rpx;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 36rpx;
 }
 
-.date-day {
-  font-size: 140rpx;
-  font-weight: 300;
-  color: var(--ink);
-  line-height: 0.85;
-  letter-spacing: -4rpx;
+/* Solar-term seal (印章) */
+.seal {
+  width: 96rpx;
+  height: 96rpx;
+  border-radius: 24rpx;
+  background: var(--coral);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 10rpx 24rpx rgba(222, 130, 96, 0.32);
+  border: 3rpx solid rgba(255, 255, 255, 0.4);
 }
 
-.date-meta {
+.seal-text {
+  color: #FFF;
+  font-size: 34rpx;
+  font-weight: 600;
+  letter-spacing: 2rpx;
+}
+
+.hero-weather {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  font-size: 22rpx;
+  color: var(--ink2);
+  background: var(--card);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  padding: 12rpx 24rpx;
+  border-radius: var(--r-pill);
+  border: 1rpx solid var(--card-border);
+  letter-spacing: 1rpx;
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", "Microsoft YaHei", "Segoe UI", sans-serif;
+}
+
+.hero-weather-dot {
+  color: var(--coral);
+  font-size: 22rpx;
+}
+
+/* Big date — serif, bold, orderly */
+.hero-date {
+  display: flex;
+  align-items: center;
+  gap: 30rpx;
+  margin-bottom: 34rpx;
+}
+
+.hero-day {
+  font-family: "Songti SC", "STSongti-SC", "STSong", "SimSun", "Noto Serif SC", "Source Han Serif SC", serif;
+  font-size: 190rpx;
+  font-weight: 700;
+  color: var(--cocoa);
+  line-height: 1;
+  letter-spacing: 0;
+}
+
+.hero-date-divider {
+  width: 2rpx;
+  height: 112rpx;
+  background: linear-gradient(to bottom, transparent, rgba(201, 184, 173, 0.75), transparent);
+  flex-shrink: 0;
+}
+
+.hero-date-side {
   display: flex;
   flex-direction: column;
-  gap: 6rpx;
-  padding-bottom: 12rpx;
+  gap: 12rpx;
 }
 
-.date-term {
-  font-size: 24rpx;
-  color: var(--gold);
-  letter-spacing: 4rpx;
-  font-weight: 400;
+.hero-week {
+  font-family: "Songti SC", "STSongti-SC", "STSong", "SimSun", "Noto Serif SC", "Source Han Serif SC", serif;
+  font-size: 34rpx;
+  color: var(--ink);
+  letter-spacing: 3rpx;
+  font-weight: 700;
 }
 
-.date-sub {
+.hero-lunar {
+  font-family: "Songti SC", "STSongti-SC", "STSong", "SimSun", "Noto Serif SC", "Source Han Serif SC", serif;
   font-size: 24rpx;
   color: var(--ink3);
-  letter-spacing: 2rpx;
+  letter-spacing: 1rpx;
 }
 
-.date-weather {
-  display: block;
-  margin-top: 20rpx;
-  font-size: 22rpx;
-  color: var(--ink4);
-  letter-spacing: 2rpx;
+.hero-sub {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
 }
 
-/* ========== Input Zone — invisible until tapped ========== */
+.hero-sub-script {
+  font-family: "Songti SC", "STSongti-SC", "STSong", "SimSun", "Noto Serif SC", "Source Han Serif SC", serif;
+  font-size: 30rpx;
+  color: var(--sage-deep);
+  letter-spacing: 3rpx;
+  font-weight: 600;
+}
+
+.hero-sub-text {
+  font-size: 23rpx;
+  color: var(--ink3);
+  letter-spacing: 1rpx;
+}
+
+/* ========== Input Zone — invisible tap area ========== */
 .input-zone {
-  min-height: 100rpx;
+  min-height: 88rpx;
   margin-bottom: 24rpx;
   display: flex;
   align-items: center;
@@ -70,8 +141,8 @@
 
 .input-summary {
   font-size: 26rpx;
-  color: var(--ink3);
-  line-height: 1.8;
+  color: var(--ink2);
+  line-height: 1.7;
   letter-spacing: 1rpx;
   display: -webkit-box;
   -webkit-box-orient: vertical;
@@ -79,24 +150,25 @@
   overflow: hidden;
 }
 
-/* ========== Glass Input — pure frosted panel ========== */
-.glass-input {
+/* ========== Soft Input Panel ========== */
+.soft-input {
   margin-bottom: 24rpx;
-  padding: 32rpx 36rpx;
-  background: var(--glass);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  border: 1rpx solid var(--glass-border);
+  padding: 30rpx 34rpx;
+  background: var(--card);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1rpx solid var(--card-border);
   border-radius: var(--r-lg);
-  animation: glassReveal 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+  box-shadow: 0 12rpx 36rpx rgba(150, 110, 90, 0.08);
+  animation: softReveal 0.35s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-@keyframes glassReveal {
+@keyframes softReveal {
   from { opacity: 0; transform: translateY(-12rpx); }
   to { opacity: 1; transform: translateY(0); }
 }
 
-.glass-textarea {
+.soft-textarea {
   width: 100%;
   min-height: 120rpx;
   border: none;
@@ -108,24 +180,30 @@
   box-sizing: border-box;
 }
 
-/* ========== Recommend Button ========== */
-.btn-rec {
-  width: 100%;
-  padding: 26rpx;
-  border: 1rpx solid rgba(176, 164, 148, 0.4);
-  border-radius: var(--r-md);
-  background: rgba(255, 253, 248, 0.5);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  color: var(--ink2);
-  font-size: 28rpx;
-  font-weight: 400;
-  letter-spacing: 6rpx;
+/* ========== Recommend Button — coral pill (fit content, centered) ========== */
+.btn-rec-wrap {
+  display: flex;
+  justify-content: center;
   margin-bottom: 40rpx;
 }
 
+.btn-rec {
+  display: inline-block;
+  width: auto;
+  padding: 28rpx 60rpx;
+  border: none;
+  border-radius: var(--r-pill);
+  background: var(--coral);
+  color: #FFFFFF;
+  font-size: 30rpx;
+  font-weight: 600;
+  letter-spacing: 6rpx;
+  line-height: 1.4;
+  box-shadow: 0 14rpx 32rpx rgba(222, 130, 96, 0.34);
+}
+
 .btn-rec[disabled] {
-  opacity: 0.4;
+  opacity: 0.5;
 }
 
 .btn-rec::after {
@@ -141,7 +219,6 @@
 .no-result-icon {
   font-size: 56rpx;
   margin-bottom: 24rpx;
-  opacity: 0.6;
 }
 
 .no-result-text {
@@ -174,11 +251,6 @@
   100% { width: 30rpx; }
 }
 
-/* ========== AI Loading 取消按钮 ========== */
-.ai-loading {
-  text-align: center;
-}
-
 .ai-cancel {
   display: inline-block;
   margin-top: 32rpx;
@@ -186,14 +258,14 @@
   color: var(--ink3);
   letter-spacing: 2rpx;
   padding: 12rpx 36rpx;
-  border: 1rpx solid rgba(176, 164, 148, 0.4);
-  border-radius: 36rpx;
-  transition: all 0.25s ease;
+  border: 1rpx solid var(--card-border);
+  border-radius: var(--r-pill);
+  background: var(--cream);
 }
 
 .ai-cancel:active {
-  color: var(--rose);
-  border-color: var(--rose);
+  color: var(--coral-deep);
+  border-color: var(--coral);
   transform: scale(0.96);
 }
 
@@ -202,19 +274,19 @@
    ============================================================ */
 
 .rec-hero-tagline {
-  font-size: 26rpx;
-  color: var(--gold);
-  font-weight: 400;
+  font-family: "Songti SC", "STSongti-SC", "STSong", "SimSun", "Noto Serif SC", "Source Han Serif SC", serif;
+  font-size: 28rpx;
+  color: var(--coral-deep);
   margin-bottom: 6rpx;
   letter-spacing: 2rpx;
 }
 
 /* Structured reasons (AI) */
 .rec-reasons {
-  padding: 24rpx 0;
+  padding: 22rpx 26rpx;
   margin-bottom: 24rpx;
-  padding-left: 24rpx;
-  border-left: 2rpx solid var(--gold);
+  background: var(--blush-soft);
+  border-radius: var(--r-md);
 }
 
 .rec-reason-item {
@@ -229,10 +301,10 @@
 }
 
 .rec-reason-dot {
-  width: 8rpx;
-  height: 8rpx;
+  width: 10rpx;
+  height: 10rpx;
   border-radius: 50%;
-  background: var(--gold);
+  background: var(--coral);
   flex-shrink: 0;
   margin-top: 16rpx;
 }
@@ -245,18 +317,19 @@
 
 /* Taste note */
 .rec-taste {
-  padding: 24rpx 0;
+  padding: 22rpx 26rpx;
   margin-bottom: 24rpx;
-  padding-left: 24rpx;
-  border-left: 2rpx solid var(--sage);
+  background: var(--sage-soft);
+  border-radius: var(--r-md);
 }
 
 .rec-taste-label {
   display: block;
   font-size: 22rpx;
-  color: var(--ink4);
+  color: var(--sage-deep);
   letter-spacing: 3rpx;
   margin-bottom: 10rpx;
+  font-weight: 600;
 }
 
 .rec-taste-text {
@@ -278,7 +351,7 @@
 .rec-extra-hints {
   margin-top: 24rpx;
   padding-top: 24rpx;
-  border-top: 1rpx solid rgba(176, 164, 148, 0.2);
+  border-top: 1rpx solid rgba(201, 184, 173, 0.3);
 }
 
 .rec-hint-line {
@@ -296,7 +369,7 @@
 /* Alt: why different */
 .rec-alt-why {
   font-size: 24rpx;
-  color: var(--gold);
+  color: var(--coral-deep);
   margin: 12rpx 0 8rpx;
   line-height: 1.7;
   letter-spacing: 1rpx;
@@ -348,7 +421,7 @@
 .tasting-trigger {
   display: inline-block;
   font-size: 24rpx;
-  color: var(--gold);
+  color: var(--coral-deep);
   letter-spacing: 2rpx;
   padding: 8rpx 0;
 }
@@ -356,12 +429,12 @@
 .tasting-textarea {
   width: 100%;
   min-height: 120rpx;
-  border: 1rpx solid rgba(176, 164, 148, 0.3);
+  border: 1rpx solid var(--card-border);
   border-radius: var(--r-md);
   padding: 20rpx 24rpx;
   font-size: 26rpx;
   color: var(--ink);
-  background: rgba(255, 253, 248, 0.4);
+  background: var(--cream);
   line-height: 1.8;
   box-sizing: border-box;
 }
@@ -379,11 +452,11 @@
 }
 
 .tasting-save-btn {
-  padding: 12rpx 32rpx;
+  padding: 12rpx 34rpx;
   border: none;
-  border-radius: var(--r-md);
-  background: var(--ink);
-  color: #FDFBF7;
+  border-radius: var(--r-pill);
+  background: var(--coral);
+  color: #FFFFFF;
   font-size: 24rpx;
   letter-spacing: 2rpx;
   line-height: 1.4;
@@ -395,9 +468,9 @@
 
 .tasting-saved {
   margin-top: 24rpx;
-  padding: 20rpx 0;
-  padding-left: 24rpx;
-  border-left: 2rpx solid var(--gold);
+  padding: 22rpx 26rpx;
+  background: var(--blush-soft);
+  border-radius: var(--r-md);
 }
 
 .tasting-saved-text {
@@ -409,7 +482,7 @@
 
 .tasting-edit-link {
   font-size: 22rpx;
-  color: var(--gold);
+  color: var(--coral-deep);
   margin-top: 12rpx;
   display: inline-block;
   letter-spacing: 2rpx;
@@ -432,7 +505,7 @@
   width: 200rpx;
   height: 200rpx;
   border-radius: var(--r-sm);
-  background: rgba(176, 164, 148, 0.1);
+  background: var(--cream2);
 }
 
 .tasting-img-del {
@@ -443,8 +516,8 @@
   height: 36rpx;
   line-height: 32rpx;
   text-align: center;
-  background: rgba(44, 36, 24, 0.6);
-  color: #FDFBF7;
+  background: rgba(62, 47, 43, 0.65);
+  color: #FFF;
   border-radius: 50%;
   font-size: 24rpx;
 }
@@ -456,9 +529,9 @@
   justify-content: center;
   width: 200rpx;
   height: 200rpx;
-  border: 1rpx dashed rgba(176, 164, 148, 0.5);
+  border: 1rpx dashed rgba(222, 130, 96, 0.4);
   border-radius: var(--r-sm);
-  background: rgba(255, 253, 248, 0.3);
+  background: var(--cream);
 }
 
 .tasting-img-add-icon {
@@ -478,7 +551,7 @@
   margin-top: 8rpx;
   font-size: 20rpx;
   color: var(--ink);
-  border: 1rpx solid rgba(176, 164, 148, 0.3);
+  border: 1rpx solid var(--card-border);
   border-radius: var(--r-sm);
   padding: 4rpx 8rpx;
   text-align: center;
@@ -502,7 +575,7 @@
 }
 
 /* ============================================================
-   页脚版本号 — 画卷收笔，轻点即止
+   页脚版本号
    ============================================================ */
 .page-footer {
   display: flex;
@@ -518,16 +591,15 @@
 }
 
 .footer-rule.left {
-  background: linear-gradient(to right, transparent, rgba(176, 164, 148, 0.55));
+  background: linear-gradient(to right, transparent, rgba(201, 184, 173, 0.6));
 }
 
 .footer-rule.right {
-  background: linear-gradient(to left, transparent, rgba(176, 164, 148, 0.55));
+  background: linear-gradient(to left, transparent, rgba(201, 184, 173, 0.6));
 }
 
 .footer-ver {
   font-size: 20rpx;
   color: var(--ink4);
   letter-spacing: 4rpx;
-  opacity: 0.75;
 }

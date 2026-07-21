@@ -1,20 +1,20 @@
 var data = require('../../utils/data');
 var teaData = require('../../utils/teaData');
 
-// 茶性配色
+// 茶性配色（v4 暖屿，与 nature-tag 一致）
 var NATURE_COLORS = {
-  '寒': '#4A7FB5', '凉': '#6AAFCF', '平': '#A8A8A8',
-  '温': '#D4883A', '热': '#C25B45', '未知': '#B5A89A'
+  '寒': '#7FA6C0', '凉': '#8FC0C8', '平': '#A8A89C',
+  '温': '#D99A6A', '热': '#CE7A66', '未知': '#C9B8AD'
 };
 var NATURE_ORDER = ['寒', '凉', '平', '温', '热', '未知'];
 
-// 茶类配色（与茶库页一致）
+// 茶类配色（v4 暖屿，与茶库页一致）
 var CAT_COLORS = {
-  green: '#6A9B5C', black: '#8D6E63', white: '#B0BEC5',
-  oolong_tieguanyin: '#D4943A', oolong_wuyi: '#C8884A', oolong_dancong: '#B87432',
-  puerh_raw: '#6A9B5C', puerh_ripe: '#5D4037',
-  flavored_jasmine: '#C27070', flavored_other: '#D49080',
-  unknown: '#B5A89A'
+  green: '#8FAE87', black: '#8A7060', white: '#A8B0A8',
+  oolong_tieguanyin: '#DE8260', oolong_wuyi: '#C96B4C', oolong_dancong: '#E0987A',
+  puerh_raw: '#8FAE87', puerh_ripe: '#5A4A3A',
+  flavored_jasmine: '#C98A8A', flavored_other: '#D9A090',
+  unknown: '#C9B8AD'
 };
 
 function pad(n) { return n < 10 ? '0' + n : '' + n; }
@@ -191,9 +191,9 @@ Page({
         ctx.beginPath();
         ctx.arc(cx, cy, R, 0, 2 * Math.PI);
         ctx.arc(cx, cy, r, 0, 2 * Math.PI, true);
-        ctx.fillStyle = '#F0E8DA';
+        ctx.fillStyle = '#F6EADB';
         ctx.fill();
-        ctx.fillStyle = '#B5A89A';
+        ctx.fillStyle = '#C9B8AD';
         ctx.font = '18px sans-serif';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
@@ -224,10 +224,10 @@ Page({
       // 中心文字
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillStyle = '#3A2A1E';
+      ctx.fillStyle = '#3E2F2B';
       ctx.font = 'bold 38px sans-serif';
       ctx.fillText(String(total), cx, cy - 10);
-      ctx.fillStyle = '#B5A89A';
+      ctx.fillStyle = '#C9B8AD';
       ctx.font = '20px sans-serif';
       ctx.fillText('次', cx, cy + 22);
     });

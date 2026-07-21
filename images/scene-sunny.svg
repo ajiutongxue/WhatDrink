@@ -1,37 +1,43 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 750 1624" preserveAspectRatio="xMidYMid slice">
   <defs>
-    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#E8DFD0"/>
-      <stop offset="35%" stop-color="#F2EDE4"/>
-      <stop offset="70%" stop-color="#F8F4EC"/>
-      <stop offset="100%" stop-color="#FDFBF7"/>
+    <linearGradient id="sunnySky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FBE0CC"/>
+      <stop offset="38%" stop-color="#FBF0E2"/>
+      <stop offset="72%" stop-color="#FAEADD"/>
+      <stop offset="100%" stop-color="#F6E7D6"/>
     </linearGradient>
-    <linearGradient id="m1" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#C8BBA8" stop-opacity="0.4"/>
-      <stop offset="100%" stop-color="#C8BBA8" stop-opacity="0"/>
-    </linearGradient>
-    <linearGradient id="m2" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#B8A890" stop-opacity="0.25"/>
-      <stop offset="100%" stop-color="#B8A890" stop-opacity="0"/>
-    </linearGradient>
-    <linearGradient id="m3" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#A89878" stop-opacity="0.15"/>
-      <stop offset="100%" stop-color="#A89878" stop-opacity="0"/>
-    </linearGradient>
-    <radialGradient id="sun" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" stop-color="#E8D8B8" stop-opacity="0.6"/>
-      <stop offset="100%" stop-color="#E8D8B8" stop-opacity="0"/>
+    <radialGradient id="sunGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#F6B98E" stop-opacity="0.95"/>
+      <stop offset="45%" stop-color="#F2C4A0" stop-opacity="0.5"/>
+      <stop offset="100%" stop-color="#F2C4A0" stop-opacity="0"/>
     </radialGradient>
+    <radialGradient id="sunCore" cx="50%" cy="45%" r="55%">
+      <stop offset="0%" stop-color="#FBD3AC"/>
+      <stop offset="100%" stop-color="#EFA074"/>
+    </radialGradient>
+    <linearGradient id="hillBack" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#E7D3C0"/>
+      <stop offset="100%" stop-color="#EFDCCB"/>
+    </linearGradient>
+    <linearGradient id="hillMid" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#B9CDAE"/>
+      <stop offset="100%" stop-color="#CBDCBF"/>
+    </linearGradient>
+    <linearGradient id="hillFront" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#9DB88F"/>
+      <stop offset="100%" stop-color="#B4CBA6"/>
+    </linearGradient>
   </defs>
-  <rect width="750" height="1624" fill="url(#sky)"/>
-  <!-- Sun/moon - subtle warm circle -->
-  <circle cx="560" cy="220" r="120" fill="url(#sun)"/>
-  <!-- Far mountain - single gentle curve -->
-  <path d="M0 680 Q180 580 375 640 Q570 580 750 660 L750 900 Q570 820 375 860 Q180 820 0 880Z" fill="url(#m1)"/>
-  <!-- Mid mountain - softer, lower -->
-  <path d="M0 820 Q200 740 400 790 Q600 740 750 800 L750 1020 Q550 960 375 990 Q180 960 0 1000Z" fill="url(#m2)"/>
-  <!-- Near hill - barely there -->
-  <path d="M0 960 Q250 900 500 940 Q650 910 750 930 L750 1120 Q500 1080 250 1100 Q100 1080 0 1090Z" fill="url(#m3)"/>
-  <!-- Mist band -->
-  <rect x="0" y="750" width="750" height="80" fill="#F2EDE4" opacity="0.5"/>
+
+  <!-- Sky -->
+  <rect width="750" height="1624" fill="url(#sunnySky)"/>
+
+  <!-- Sun glow + core -->
+  <circle cx="540" cy="360" r="320" fill="url(#sunGlow)"/>
+  <circle cx="540" cy="360" r="120" fill="url(#sunCore)"/>
+
+  <!-- Rolling hills (rounded, layered) -->
+  <path d="M0 1180 Q180 1060 380 1150 T750 1120 L750 1624 L0 1624 Z" fill="url(#hillBack)"/>
+  <path d="M0 1320 Q220 1200 460 1300 T750 1280 L750 1624 L0 1624 Z" fill="url(#hillMid)"/>
+  <path d="M0 1460 Q200 1360 420 1450 T750 1430 L750 1624 L0 1624 Z" fill="url(#hillFront)"/>
 </svg>

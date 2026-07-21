@@ -1,5 +1,5 @@
 /* ============================================================
-   Stats Page — 饮茶统计
+   Stats Page — 饮茶统计  ·  v4 暖屿
    ============================================================ */
 
 .stats-header {
@@ -13,7 +13,7 @@
 .stats-title {
   font-size: 36rpx;
   font-weight: 600;
-  color: var(--ink);
+  color: var(--cocoa);
   letter-spacing: 2rpx;
 }
 
@@ -45,7 +45,7 @@
   gap: 14rpx 28rpx;
   margin-top: 16rpx;
   padding-top: 16rpx;
-  border-top: 1rpx solid rgba(176, 164, 148, 0.2);
+  border-top: 1rpx solid rgba(201, 184, 173, 0.3);
 }
 
 .stats-legend-item {
@@ -91,7 +91,7 @@
 .stats-bar-track {
   flex: 1;
   height: 16rpx;
-  background: rgba(176, 164, 148, 0.15);
+  background: rgba(201, 184, 173, 0.18);
   border-radius: 8rpx;
   overflow: hidden;
 }
@@ -102,7 +102,7 @@
 }
 
 .stats-bar-fill.accent {
-  background: var(--gold);
+  background: var(--coral);
 }
 
 .stats-bar-val {
@@ -131,15 +131,15 @@
   line-height: 44rpx;
   text-align: center;
   border-radius: 50%;
-  background: rgba(176, 164, 148, 0.15);
+  background: rgba(201, 184, 173, 0.2);
   color: var(--ink3);
   font-size: 24rpx;
   flex-shrink: 0;
 }
 
-.stats-top-rank.rank-1 { background: var(--gold); color: #FDFBF7; }
-.stats-top-rank.rank-2 { background: rgba(184, 149, 107, 0.6); color: #FDFBF7; }
-.stats-top-rank.rank-3 { background: rgba(176, 164, 148, 0.5); color: #FDFBF7; }
+.stats-top-rank.rank-1 { background: var(--coral); color: #FFFDF8; }
+.stats-top-rank.rank-2 { background: rgba(222, 130, 96, 0.55); color: #FFFDF8; }
+.stats-top-rank.rank-3 { background: rgba(201, 184, 173, 0.55); color: #FFFDF8; }
 
 .stats-top-info {
   flex: 1;
@@ -199,7 +199,7 @@
   color: var(--ink2);
   margin-top: 16rpx;
   padding-top: 16rpx;
-  border-top: 1rpx solid rgba(176, 164, 148, 0.2);
+  border-top: 1rpx solid rgba(201, 184, 173, 0.3);
 }
 
 .stats-freq-summary .dot {

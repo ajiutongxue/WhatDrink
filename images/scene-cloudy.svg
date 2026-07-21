@@ -1,36 +1,56 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 750 1624" preserveAspectRatio="xMidYMid slice">
   <defs>
-    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#D4CFC8"/>
-      <stop offset="35%" stop-color="#E2DDD6"/>
-      <stop offset="70%" stop-color="#EDEAE4"/>
-      <stop offset="100%" stop-color="#F5F3EF"/>
+    <linearGradient id="cloudySky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#E6E0EC"/>
+      <stop offset="40%" stop-color="#F0EAE6"/>
+      <stop offset="74%" stop-color="#F1EAE1"/>
+      <stop offset="100%" stop-color="#EDE4DA"/>
     </linearGradient>
-    <linearGradient id="m1" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#A8A090" stop-opacity="0.45"/>
-      <stop offset="100%" stop-color="#A8A090" stop-opacity="0"/>
+    <radialGradient id="softLight" cx="50%" cy="40%" r="55%">
+      <stop offset="0%" stop-color="#FBF3E7" stop-opacity="0.8"/>
+      <stop offset="100%" stop-color="#FBF3E7" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="cHillBack" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#DCD2CC"/>
+      <stop offset="100%" stop-color="#E6DCD3"/>
     </linearGradient>
-    <linearGradient id="m2" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#989080" stop-opacity="0.3"/>
-      <stop offset="100%" stop-color="#989080" stop-opacity="0"/>
+    <linearGradient id="cHillMid" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#B7C4B4"/>
+      <stop offset="100%" stop-color="#C9D4C2"/>
     </linearGradient>
-    <linearGradient id="m3" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#888070" stop-opacity="0.18"/>
-      <stop offset="100%" stop-color="#888070" stop-opacity="0"/>
+    <linearGradient id="cHillFront" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#9AAE97"/>
+      <stop offset="100%" stop-color="#AFC2A6"/>
     </linearGradient>
   </defs>
-  <rect width="750" height="1624" fill="url(#sky)"/>
-  <!-- Cloud masses - soft horizontal ellipses -->
-  <ellipse cx="250" cy="180" rx="280" ry="60" fill="#C8C2B8" opacity="0.3"/>
-  <ellipse cx="550" cy="240" rx="220" ry="45" fill="#C0BAB0" opacity="0.25"/>
-  <ellipse cx="380" cy="140" rx="180" ry="40" fill="#D0CAC0" opacity="0.2"/>
-  <!-- Far mountain -->
-  <path d="M0 680 Q180 590 375 645 Q570 590 750 665 L750 900 Q570 830 375 865 Q180 830 0 885Z" fill="url(#m1)"/>
-  <!-- Mid mountain -->
-  <path d="M0 830 Q200 750 400 800 Q600 750 750 810 L750 1030 Q550 970 375 1000 Q180 970 0 1010Z" fill="url(#m2)"/>
-  <!-- Near hill -->
-  <path d="M0 970 Q250 910 500 950 Q650 920 750 940 L750 1130 Q500 1090 250 1110 Q100 1090 0 1100Z" fill="url(#m3)"/>
-  <!-- Heavy mist -->
-  <rect x="0" y="720" width="750" height="120" fill="#E2DDD6" opacity="0.6"/>
-  <rect x="0" y="900" width="750" height="60" fill="#EDEAE4" opacity="0.4"/>
+
+  <!-- Sky -->
+  <rect width="750" height="1624" fill="url(#cloudySky)"/>
+  <ellipse cx="375" cy="380" rx="420" ry="300" fill="url(#softLight)"/>
+
+  <!-- Soft round clouds -->
+  <g fill="#FBF6EE" opacity="0.92">
+    <g>
+      <ellipse cx="200" cy="300" rx="120" ry="60"/>
+      <ellipse cx="290" cy="280" rx="90" ry="66"/>
+      <ellipse cx="130" cy="320" rx="80" ry="52"/>
+    </g>
+    <g opacity="0.85">
+      <ellipse cx="560" cy="470" rx="130" ry="64"/>
+      <ellipse cx="650" cy="450" rx="86" ry="58"/>
+      <ellipse cx="480" cy="490" rx="78" ry="50"/>
+    </g>
+  </g>
+  <g fill="#E7D8CE" opacity="0.5">
+    <ellipse cx="220" cy="330" rx="120" ry="24"/>
+    <ellipse cx="575" cy="500" rx="130" ry="24"/>
+  </g>
+
+  <!-- Rolling hills -->
+  <path d="M0 1180 Q180 1060 380 1150 T750 1120 L750 1624 L0 1624 Z" fill="url(#cHillBack)"/>
+  <path d="M0 1320 Q220 1200 460 1300 T750 1280 L750 1624 L0 1624 Z" fill="url(#cHillMid)"/>
+  <path d="M0 1460 Q200 1360 420 1450 T750 1430 L750 1624 L0 1624 Z" fill="url(#cHillFront)"/>
+
+  <!-- Mist band -->
+  <ellipse cx="375" cy="1300" rx="520" ry="60" fill="#FBF6EE" opacity="0.35"/>
 </svg>
