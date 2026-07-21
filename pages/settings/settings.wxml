@@ -40,9 +40,12 @@
         type="text"
         value="{{city}}"
         bindinput="onCityInput"
-        bindblur="onCityBlur"
         placeholder="例如：上海"
       />
+    </view>
+
+    <view class="save-btn-row">
+      <button class="save-btn" bindtap="onSaveProfile">保存</button>
     </view>
   </view>
 
@@ -78,6 +81,10 @@
       <view class="quiz-result-hint">{{constitutionHint}}</view>
       <text class="quiz-reset" bindtap="onQuizReset">重新测试</text>
     </view>
+
+    <view class="save-btn-row">
+      <button class="save-btn" bindtap="onSaveQuiz">保存</button>
+    </view>
   </view>
 
   <!-- ========== AI 配置 ========== -->
@@ -99,7 +106,6 @@
         password="{{true}}"
         value="{{apiKey}}"
         bindinput="onApiKeyInput"
-        bindblur="onSettingsSave"
         placeholder="输入 API Key"
       />
     </view>
@@ -111,7 +117,6 @@
         type="text"
         value="{{endpoint}}"
         bindinput="onEndpointInput"
-        bindblur="onSettingsSave"
         placeholder="https://xxx.maas.aliyuncs.com/compatible-mode/v1"
       />
     </view>
@@ -127,7 +132,6 @@
         type="text"
         value="{{parserModel}}"
         bindinput="onParserModelInput"
-        bindblur="onSettingsSave"
         placeholder="deepseek-v3"
         wx:if="{{parserEnabled}}"
       />
@@ -145,11 +149,14 @@
         type="text"
         value="{{recModel}}"
         bindinput="onRecModelInput"
-        bindblur="onSettingsSave"
         placeholder="deepseek-v4-pro"
         wx:if="{{recEnabled}}"
       />
       <view class="setting-model-hint" wx:if="{{recEnabled}}">深度模型，用于生成推荐和茶知识解读</view>
+    </view>
+
+    <view class="save-btn-row">
+      <button class="save-btn" bindtap="onSaveLLM">保存</button>
     </view>
   </view>
 
@@ -168,10 +175,13 @@
           type="number"
           value="{{avoidDays}}"
           bindinput="onAvoidDaysInput"
-          bindblur="onSettingsSave"
         />
         <text class="setting-inline-hint">天内不重复推荐同一款茶</text>
       </view>
+    </view>
+
+    <view class="save-btn-row">
+      <button class="save-btn" bindtap="onSaveRecommend">保存</button>
     </view>
   </view>
 

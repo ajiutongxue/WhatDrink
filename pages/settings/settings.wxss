@@ -113,6 +113,30 @@
   background: rgba(200, 120, 110, 0.06);
 }
 
+.save-btn-row {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 8rpx;
+}
+
+.save-btn {
+  padding: 16rpx 56rpx;
+  border-radius: var(--r-pill);
+  background: var(--coral);
+  color: #FFFFFF;
+  font-size: 26rpx;
+  letter-spacing: 4rpx;
+  line-height: 1.5;
+}
+
+.save-btn::after {
+  border: none;
+}
+
+.save-btn[disabled] {
+  opacity: 0.4;
+}
+
 .data-btn-row {
   display: flex;
   gap: 16rpx;

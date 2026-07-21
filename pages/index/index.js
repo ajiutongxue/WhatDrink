@@ -16,6 +16,36 @@ var CAT_ICONS = {
 
 var NATURE_CLS = { '寒': 'han', '凉': 'liang', '平': 'ping', '温': 'wen', '热': 're' };
 
+// 每日茶语缓存键（独立于 AppData，不参与云同步与重置）
+var DAILY_QUOTE_KEY = 'tea_doctor_daily_quote';
+
+// 预设茶语：LLM 未启用或生成失败时按日期轮换，保证每天都有点不一样
+var PRESET_QUOTES = [
+  '今日无事，吃茶去。',
+  '水沸茶醒，日子也跟着舒展开来。',
+  '不急，先喝口茶，再慢慢说。',
+  '茶烟起处，便是安心处。',
+  '今天的茶，替你把节奏放慢一点。',
+  '好茶不怕晚，好事不怕慢。',
+  '一口回甘，是茶给的小小奖励。',
+  '把心事泡进茶里，喝下去就轻了。',
+  '茶温正好，你也正好。',
+  '浮沉都是风景，舒展自有时候。',
+  '茶凉了可以续，心累了可以歇。',
+  '一杯茶，是今天最温柔的开始。',
+  '山间一杯茶，云外两袖风。',
+  '茶不过浮沉两种姿态，人不过拿起放下两种姿态。'
+];
+
+function dayOfYear(d) {
+  var start = new Date(d.getFullYear(), 0, 0);
+  return Math.floor((d - start) / 86400000);
+}
+
+function presetQuote() {
+  return PRESET_QUOTES[dayOfYear(new Date()) % PRESET_QUOTES.length];
+}
+
 // 解析阶段出现这些连接层错误时，跳过深度推荐直接规则兜底
 // （同一端点重试无意义，最坏情况可省约 2 分钟空等）
 var SKIP_LLM_REC_TYPES = { timeout: 1, offline: 1, network: 1, domain: 1, ssl: 1, abort: 1 };
@@ -54,6 +84,7 @@ Page({
     lunarDate: '',
     weather: null,
     scene: 'sunny',
+    dailyQuote: presetQuote(),
     showInput: false,
     inputValue: '',
     btnText: '今天喝点什么茶',
@@ -84,6 +115,7 @@ Page({
   _weatherCity: '',
   _parsed: null,
   _parseTimer: null,
+  _quoteGenerating: false,
 
   onLoad: function () {
     var sysInfo = wx.getSystemInfoSync();
@@ -105,8 +137,11 @@ Page({
   onShow: function () {
     this._appData = data.load();
     this._weatherCity = this._appData.profile.city || '';
+    this._renderDailyQuote();
     if (this._weatherCity) {
       this._fetchWeather(this._weatherCity);
+    } else {
+      this._tryGenerateDailyQuote();
     }
   },
 
@@ -425,6 +460,7 @@ Page({
         natureCls: NATURE_CLS[primaryTea.nature] || 'ping',
         catName: catName, caffeine: primaryTea.caffeine, year: primaryTea.year,
         tagline: (llmRes.primary && llmRes.primary.tagline) || '',
+        narrative: (llmRes.primary && llmRes.primary.narrative) || '',
         reasons: (llmRes.primary && Array.isArray(llmRes.primary.reasons)) ? llmRes.primary.reasons : [],
         reason: (llmRes.primary && Array.isArray(llmRes.primary.reasons)) ? llmRes.primary.reasons.join('；') : '',
         taste_note: (llmRes.primary && llmRes.primary.taste_note) || '',
@@ -574,6 +610,7 @@ Page({
         var scene = self._weatherToScene(w.desc || '');
         self.setData({ weather: w, scene: scene });
       }
+      self._tryGenerateDailyQuote();
     });
   },
 
@@ -582,6 +619,68 @@ Page({
     if (/雨|rain|drizzle|shower|thunder|storm|sleet/.test(d)) return 'rainy';
     if (/云|cloud|overcast|fog|mist|haze|阴|霾/.test(d)) return 'cloudy';
     return 'sunny';
+  },
+
+  // ==== Daily Quote（每日茶语）====
+
+  // 读取按天缓存的茶语 { date, text }，无缓存返回 null
+  _getCachedQuote: function () {
+    try {
+      var cached = wx.getStorageSync(DAILY_QUOTE_KEY);
+      if (cached && typeof cached === 'object' && cached.date && cached.text) {
+        return cached;
+      }
+    } catch (e) { /* ignore */ }
+    return null;
+  },
+
+  _cacheQuote: function (text) {
+    try {
+      wx.setStorageSync(DAILY_QUOTE_KEY, { date: this._today(), text: text });
+    } catch (e) { /* ignore */ }
+  },
+
+  // 同步渲染：今天已有缓存用缓存，否则用预设轮换（LLM 结果稍后异步补充）
+  _renderDailyQuote: function () {
+    var cached = this._getCachedQuote();
+    var quote = (cached && cached.date === this._today()) ? cached.text : presetQuote();
+    this.setData({ dailyQuote: quote });
+  },
+
+  // 异步生成今日茶语：仅在 LLM 可用且今天尚未缓存时触发，成功后缓存并刷新
+  _tryGenerateDailyQuote: function () {
+    var self = this;
+    if (self._quoteGenerating) return;
+
+    var appData = self._appData || data.load();
+    var llmConfig = appData.llm || {};
+    // 每日茶语是独立的轻量功能：只要配置了 API（Key + 端点）就生成，
+    // 不依赖「深度推荐」开关；模型是否可用由 generateDailyQuote 内部兜底判断
+    if (!(llmConfig.apiKey && llmConfig.endpoint)) return;
+
+    var cached = self._getCachedQuote();
+    if (cached && cached.date === self._today()) return; // 今天已有，不重复生成
+
+    self._quoteGenerating = true;
+
+    var weekNames = ['日','一','二','三','四','五','六'];
+    var now = new Date();
+    var context = {
+      date: self._today(),
+      weekday: '周' + weekNames[now.getDay()],
+      solarTerm: getSolarTerm(),
+      season: getSeason(),
+      weather: self._weatherData || null
+    };
+
+    llm.generateDailyQuote(context, llmConfig).then(function (quote) {
+      self._quoteGenerating = false;
+      if (quote) {
+        self._cacheQuote(quote);
+        self.setData({ dailyQuote: quote });
+      }
+      // 失败时保持预设茶语，静默降级
+    });
   },
 
   // ==== Checkin ====

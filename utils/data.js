@@ -57,7 +57,7 @@ function getDefaultData() {
       apiKey: '',
       endpoint: '',
       recModel: 'deepseek-v4-pro',
-      parserModel: 'deepseek-v3',
+      parserModel: 'deepseek-v4-pro',
       parserEnabled: false
     },
     teaLibrary: teas
@@ -361,55 +361,57 @@ function _mergeData(cloudData, localData) {
 }
 
 /**
- * Field-level profile merge: each field takes non-empty value, cloud preferred.
- * Avoids one device's empty field overwriting another's non-empty value.
+ * Field-level profile merge: local preferred.
+ * A non-empty local value overrides cloud; empty local falls back to cloud
+ * (so a fresh install can still restore from cloud backup).
  */
 function _mergeProfile(cloud, local) {
   var c = cloud || {}, l = local || {};
   var result = {};
   var keys = ['gender', 'age', 'city', 'constitution'];
   keys.forEach(function(k) {
-    if (c[k] !== undefined && c[k] !== null && c[k] !== '') {
-      result[k] = c[k];
-    } else if (l[k] !== undefined && l[k] !== null && l[k] !== '') {
+    if (l[k] !== undefined && l[k] !== null && l[k] !== '') {
       result[k] = l[k];
+    } else if (c[k] !== undefined && c[k] !== null && c[k] !== '') {
+      result[k] = c[k];
     } else {
-      result[k] = c[k] !== undefined ? c[k] : l[k];
+      result[k] = l[k] !== undefined ? l[k] : c[k];
     }
   });
-  // quizAnswers: deep merge, cloud first
+  // quizAnswers: deep merge, local first
   var cqa = c.quizAnswers || {}, lqa = l.quizAnswers || {};
   result.quizAnswers = {};
-  for (var ck in cqa) if (cqa.hasOwnProperty(ck)) result.quizAnswers[ck] = cqa[ck];
-  for (var lk in lqa) if (lqa.hasOwnProperty(lk) && result.quizAnswers[lk] === undefined) {
-    result.quizAnswers[lk] = lqa[lk];
+  for (var lk in lqa) if (lqa.hasOwnProperty(lk)) result.quizAnswers[lk] = lqa[lk];
+  for (var ck in cqa) if (cqa.hasOwnProperty(ck) && result.quizAnswers[ck] === undefined) {
+    result.quizAnswers[ck] = cqa[ck];
   }
   return result;
 }
 
 function _mergeSettings(cloud, local) {
   var c = cloud || {}, l = local || {};
-  var avoidDays = (typeof c.avoidDays === 'number' && c.avoidDays > 0)
-    ? c.avoidDays
-    : ((typeof l.avoidDays === 'number' && l.avoidDays > 0) ? l.avoidDays : 5);
+  var avoidDays = (typeof l.avoidDays === 'number' && l.avoidDays > 0)
+    ? l.avoidDays
+    : ((typeof c.avoidDays === 'number' && c.avoidDays > 0) ? c.avoidDays : 5);
   return { avoidDays: avoidDays };
 }
 
 function _mergeLLM(cloud, local) {
   var c = cloud || {}, l = local || {};
   var result = {};
+  // 本地优先：非空的本地值覆盖云端（本地为空时回落到云端，避免空值误清）
   var strKeys = ['apiKey', 'endpoint', 'recModel', 'parserModel'];
   strKeys.forEach(function(k) {
-    if (c[k]) result[k] = c[k];
-    else if (l[k]) result[k] = l[k];
-    else result[k] = c[k] !== undefined ? c[k] : l[k];
+    if (l[k]) result[k] = l[k];
+    else if (c[k]) result[k] = c[k];
+    else result[k] = l[k] !== undefined ? l[k] : c[k];
   });
-  result.enabled = (typeof c.enabled === 'boolean')
-    ? c.enabled
-    : ((typeof l.enabled === 'boolean') ? l.enabled : false);
-  result.parserEnabled = (typeof c.parserEnabled === 'boolean')
-    ? c.parserEnabled
-    : ((typeof l.parserEnabled === 'boolean') ? l.parserEnabled : false);
+  result.enabled = (typeof l.enabled === 'boolean')
+    ? l.enabled
+    : ((typeof c.enabled === 'boolean') ? c.enabled : false);
+  result.parserEnabled = (typeof l.parserEnabled === 'boolean')
+    ? l.parserEnabled
+    : ((typeof c.parserEnabled === 'boolean') ? c.parserEnabled : false);
   return result;
 }
 

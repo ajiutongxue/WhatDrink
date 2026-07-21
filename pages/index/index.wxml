@@ -5,18 +5,21 @@
 
   <!-- ========== Hero Header ========== -->
   <view class="hero" style="padding-top: {{statusBarHeight + 36}}px">
-    <!-- Top badge row: solar-term seal + weather -->
+    <!-- Top row: 节气 seal + weather -->
     <view class="hero-top">
       <view class="seal" wx:if="{{solarTerm}}">
         <text class="seal-text">{{solarTerm}}</text>
       </view>
       <view class="hero-weather" wx:if="{{weather}}">
-        <text class="hero-weather-dot">✦</text>
-        <text>{{weather.city}} {{weather.temp}}° · 湿度{{weather.humidity}}%</text>
+        <view class="hw-main">
+          <text class="hw-temp">{{weather.temp}}°</text>
+          <text class="hw-desc">{{weather.desc}}</text>
+        </view>
+        <view class="hw-sub">{{weather.city}} · 湿度 {{weather.humidity}}%</view>
       </view>
     </view>
 
-    <!-- Big date + week/lunar -->
+    <!-- Calendar: big day + week/lunar -->
     <view class="hero-date">
       <text class="hero-day">{{day}}</text>
       <view class="hero-date-divider"></view>
@@ -29,7 +32,7 @@
     <!-- Poetic sub line -->
     <view class="hero-sub">
       <text class="hero-sub-script">顺时而饮</text>
-      <text class="hero-sub-text">让一杯茶，回应此刻的天气与身体</text>
+      <text class="hero-sub-text">{{dailyQuote}}</text>
     </view>
   </view>
 
@@ -102,8 +105,12 @@
           <text class="rec-hero-tag info-tag" wx:if="{{rec.primary.year}}">{{rec.primary.year}}年</text>
         </view>
 
-        <!-- AI Reasons -->
-        <view class="rec-reasons" wx:if="{{rec.isAI && rec.primary.reasons.length > 0}}">
+        <!-- AI Narrative（叙事化推荐语，优先展示） -->
+        <view class="rec-narrative" wx:if="{{rec.isAI && rec.primary.narrative}}">
+          <text>{{rec.primary.narrative}}</text>
+        </view>
+        <!-- AI Reasons（无叙事时回落到要点列表） -->
+        <view class="rec-reasons" wx:if="{{rec.isAI && !rec.primary.narrative && rec.primary.reasons.length > 0}}">
           <view class="rec-reason-item" wx:for="{{rec.primary.reasons}}" wx:key="index">
             <text class="rec-reason-dot"></text>
             <text class="rec-reason-text">{{item}}</text>

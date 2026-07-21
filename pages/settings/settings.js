@@ -66,7 +66,7 @@ Page({
     apiKey: '',
     endpoint: '',
     parserEnabled: false,
-    parserModel: 'deepseek-v3',
+    parserModel: 'deepseek-v4-pro',
     recEnabled: false,
     recModel: 'deepseek-v4-pro',
     // Recommend settings
@@ -149,12 +149,7 @@ Page({
     else if (sum >= 2) constitution = '偏热';
     else constitution = '平和';
 
-    var appData = this._appData || data.load();
-    appData.profile.quizAnswers = quizAnswers;
-    appData.profile.constitution = constitution;
-    data.save(appData);
-    this._appData = appData;
-
+    // 仅即时反馈，不写入存储；点击「保存」按钮时由 _saveQuiz 持久化
     this.setData({
       constitution: constitution,
       constitutionText: constitution,
@@ -163,18 +158,21 @@ Page({
   },
 
   onQuizReset: function () {
-    var appData = this._appData || data.load();
-    appData.profile.quizAnswers = {};
-    appData.profile.constitution = null;
-    data.save(appData);
-    this._appData = appData;
-
+    // 仅清空页面状态，点击「保存」后才会持久化
     this.setData({
       quizAnswers: {},
       constitution: null,
       constitutionText: '',
       constitutionHint: ''
     });
+  },
+
+  _saveQuiz: function () {
+    var appData = this._appData || data.load();
+    appData.profile.quizAnswers = this.data.quizAnswers;
+    appData.profile.constitution = this.data.constitution;
+    data.save(appData);
+    this._appData = appData;
   },
 
   _getSyncStatus: function () {
@@ -193,7 +191,6 @@ Page({
   onGenderTap: function (e) {
     var val = e.currentTarget.dataset.value;
     this.setData({ gender: val });
-    this._saveProfile();
   },
 
   onAgeInput: function (e) {
@@ -202,10 +199,6 @@ Page({
 
   onCityInput: function (e) {
     this.setData({ city: e.detail.value });
-  },
-
-  onCityBlur: function () {
-    this._saveProfile();
   },
 
   _saveProfile: function () {
@@ -228,7 +221,6 @@ Page({
 
   onParserToggle: function (e) {
     this.setData({ parserEnabled: e.detail.value });
-    this._saveLLM();
   },
 
   onParserModelInput: function (e) {
@@ -237,16 +229,31 @@ Page({
 
   onRecToggle: function (e) {
     this.setData({ recEnabled: e.detail.value });
-    this._saveLLM();
   },
 
   onRecModelInput: function (e) {
     this.setData({ recModel: e.detail.value });
   },
 
-  onSettingsSave: function () {
+  // ==== Explicit save handlers（点击各区块「保存」按钮才写入）====
+  onSaveProfile: function () {
+    this._saveProfile();
+    wx.showToast({ title: '已保存', icon: 'success' });
+  },
+
+  onSaveQuiz: function () {
+    this._saveQuiz();
+    wx.showToast({ title: '已保存', icon: 'success' });
+  },
+
+  onSaveLLM: function () {
     this._saveLLM();
+    wx.showToast({ title: '已保存', icon: 'success' });
+  },
+
+  onSaveRecommend: function () {
     this._saveRecommendSettings();
+    wx.showToast({ title: '已保存', icon: 'success' });
   },
 
   _saveLLM: function () {

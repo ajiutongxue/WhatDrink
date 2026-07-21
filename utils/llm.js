@@ -331,6 +331,7 @@ function callLLM(eligibleTeas, context, config) {
       '  "primary": {\n' +
       '    "name": "茶名，必须和候选里完全一致",\n' +
       '    "tagline": "一句话标签，比如「午后温中和胃之选」",\n' +
+      '    "narrative": "把今天的天气、时段、身体状况和选这款茶的理由，编织成一段连贯温暖的话，像写给朋友的便签，自然流畅、有画面感，2-3句，60-100字，不要分点、不要加引号",\n' +
       '    "reasons": ["理由1，短句子", "理由2，短句子", "理由3，短句子"],\n' +
       '    "taste_note": "喝起来什么感觉，比如「焙火香明显，入口醇厚有回甘」",\n' +
       '    "brew_tip": "冲泡小建议，比如「沸水，15秒出汤，别闷」",\n' +
@@ -415,6 +416,7 @@ function callLLM(eligibleTeas, context, config) {
               primary: {
                 name: parsed.primary.name || '',
                 tagline: parsed.primary.tagline || '',
+                narrative: parsed.primary.narrative || '',
                 reasons: Array.isArray(parsed.primary.reasons) ? parsed.primary.reasons : [],
                 taste_note: parsed.primary.taste_note || '',
                 brew_tip: parsed.primary.brew_tip || '',
@@ -471,6 +473,99 @@ function callLLM(eligibleTeas, context, config) {
       });
     };
     doRequest();
+  });
+}
+
+// ============================================================
+// generateDailyQuote - 每日茶语（轻量生成，按天缓存由调用方负责）
+// ============================================================
+
+/**
+ * Generate a short, warm "daily tea quote" based on date context.
+ * Uses the lightweight model; returns plain text (not JSON).
+ * @param {Object} context - { date, weekday, solarTerm, season, weather }
+ * @param {Object} config - LLM config { apiKey, endpoint, recModel, parserModel }
+ * @returns {Promise<string|null>} Quote text or null on failure
+ */
+function generateDailyQuote(context, config) {
+  return new Promise(function(resolve) {
+    _setError('');
+    if (!config || !config.apiKey || !config.endpoint) {
+      resolve(null);
+      return;
+    }
+    var model = config.recModel || config.parserModel;
+    if (!model) { resolve(null); return; }
+
+    var t0 = Date.now();
+    var ctx = context || {};
+
+    var weatherDesc = '未知';
+    if (ctx.weather) {
+      weatherDesc = (ctx.weather.city || '') + ' ' + ctx.weather.temp + '°C' +
+        (ctx.weather.desc ? '，' + ctx.weather.desc : '') +
+        (ctx.weather.humidity ? '，湿度' + ctx.weather.humidity + '%' : '');
+    }
+
+    var systemPrompt =
+      '你是一位懂茶、懂生活的文案作者。请根据今天的日期、节气与天气，写一句简短温暖的"每日茶语"，' +
+      '像朋友的一句问候，可以带一点诗意或小幽默，自然地呼应时令或天气。' +
+      '不超过25个字，直接返回这句话本身，不要加引号、序号、解释或任何额外文字。';
+
+    var userPrompt =
+      '日期：' + (ctx.date || '') + '（' + (ctx.weekday || '') + '）\n' +
+      '节气：' + (ctx.solarTerm || '—') + '\n' +
+      '季节：' + (ctx.season || '—') + '\n' +
+      '天气：' + weatherDesc + '\n\n' +
+      '请写一句今日茶语：';
+
+    var url = _buildUrl(config.endpoint, '/chat/completions');
+
+    _currentTask = wx.request({
+      url: url,
+      method: 'POST',
+      timeout: 20000,
+      header: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + config.apiKey
+      },
+      data: {
+        model: model,
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userPrompt }
+        ],
+        temperature: 0.85,
+        max_tokens: 80
+      },
+      success: function(res) {
+        if (res.statusCode !== 200) {
+          console.warn('[llm] generateDailyQuote HTTP ' + res.statusCode);
+          tracker.track('llm_quote', { ok: false, ms: Date.now() - t0, http: res.statusCode });
+          resolve(null);
+          return;
+        }
+        var content = _extractContent(res.data);
+        if (!content) {
+          tracker.track('llm_quote', { ok: false, ms: Date.now() - t0, errType: 'empty' });
+          resolve(null);
+          return;
+        }
+        // 去掉可能的引号、换行与多余空白
+        var quote = String(content).replace(/["“”'‘’\n\r]/g, '').trim();
+        if (!quote) {
+          resolve(null);
+          return;
+        }
+        tracker.track('llm_quote', { ok: true, ms: Date.now() - t0, len: quote.length });
+        resolve(quote);
+      },
+      fail: function(err) {
+        console.warn('[llm] generateDailyQuote failed:', err);
+        tracker.track('llm_quote', { ok: false, ms: Date.now() - t0, errType: 'network' });
+        resolve(null);
+      }
+    });
   });
 }
 
@@ -640,6 +735,7 @@ function _catName(key) {
 module.exports = {
   parseWithLLM: parseWithLLM,
   callLLM: callLLM,
+  generateDailyQuote: generateDailyQuote,
   getLastError: getLastError,
   getLastErrorType: getLastErrorType,
   clearLastError: clearLastError,

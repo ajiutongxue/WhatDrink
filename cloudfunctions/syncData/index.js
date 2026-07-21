@@ -5,9 +5,9 @@
  *
  * Merge strategy:
  * - history: union by date+teaId+type, local wins for same key (newer tastingNotes)
- * - profile: field-level merge, non-empty wins (cloud preferred)
- * - settings: field-level merge, non-empty wins
- * - llm: field-level merge, non-empty for strings; cloud for booleans
+ * - profile: field-level merge, incoming (local) preferred for non-empty values
+ * - settings: field-level merge, incoming (local) preferred
+ * - llm: field-level merge, incoming (local) preferred for non-empty strings and booleans
  * - teaLibrary: union by id, cloud wins for duplicates
  */
 
@@ -151,50 +151,51 @@ function mergeData(cloud, local) {
   };
 }
 
-// Field-level profile merge: non-empty wins, cloud preferred.
-// Prevents one device's empty field overwriting another's value.
+// Field-level profile merge: incoming (local) preferred.
+// Non-empty incoming value overrides cloud; empty incoming falls back to cloud.
 function mergeProfile(cloud, local) {
   var result = {};
   var keys = ['gender', 'age', 'city', 'constitution'];
   keys.forEach(function(k) {
-    if (cloud[k] !== undefined && cloud[k] !== null && cloud[k] !== '') {
-      result[k] = cloud[k];
-    } else if (local[k] !== undefined && local[k] !== null && local[k] !== '') {
+    if (local[k] !== undefined && local[k] !== null && local[k] !== '') {
       result[k] = local[k];
+    } else if (cloud[k] !== undefined && cloud[k] !== null && cloud[k] !== '') {
+      result[k] = cloud[k];
     } else {
-      result[k] = cloud[k] !== undefined ? cloud[k] : local[k];
+      result[k] = local[k] !== undefined ? local[k] : cloud[k];
     }
   });
   var cqa = cloud.quizAnswers || {}, lqa = local.quizAnswers || {};
   result.quizAnswers = {};
-  for (var ck in cqa) if (cqa.hasOwnProperty(ck)) result.quizAnswers[ck] = cqa[ck];
-  for (var lk in lqa) if (lqa.hasOwnProperty(lk) && result.quizAnswers[lk] === undefined) {
-    result.quizAnswers[lk] = lqa[lk];
+  for (var lk in lqa) if (lqa.hasOwnProperty(lk)) result.quizAnswers[lk] = lqa[lk];
+  for (var ck in cqa) if (cqa.hasOwnProperty(ck) && result.quizAnswers[ck] === undefined) {
+    result.quizAnswers[ck] = cqa[ck];
   }
   return result;
 }
 
 function mergeSettings(cloud, local) {
-  var avoidDays = (typeof cloud.avoidDays === 'number' && cloud.avoidDays > 0)
-    ? cloud.avoidDays
-    : ((typeof local.avoidDays === 'number' && local.avoidDays > 0) ? local.avoidDays : 5);
+  var avoidDays = (typeof local.avoidDays === 'number' && local.avoidDays > 0)
+    ? local.avoidDays
+    : ((typeof cloud.avoidDays === 'number' && cloud.avoidDays > 0) ? cloud.avoidDays : 5);
   return { avoidDays: avoidDays };
 }
 
 function mergeLLM(cloud, local) {
   var result = {};
+  // 本地优先：客户端推上来的非空值覆盖云端旧值（为空时回落到云端，避免空值误清）
   var strKeys = ['apiKey', 'endpoint', 'recModel', 'parserModel'];
   strKeys.forEach(function(k) {
-    if (cloud[k]) result[k] = cloud[k];
-    else if (local[k]) result[k] = local[k];
-    else result[k] = cloud[k] !== undefined ? cloud[k] : local[k];
+    if (local[k]) result[k] = local[k];
+    else if (cloud[k]) result[k] = cloud[k];
+    else result[k] = local[k] !== undefined ? local[k] : cloud[k];
   });
-  result.enabled = (typeof cloud.enabled === 'boolean')
-    ? cloud.enabled
-    : ((typeof local.enabled === 'boolean') ? local.enabled : false);
-  result.parserEnabled = (typeof cloud.parserEnabled === 'boolean')
-    ? cloud.parserEnabled
-    : ((typeof local.parserEnabled === 'boolean') ? local.parserEnabled : false);
+  result.enabled = (typeof local.enabled === 'boolean')
+    ? local.enabled
+    : ((typeof cloud.enabled === 'boolean') ? cloud.enabled : false);
+  result.parserEnabled = (typeof local.parserEnabled === 'boolean')
+    ? local.parserEnabled
+    : ((typeof cloud.parserEnabled === 'boolean') ? cloud.parserEnabled : false);
   return result;
 }
 

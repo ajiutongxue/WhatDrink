@@ -47,36 +47,55 @@
 
 .hero-weather {
   display: flex;
-  align-items: center;
-  gap: 8rpx;
-  font-size: 22rpx;
-  color: var(--ink2);
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4rpx;
   background: var(--card);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  padding: 12rpx 24rpx;
+  padding: 12rpx 22rpx;
   border-radius: var(--r-pill);
   border: 1rpx solid var(--card-border);
-  letter-spacing: 1rpx;
   font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", "Microsoft YaHei", "Segoe UI", sans-serif;
 }
 
-.hero-weather-dot {
+.hw-main {
+  display: flex;
+  align-items: baseline;
+  gap: 10rpx;
+}
+
+.hw-temp {
+  font-size: 34rpx;
+  font-weight: 700;
   color: var(--coral);
-  font-size: 22rpx;
+  letter-spacing: 1rpx;
+}
+
+.hw-desc {
+  font-size: 24rpx;
+  color: var(--ink2);
+  letter-spacing: 1rpx;
+}
+
+.hw-sub {
+  font-size: 20rpx;
+  color: var(--ink3);
+  letter-spacing: 1rpx;
 }
 
 /* Big date — serif, bold, orderly */
 .hero-date {
   display: flex;
   align-items: center;
-  gap: 30rpx;
-  margin-bottom: 34rpx;
+  justify-content: center;
+  gap: 28rpx;
+  margin-bottom: 28rpx;
 }
 
 .hero-day {
   font-family: "Songti SC", "STSongti-SC", "STSong", "SimSun", "Noto Serif SC", "Source Han Serif SC", serif;
-  font-size: 190rpx;
+  font-size: 160rpx;
   font-weight: 700;
   color: var(--cocoa);
   line-height: 1;
@@ -85,7 +104,7 @@
 
 .hero-date-divider {
   width: 2rpx;
-  height: 112rpx;
+  height: 100rpx;
   background: linear-gradient(to bottom, transparent, rgba(201, 184, 173, 0.75), transparent);
   flex-shrink: 0;
 }
@@ -98,7 +117,7 @@
 
 .hero-week {
   font-family: "Songti SC", "STSongti-SC", "STSong", "SimSun", "Noto Serif SC", "Source Han Serif SC", serif;
-  font-size: 34rpx;
+  font-size: 36rpx;
   color: var(--ink);
   letter-spacing: 3rpx;
   font-weight: 700;
@@ -114,6 +133,7 @@
 .hero-sub {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 16rpx;
 }
 
@@ -279,6 +299,20 @@
   color: var(--coral-deep);
   margin-bottom: 6rpx;
   letter-spacing: 2rpx;
+}
+
+/* Narrative recommendation (AI, preferred over bullet reasons) */
+.rec-narrative {
+  padding: 26rpx 28rpx;
+  margin-bottom: 24rpx;
+  background: var(--cream2);
+  border-left: 6rpx solid var(--coral);
+  border-radius: var(--r-md);
+  font-family: "Songti SC","STSongti-SC","STSong","SimSun","Noto Serif SC","Source Han Serif SC",serif;
+  font-size: 28rpx;
+  color: var(--ink2);
+  line-height: 1.9;
+  letter-spacing: 1rpx;
 }
 
 /* Structured reasons (AI) */
