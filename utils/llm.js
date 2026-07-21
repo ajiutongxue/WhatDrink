@@ -403,7 +403,13 @@ function callLLM(eligibleTeas, context, config) {
 
             // Validate names exist in eligible teas
             var nameMap = {};
-            eligibleTeas.forEach(function(t) { if (t && t.name) nameMap[t.name] = true; });
+            eligibleTeas.forEach(function(t) {
+              if (t && t.name) {
+                nameMap[t.name] = true;
+                // 候选列表以「name（brand）」展示，LLM 常原样返回，一并视为合法
+                if (t.brand) nameMap[t.name + '（' + t.brand + '）'] = true;
+              }
+            });
 
             var result = {
               primary: {

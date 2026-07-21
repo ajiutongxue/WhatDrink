@@ -495,24 +495,30 @@ Page({
     if (!input) return null;
     var lib = (this._appData && this._appData.teaLibrary) || teaData.TEAS;
     var inputLower = input.toLowerCase();
+    // 喂给 LLM 的候选列表是「name（brand）」格式，LLM 常原样返回。
+    // 括号/空格对匹配是噪声，先剔除再比较。
+    var inputNoParen = inputLower.replace(/[（）()\s]/g, '');
     var bestTea = null, bestScore = 0;
 
     for (var i = 0; i < lib.length; i++) {
       var t = lib[i];
-      var combined = (t.name + t.brand).toLowerCase();
+      var combined = (t.name + (t.brand || '')).toLowerCase();
 
       // Exact match on name = highest priority
       if (t.name === input || t.name.toLowerCase() === inputLower) return t;
 
-      // Substring containment
-      if (combined.indexOf(inputLower) >= 0 || inputLower.indexOf(combined) >= 0) {
-        var containScore = Math.min(inputLower.length, combined.length) / Math.max(inputLower.length, combined.length) * 90;
+      // 剔除括号后精确相等 = LLM 返回了候选展示形式「name（brand）」
+      if (inputNoParen === combined) return t;
+
+      // Substring containment（用剔括号后的输入比较）
+      if (combined.indexOf(inputNoParen) >= 0 || inputNoParen.indexOf(combined) >= 0) {
+        var containScore = Math.min(inputNoParen.length, combined.length) / Math.max(inputNoParen.length, combined.length) * 90;
         if (containScore > bestScore) { bestScore = containScore; bestTea = t; }
         continue;
       }
 
-      // Fuzzy: extract common substrings and score by coverage
-      var score = this._commonSubstringScore(inputLower, combined);
+      // Fuzzy: extract common substrings and score by coverage（用剔括号后的输入）
+      var score = this._commonSubstringScore(inputNoParen, combined);
       if (score > bestScore) { bestScore = score; bestTea = t; }
     }
 
