@@ -8,7 +8,7 @@
   <view class="scene-tint tint-{{timePhase}}"></view>
 </view>
 
-<view class="page-container" bindtap="onPageTap">
+<view class="page-container phase-{{timePhase}}" bindtap="onPageTap">
 
   <!-- ========== Hero Header ========== -->
   <view class="hero" style="padding-top: {{statusBarHeight + 36}}px">

@@ -771,3 +771,273 @@
   color: var(--ink4);
   letter-spacing: 4rpx;
 }
+
+/* ============================================================
+   Time-of-Day Foreground Adaptation
+   黄昏/夜晚背景偏暗时，前景文字与卡片自动适配
+   ============================================================ */
+
+/* Smooth color transitions for all adapted elements */
+.phase-dusk .hero-day,
+.phase-dusk .hero-week,
+.phase-dusk .hero-lunar,
+.phase-dusk .solar-name,
+.phase-dusk .solar-meaning,
+.phase-dusk .solar-custom,
+.phase-dusk .hw-temp,
+.phase-dusk .hw-desc,
+.phase-dusk .hw-sub,
+.phase-dusk .hero-sub-script,
+.phase-dusk .hero-sub-text,
+.phase-dusk .input-summary,
+.phase-dusk .footer-ver,
+.phase-night .hero-day,
+.phase-night .hero-week,
+.phase-night .hero-lunar,
+.phase-night .solar-name,
+.phase-night .solar-meaning,
+.phase-night .solar-custom,
+.phase-night .hw-temp,
+.phase-night .hw-desc,
+.phase-night .hw-sub,
+.phase-night .hero-sub-script,
+.phase-night .hero-sub-text,
+.phase-night .input-summary,
+.phase-night .footer-ver {
+  transition: color 1.5s ease;
+}
+
+/* ---- Dusk: moderate warm adaptation ---- */
+.phase-dusk .hero-day {
+  color: #F5E6D8;
+}
+
+.phase-dusk .hero-week {
+  color: #F0DCC8;
+}
+
+.phase-dusk .hero-lunar {
+  color: rgba(240, 220, 200, 0.7);
+}
+
+.phase-dusk .hero-date-divider {
+  background: linear-gradient(to bottom, transparent, rgba(240, 220, 200, 0.5), transparent);
+}
+
+.phase-dusk .solar-name {
+  color: #F2C4A0;
+}
+
+.phase-dusk .solar-meaning {
+  color: rgba(240, 220, 200, 0.75);
+}
+
+.phase-dusk .solar-custom {
+  color: rgba(240, 220, 200, 0.6);
+}
+
+.phase-dusk .hw-temp {
+  color: #F2C4A0;
+}
+
+.phase-dusk .hw-desc {
+  color: rgba(240, 220, 200, 0.8);
+}
+
+.phase-dusk .hw-sub {
+  color: rgba(240, 220, 200, 0.6);
+}
+
+.phase-dusk .hero-sub-script {
+  color: #D4B896;
+}
+
+.phase-dusk .hero-sub-text {
+  color: rgba(240, 220, 200, 0.65);
+}
+
+.phase-dusk .input-summary {
+  color: rgba(240, 220, 200, 0.75);
+}
+
+.phase-dusk .footer-ver {
+  color: rgba(240, 220, 200, 0.4);
+}
+
+.phase-dusk .footer-rule.left {
+  background: linear-gradient(to right, transparent, rgba(240, 220, 200, 0.4));
+}
+
+.phase-dusk .footer-rule.right {
+  background: linear-gradient(to left, transparent, rgba(240, 220, 200, 0.4));
+}
+
+/* ---- Night: full dark-mode adaptation ---- */
+.phase-night .hero-day {
+  color: #E8E4F0;
+}
+
+.phase-night .hero-week {
+  color: #D8D4E4;
+}
+
+.phase-night .hero-lunar {
+  color: rgba(216, 212, 228, 0.65);
+}
+
+.phase-night .hero-date-divider {
+  background: linear-gradient(to bottom, transparent, rgba(216, 212, 228, 0.4), transparent);
+}
+
+.phase-night .solar-name {
+  color: #C8B8D8;
+}
+
+.phase-night .solar-meaning {
+  color: rgba(216, 212, 228, 0.7);
+}
+
+.phase-night .solar-custom {
+  color: rgba(216, 212, 228, 0.55);
+}
+
+.phase-night .hw-temp {
+  color: #C8B8D8;
+}
+
+.phase-night .hw-desc {
+  color: rgba(216, 212, 228, 0.75);
+}
+
+.phase-night .hw-sub {
+  color: rgba(216, 212, 228, 0.55);
+}
+
+.phase-night .hero-sub-script {
+  color: #A8B8A0;
+}
+
+.phase-night .hero-sub-text {
+  color: rgba(216, 212, 228, 0.6);
+}
+
+.phase-night .input-summary {
+  color: rgba(216, 212, 228, 0.7);
+}
+
+.phase-night .footer-ver {
+  color: rgba(216, 212, 228, 0.35);
+}
+
+.phase-night .footer-rule.left {
+  background: linear-gradient(to right, transparent, rgba(216, 212, 228, 0.3));
+}
+
+.phase-night .footer-rule.right {
+  background: linear-gradient(to left, transparent, rgba(216, 212, 228, 0.3));
+}
+
+/* ---- Cards: increase opacity on dark backgrounds ---- */
+.phase-dusk .rec-hero,
+.phase-dusk .checkin-card,
+.phase-dusk .soft-input,
+.phase-dusk .rec-alt {
+  background: rgba(255, 252, 246, 0.88);
+}
+
+.phase-night .rec-hero,
+.phase-night .checkin-card,
+.phase-night .soft-input,
+.phase-night .rec-alt {
+  background: rgba(40, 44, 60, 0.82);
+  border-color: rgba(200, 184, 216, 0.15);
+}
+
+/* Night: card inner text goes light */
+.phase-night .rec-hero-name,
+.phase-night .rec-hero-brand,
+.phase-night .rec-hero-reason,
+.phase-night .rec-narrative,
+.phase-night .rec-reason-text,
+.phase-night .rec-taste-text,
+.phase-night .rec-brew-tip,
+.phase-night .rec-hint-line,
+.phase-night .checkin-title,
+.phase-night .checkin-done-text,
+.phase-night .checkin-msg,
+.phase-night .rec-alt-name,
+.phase-night .rec-alt-brand,
+.phase-night .rec-alt-reason,
+.phase-night .rec-alt-why,
+.phase-night .rec-alt-brew-tip,
+.phase-night .rec-alt-reason-line,
+.phase-night .no-result-text,
+.phase-night .no-result-hint,
+.phase-night .tasting-saved-text {
+  color: rgba(232, 228, 240, 0.9);
+}
+
+.phase-night .rec-hero-tagline {
+  color: #C8B8D8;
+}
+
+.phase-night .rec-taste-label {
+  color: #A8B8A0;
+}
+
+.phase-night .rec-narrative {
+  background: rgba(60, 64, 80, 0.6);
+  border-left-color: #C8B8D8;
+}
+
+.phase-night .rec-reasons {
+  background: rgba(60, 64, 80, 0.5);
+}
+
+.phase-night .rec-taste {
+  background: rgba(60, 70, 60, 0.5);
+}
+
+.phase-night .rec-reason-dot {
+  background: #C8B8D8;
+}
+
+.phase-night .tasting-saved {
+  background: rgba(60, 64, 80, 0.5);
+}
+
+.phase-night .tasting-edit-link {
+  color: #C8B8D8;
+}
+
+/* Night: checkin pills adapt */
+.phase-night .checkin-pill.muted {
+  background: rgba(60, 64, 80, 0.6);
+  color: rgba(232, 228, 240, 0.8);
+}
+
+.phase-night .checkin-custom input {
+  color: rgba(232, 228, 240, 0.9);
+  background: rgba(60, 64, 80, 0.6);
+  border-color: rgba(200, 184, 216, 0.2);
+}
+
+/* Night: nature tags & info tags */
+.phase-night .nature-tag {
+  opacity: 0.9;
+}
+
+.phase-night .rec-hero-tag {
+  color: rgba(216, 212, 228, 0.7);
+}
+
+/* Night: AI loading state */
+.phase-night .ai-loading-sub {
+  color: rgba(216, 212, 228, 0.5);
+}
+
+.phase-night .ai-cancel {
+  background: rgba(60, 64, 80, 0.6);
+  border-color: rgba(200, 184, 216, 0.2);
+  color: rgba(216, 212, 228, 0.7);
+}
