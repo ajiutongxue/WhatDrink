@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 750 1624" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="dawnSky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#C8D8F0"/>
+      <stop offset="30%" stop-color="#E4D8EC"/>
+      <stop offset="55%" stop-color="#F5E2D8"/>
+      <stop offset="78%" stop-color="#FBE8D4"/>
+      <stop offset="100%" stop-color="#FDF0E0"/>
+    </linearGradient>
+    <radialGradient id="dawnGlow" cx="72%" cy="62%" r="45%">
+      <stop offset="0%" stop-color="#FFE4C4" stop-opacity="0.5"/>
+      <stop offset="100%" stop-color="#FFE4C4" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="dHillBack" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#D8C8C0"/>
+      <stop offset="100%" stop-color="#E4D6CC"/>
+    </linearGradient>
+    <linearGradient id="dHillMid" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#B4C4AE"/>
+      <stop offset="100%" stop-color="#C6D4BE"/>
+    </linearGradient>
+    <linearGradient id="dHillFront" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#96B08E"/>
+      <stop offset="100%" stop-color="#ACC2A2"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Sky: cool blue top melting into warm peach at horizon -->
+  <rect width="750" height="1624" fill="url(#dawnSky)"/>
+  <!-- Soft sunrise glow near horizon -->
+  <ellipse cx="540" cy="1000" rx="400" ry="320" fill="url(#dawnGlow)"/>
+
+  <!-- Thin mist band at horizon -->
+  <ellipse cx="375" cy="1140" rx="500" ry="50" fill="#FDF0E0" opacity="0.4"/>
+
+  <!-- Rolling hills (same geometry as all scenes) -->
+  <path d="M0 1180 Q180 1060 380 1150 T750 1120 L750 1624 L0 1624 Z" fill="url(#dHillBack)"/>
+  <path d="M0 1320 Q220 1200 460 1300 T750 1280 L750 1624 L0 1624 Z" fill="url(#dHillMid)"/>
+  <path d="M0 1460 Q200 1360 420 1450 T750 1430 L750 1624 L0 1624 Z" fill="url(#dHillFront)"/>
+
+  <!-- Gentle morning mist between hills -->
+  <ellipse cx="300" cy="1260" rx="380" ry="36" fill="#F5E8DC" opacity="0.3"/>
+</svg>

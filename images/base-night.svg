@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 750 1624" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="nightSky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1A2040"/>
+      <stop offset="30%" stop-color="#2A3058"/>
+      <stop offset="55%" stop-color="#3A4068"/>
+      <stop offset="78%" stop-color="#4A4E70"/>
+      <stop offset="100%" stop-color="#5A5878"/>
+    </linearGradient>
+    <radialGradient id="nightGlow" cx="50%" cy="75%" r="45%">
+      <stop offset="0%" stop-color="#6A6488" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#6A6488" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="nHillBack" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#3A4050"/>
+      <stop offset="100%" stop-color="#444C58"/>
+    </linearGradient>
+    <linearGradient id="nHillMid" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#2E3844"/>
+      <stop offset="100%" stop-color="#38424C"/>
+    </linearGradient>
+    <linearGradient id="nHillFront" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#242E38"/>
+      <stop offset="100%" stop-color="#2E3840"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Sky: deep indigo-blue -->
+  <rect width="750" height="1624" fill="url(#nightSky)"/>
+  <!-- Faint ambient glow above hills -->
+  <ellipse cx="375" cy="1100" rx="450" ry="300" fill="url(#nightGlow)"/>
+
+  <!-- Rolling hills (dark silhouettes) -->
+  <path d="M0 1180 Q180 1060 380 1150 T750 1120 L750 1624 L0 1624 Z" fill="url(#nHillBack)"/>
+  <path d="M0 1320 Q220 1200 460 1300 T750 1280 L750 1624 L0 1624 Z" fill="url(#nHillMid)"/>
+  <path d="M0 1460 Q200 1360 420 1450 T750 1430 L750 1624 L0 1624 Z" fill="url(#nHillFront)"/>
+
+  <!-- Subtle mist at hill base -->
+  <ellipse cx="375" cy="1300" rx="480" ry="40" fill="#5A5878" opacity="0.2"/>
+</svg>

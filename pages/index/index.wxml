@@ -1,5 +1,12 @@
-<!-- SVG Full-page Background (fixed, behind everything) -->
-<image class="scene-bg" src="/images/scene-{{scene}}.svg" mode="aspectFill" />
+<!-- Dynamic Scene Background: 3-layer architecture -->
+<view class="scene-container phase-{{timePhase}} {{sceneReady ? 'scene-ready' : ''}}">
+  <!-- L1: Landscape base (changes with time of day) -->
+  <image class="scene-base" src="/images/{{baseSrc}}" mode="aspectFill" />
+  <!-- L2: Weather overlay element (transparent, animated) -->
+  <image class="scene-overlay {{overlayAnimClass}}" src="/images/{{overlaySrc}}" mode="aspectFill" style="opacity: {{overlayOpacity}}" />
+  <!-- L3: Time-of-day color tint (pure CSS, no image) -->
+  <view class="scene-tint tint-{{timePhase}}"></view>
+</view>
 
 <view class="page-container" bindtap="onPageTap">
 

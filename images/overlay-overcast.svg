@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 750 1624" preserveAspectRatio="xMidYMid slice">
+  <!-- Overcast: heavy layered cloud ceiling -->
+  <g>
+    <!-- Top dense layer -->
+    <g fill="#B8BEC6" opacity="0.8">
+      <ellipse cx="180" cy="160" rx="200" ry="80"/>
+      <ellipse cx="400" cy="140" rx="220" ry="90"/>
+      <ellipse cx="620" cy="170" rx="190" ry="75"/>
+      <ellipse cx="300" cy="200" rx="180" ry="70"/>
+      <ellipse cx="530" cy="210" rx="200" ry="72"/>
+    </g>
+    <!-- Mid layer slightly lighter -->
+    <g fill="#C4CAD0" opacity="0.7">
+      <ellipse cx="120" cy="260" rx="170" ry="62"/>
+      <ellipse cx="350" cy="280" rx="200" ry="68"/>
+      <ellipse cx="580" cy="270" rx="180" ry="64"/>
+      <ellipse cx="700" cy="300" rx="140" ry="55"/>
+    </g>
+    <!-- Bottom wispy layer -->
+    <g fill="#D0D5DA" opacity="0.5">
+      <ellipse cx="200" cy="360" rx="160" ry="50"/>
+      <ellipse cx="450" cy="380" rx="180" ry="52"/>
+      <ellipse cx="650" cy="370" rx="140" ry="46"/>
+    </g>
+  </g>
+</svg>

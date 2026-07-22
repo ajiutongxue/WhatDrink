@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 750 1624" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="daySky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FBE0CC"/>
+      <stop offset="38%" stop-color="#FBF0E2"/>
+      <stop offset="72%" stop-color="#FAEADD"/>
+      <stop offset="100%" stop-color="#F6E7D6"/>
+    </linearGradient>
+    <radialGradient id="dayWarm" cx="65%" cy="35%" r="50%">
+      <stop offset="0%" stop-color="#FFF4E0" stop-opacity="0.4"/>
+      <stop offset="100%" stop-color="#FFF4E0" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="dayHillBack" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#E7D3C0"/>
+      <stop offset="100%" stop-color="#EFDCCB"/>
+    </linearGradient>
+    <linearGradient id="dayHillMid" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#B9CDAE"/>
+      <stop offset="100%" stop-color="#CBDCBF"/>
+    </linearGradient>
+    <linearGradient id="dayHillFront" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#9DB88F"/>
+      <stop offset="100%" stop-color="#B4CBA6"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Sky: warm peach-cream (signature 暖屿 daytime) -->
+  <rect width="750" height="1624" fill="url(#daySky)"/>
+  <!-- Ambient warm light -->
+  <ellipse cx="490" cy="560" rx="420" ry="380" fill="url(#dayWarm)"/>
+
+  <!-- Rolling hills -->
+  <path d="M0 1180 Q180 1060 380 1150 T750 1120 L750 1624 L0 1624 Z" fill="url(#dayHillBack)"/>
+  <path d="M0 1320 Q220 1200 460 1300 T750 1280 L750 1624 L0 1624 Z" fill="url(#dayHillMid)"/>
+  <path d="M0 1460 Q200 1360 420 1450 T750 1430 L750 1624 L0 1624 Z" fill="url(#dayHillFront)"/>
+</svg>

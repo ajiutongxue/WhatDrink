@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 750 1624" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="duskSky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#6B5B8A"/>
+      <stop offset="25%" stop-color="#9B6B8A"/>
+      <stop offset="48%" stop-color="#D4887A"/>
+      <stop offset="68%" stop-color="#F0A870"/>
+      <stop offset="85%" stop-color="#F8C488"/>
+      <stop offset="100%" stop-color="#FAE0B0"/>
+    </linearGradient>
+    <radialGradient id="duskGlow" cx="35%" cy="68%" r="40%">
+      <stop offset="0%" stop-color="#FFD080" stop-opacity="0.6"/>
+      <stop offset="50%" stop-color="#F0A060" stop-opacity="0.25"/>
+      <stop offset="100%" stop-color="#F0A060" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="duskHillBack" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#8A6E72"/>
+      <stop offset="100%" stop-color="#A07E78"/>
+    </linearGradient>
+    <linearGradient id="duskHillMid" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#6E7E68"/>
+      <stop offset="100%" stop-color="#849478"/>
+    </linearGradient>
+    <linearGradient id="duskHillFront" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#54685A"/>
+      <stop offset="100%" stop-color="#687C66"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Sky: purple top → orange → golden horizon -->
+  <rect width="750" height="1624" fill="url(#duskSky)"/>
+  <!-- Setting sun glow at horizon -->
+  <ellipse cx="260" cy="1080" rx="350" ry="280" fill="url(#duskGlow)"/>
+
+  <!-- Rolling hills (warm dark silhouettes) -->
+  <path d="M0 1180 Q180 1060 380 1150 T750 1120 L750 1624 L0 1624 Z" fill="url(#duskHillBack)"/>
+  <path d="M0 1320 Q220 1200 460 1300 T750 1280 L750 1624 L0 1624 Z" fill="url(#duskHillMid)"/>
+  <path d="M0 1460 Q200 1360 420 1450 T750 1430 L750 1624 L0 1624 Z" fill="url(#duskHillFront)"/>
+
+  <!-- Warm haze at hill base -->
+  <ellipse cx="375" cy="1200" rx="460" ry="44" fill="#F0A870" opacity="0.15"/>
+</svg>

@@ -3,14 +3,142 @@
    柔和粉彩 + 印章点缀 + 手写体标题，像一张温暖的茶笺
    ============================================================ */
 
-/* ========== SVG Full-page Background ========== */
-.scene-bg {
+/* ========== Dynamic Scene Background — 3-Layer Architecture ========== */
+.scene-container {
   position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
   z-index: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: opacity 0.8s ease;
+}
+
+/* Fade in once scene data is ready */
+.scene-ready {
+  opacity: 1;
+}
+
+.scene-base,
+.scene-overlay,
+.scene-tint {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* Smooth transitions when switching scenes */
+.scene-base {
+  transition: opacity 1.2s ease, filter 1.8s ease;
+}
+
+.scene-overlay {
+  transition: opacity 1.2s ease;
+}
+
+/* L3: Time-of-day color tint overlay */
+.scene-tint {
+  pointer-events: none;
+  transition: background 2s ease;
+}
+
+.tint-dawn  { background: rgba(160, 180, 240, 0.06); }
+.tint-day   { background: transparent; }
+.tint-dusk  { background: rgba(255, 120, 40, 0.10); }
+.tint-night { background: rgba(15, 20, 60, 0.28); }
+
+/* Time-of-day filters on base layer */
+.phase-dawn .scene-base {
+  filter: brightness(0.96) saturate(0.88);
+}
+
+.phase-dusk .scene-base {
+  filter: brightness(0.9) saturate(0.82) hue-rotate(-5deg);
+}
+
+.phase-night .scene-base {
+  filter: brightness(0.82) saturate(0.65) hue-rotate(8deg);
+}
+
+/* ===== Weather Overlay Animations ===== */
+
+/* Rain: steady diagonal fall */
+@keyframes rain-fall {
+  from { transform: translateY(-40rpx) translateX(6rpx); }
+  to   { transform: translateY(40rpx) translateX(-6rpx); }
+}
+.anim-rain {
+  animation: rain-fall 1s linear infinite;
+}
+
+/* Snow: slow drift with gentle sway */
+@keyframes snow-fall {
+  0%   { transform: translateY(-24rpx) translateX(0) rotate(0deg); }
+  33%  { transform: translateY(0) translateX(8rpx) rotate(2deg); }
+  66%  { transform: translateY(24rpx) translateX(-4rpx) rotate(-1deg); }
+  100% { transform: translateY(48rpx) translateX(0) rotate(0deg); }
+}
+.anim-snow {
+  animation: snow-fall 5s ease-in-out infinite;
+}
+
+/* Clouds: slow wide horizontal drift */
+@keyframes cloud-drift {
+  0%, 100% { transform: translateX(0); }
+  50%      { transform: translateX(30rpx); }
+}
+.anim-clouds {
+  animation: cloud-drift 10s ease-in-out infinite;
+}
+
+/* Stars: gentle opacity pulse (twinkle) */
+@keyframes twinkle {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.5; }
+}
+.anim-twinkle {
+  animation: twinkle 3.5s ease-in-out infinite;
+}
+
+/* Lightning: rare intermittent flash */
+@keyframes lightning {
+  0%, 93%, 100% { opacity: 0; }
+  94%, 95.5%    { opacity: 1; }
+  95%           { opacity: 0.2; }
+}
+.anim-lightning {
+  animation: lightning 8s linear infinite;
+}
+
+/* Fog: very slow lateral drift */
+@keyframes fog-drift {
+  0%, 100% { transform: translateX(0); }
+  50%      { transform: translateX(-40rpx); }
+}
+.anim-fog {
+  animation: fog-drift 14s ease-in-out infinite;
+}
+
+/* Sun: gentle breathing glow */
+@keyframes sun-breathe {
+  0%, 100% { transform: scale(1); opacity: 0.88; }
+  50%      { transform: scale(1.04); opacity: 1; }
+}
+.anim-sun {
+  animation: sun-breathe 6s ease-in-out infinite;
+}
+
+/* Overcast: subtle brightness variation */
+@keyframes overcast-pulse {
+  0%, 100% { opacity: 0.88; }
+  50%      { opacity: 1; }
+}
+.anim-overcast {
+  animation: overcast-pulse 8s ease-in-out infinite;
 }
 
 /* ========== Hero Header ========== */

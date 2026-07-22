@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 750 1624" preserveAspectRatio="xMidYMid slice">
+  <!-- Clouds variant A: soft warm clouds -->
+  <g fill="#FBF6EE">
+    <!-- Upper-left cluster -->
+    <g opacity="0.88">
+      <ellipse cx="190" cy="280" rx="110" ry="54"/>
+      <ellipse cx="280" cy="262" rx="85" ry="58"/>
+      <ellipse cx="120" cy="298" rx="72" ry="44"/>
+      <ellipse cx="230" cy="300" rx="95" ry="40"/>
+    </g>
+    <!-- Lower-right cluster -->
+    <g opacity="0.72">
+      <ellipse cx="560" cy="440" rx="120" ry="56"/>
+      <ellipse cx="650" cy="424" rx="80" ry="50"/>
+      <ellipse cx="490" cy="458" rx="70" ry="42"/>
+      <ellipse cx="590" cy="462" rx="90" ry="38"/>
+    </g>
+    <!-- Small wispy cloud top-right -->
+    <g opacity="0.5">
+      <ellipse cx="620" cy="180" rx="65" ry="28"/>
+      <ellipse cx="670" cy="172" rx="48" ry="24"/>
+    </g>
+  </g>
+  <!-- Soft shadow under clouds -->
+  <g fill="#E7D8CE" opacity="0.3">
+    <ellipse cx="210" cy="320" rx="110" ry="18"/>
+    <ellipse cx="575" cy="480" rx="115" ry="16"/>
+  </g>
+</svg>

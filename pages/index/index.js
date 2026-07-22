@@ -143,7 +143,13 @@ Page({
     week: '',
     lunarDate: '',
     weather: null,
-    scene: 'sunny',
+    // Dynamic scene background (3-layer)
+    timePhase: 'day',
+    baseSrc: 'base-day.svg',
+    overlaySrc: 'overlay-sun.svg',
+    overlayAnimClass: 'anim-sun',
+    overlayOpacity: 1,
+    sceneReady: false,
     dailyQuote: presetQuote(),
     showInput: false,
     inputValue: '',
@@ -201,11 +207,18 @@ Page({
     this._appData = data.load();
     this._weatherCity = this._appData.profile.city || '';
     this._renderDailyQuote();
+    // Initialize scene immediately based on time-of-day (weather overlay updates async)
+    this._updateScene();
+    this._startSceneTimer();
     if (this._weatherCity) {
       this._fetchWeather(this._weatherCity);
     } else {
       this._tryGenerateDailyQuote();
     }
+  },
+
+  onHide: function () {
+    this._stopSceneTimer();
   },
 
   // Called by app.js after cloud sync completes — refresh local cache + weather
@@ -670,18 +683,115 @@ Page({
     weather.fetchWeather(city).then(function (w) {
       if (w) {
         self._weatherData = w;
-        var scene = self._weatherToScene(w.desc || '');
-        self.setData({ weather: w, scene: scene });
+        self.setData({ weather: w });
       }
+      self._updateScene();
       self._tryGenerateDailyQuote();
     });
   },
 
-  _weatherToScene: function (desc) {
-    var d = desc.toLowerCase();
-    if (/雨|rain|drizzle|shower|thunder|storm|sleet/.test(d)) return 'rainy';
-    if (/云|cloud|overcast|fog|mist|haze|阴|霾/.test(d)) return 'cloudy';
-    return 'sunny';
+  // ==== Dynamic Scene Engine ====
+
+  // Determine time-of-day phase from current hour
+  _getTimePhase: function (hour) {
+    if (hour >= 6 && hour < 8) return 'dawn';
+    if (hour >= 8 && hour < 17) return 'day';
+    if (hour >= 17 && hour < 19.5) return 'dusk';
+    return 'night';
+  },
+
+  // Map weather description to overlay element
+  _weatherToOverlay: function (desc, timePhase) {
+    var d = (desc || '').toLowerCase();
+
+    // Thunder storm
+    if (/雷|thunder|storm/.test(d)) {
+      return { src: 'overlay-thunder.svg', anim: 'anim-lightning', opacity: 1 };
+    }
+    // Rain (intensity via opacity)
+    if (/雨|rain|drizzle|shower|sleet/.test(d)) {
+      var opacity = 1;
+      if (/小雨|drizzle|细雨/.test(d)) opacity = 0.5;
+      else if (/中雨/.test(d)) opacity = 0.75;
+      return { src: 'overlay-rain.svg', anim: 'anim-rain', opacity: opacity };
+    }
+    // Snow
+    if (/雪|snow/.test(d)) {
+      var snowOpacity = 0.8;
+      if (/小雪/.test(d)) snowOpacity = 0.6;
+      else if (/大雪|暴雪/.test(d)) snowOpacity = 1;
+      return { src: 'overlay-snow.svg', anim: 'anim-snow', opacity: snowOpacity };
+    }
+    // Fog / haze
+    if (/雾|霾|fog|mist|haze|沙尘|扬沙|浮尘/.test(d)) {
+      return { src: 'overlay-fog.svg', anim: 'anim-fog', opacity: 0.8 };
+    }
+    // Overcast
+    if (/阴|overcast/.test(d)) {
+      return { src: 'overlay-overcast.svg', anim: 'anim-overcast', opacity: 1 };
+    }
+    // Cloudy (random variant)
+    if (/云|cloud|多云/.test(d)) {
+      var variant = Math.random() > 0.5 ? 'a' : 'b';
+      return { src: 'overlay-clouds-' + variant + '.svg', anim: 'anim-clouds', opacity: 1 };
+    }
+    // Clear / sunny — depends on time of day
+    if (timePhase === 'night') {
+      return { src: 'overlay-moon.svg', anim: 'anim-twinkle', opacity: 1 };
+    }
+    return { src: 'overlay-sun.svg', anim: 'anim-sun', opacity: 1 };
+  },
+
+  // Map timePhase to base landscape
+  _phaseToBase: function (timePhase) {
+    var map = {
+      dawn: 'base-dawn.svg',
+      day: 'base-day.svg',
+      dusk: 'base-dusk.svg',
+      night: 'base-night.svg'
+    };
+    return map[timePhase] || 'base-day.svg';
+  },
+
+  // Central scene update: recompute all three layers
+  _updateScene: function () {
+    var now = new Date();
+    var hour = now.getHours() + now.getMinutes() / 60;
+    var timePhase = this._getTimePhase(hour);
+    var desc = (this._weatherData && this._weatherData.desc) || '';
+
+    var overlay = this._weatherToOverlay(desc, timePhase);
+    var baseSrc = this._phaseToBase(timePhase);
+
+    this.setData({
+      timePhase: timePhase,
+      baseSrc: baseSrc,
+      overlaySrc: overlay.src,
+      overlayAnimClass: overlay.anim,
+      overlayOpacity: overlay.opacity,
+      sceneReady: true
+    });
+  },
+
+  // Periodic check: update scene if time phase boundary crossed
+  _startSceneTimer: function () {
+    var self = this;
+    if (self._sceneTimer) clearInterval(self._sceneTimer);
+    self._sceneTimer = setInterval(function () {
+      var now = new Date();
+      var hour = now.getHours() + now.getMinutes() / 60;
+      var newPhase = self._getTimePhase(hour);
+      if (newPhase !== self.data.timePhase) {
+        self._updateScene();
+      }
+    }, 5 * 60 * 1000); // check every 5 minutes
+  },
+
+  _stopSceneTimer: function () {
+    if (this._sceneTimer) {
+      clearInterval(this._sceneTimer);
+      this._sceneTimer = null;
+    }
   },
 
   // ==== Daily Quote（每日茶语）====
