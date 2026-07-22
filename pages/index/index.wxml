@@ -267,6 +267,22 @@
     </view>
   </view>
 
+  <!-- ========== Debug: Scene Preview Pickers ========== -->
+  <view class="debug-panel">
+    <view class="debug-row">
+      <text class="debug-label">时段</text>
+      <picker mode="selector" range="{{debugPhases}}" range-key="name" value="{{debugPhaseIdx}}" bindchange="onDebugPhase">
+        <view class="debug-picker">{{debugPhases[debugPhaseIdx].name}} ▾</view>
+      </picker>
+    </view>
+    <view class="debug-row">
+      <text class="debug-label">天气</text>
+      <picker mode="selector" range="{{debugWeathers}}" range-key="name" value="{{debugWeatherIdx}}" bindchange="onDebugWeather">
+        <view class="debug-picker">{{debugWeathers[debugWeatherIdx].name}} ▾</view>
+      </picker>
+    </view>
+  </view>
+
   <!-- ========== 页脚版本号 ========== -->
   <view class="page-footer">
     <text class="footer-rule left"></text>

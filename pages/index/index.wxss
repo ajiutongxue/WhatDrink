@@ -743,6 +743,72 @@
 }
 
 /* ============================================================
+   Debug Scene Pickers
+   ============================================================ */
+.debug-panel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 32rpx;
+  margin-top: 48rpx;
+  padding: 20rpx 28rpx;
+  border: 1rpx dashed rgba(160, 141, 131, 0.4);
+  border-radius: var(--r-md);
+  background: rgba(255, 252, 246, 0.5);
+}
+
+.debug-row {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.debug-label {
+  font-size: 22rpx;
+  color: var(--ink3);
+  letter-spacing: 1rpx;
+}
+
+.debug-picker {
+  font-size: 24rpx;
+  color: var(--coral-deep);
+  padding: 8rpx 20rpx;
+  border: 1rpx solid var(--card-border);
+  border-radius: var(--r-pill);
+  background: var(--cream);
+  letter-spacing: 1rpx;
+}
+
+/* Night: debug panel adapts */
+.phase-night .debug-panel {
+  background: rgba(40, 44, 60, 0.5);
+  border-color: rgba(200, 184, 216, 0.2);
+}
+
+.phase-night .debug-label {
+  color: rgba(216, 212, 228, 0.6);
+}
+
+.phase-night .debug-picker {
+  color: #C8B8D8;
+  background: rgba(60, 64, 80, 0.6);
+  border-color: rgba(200, 184, 216, 0.2);
+}
+
+.phase-dusk .debug-panel {
+  background: rgba(255, 252, 246, 0.6);
+}
+
+.phase-dusk .debug-label {
+  color: rgba(240, 220, 200, 0.6);
+}
+
+.phase-dusk .debug-picker {
+  color: #F2C4A0;
+  background: rgba(255, 252, 246, 0.7);
+}
+
+/* ============================================================
    页脚版本号
    ============================================================ */
 .page-footer {

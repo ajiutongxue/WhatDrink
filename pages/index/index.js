@@ -172,6 +172,25 @@ Page({
     tastingImages: [],
     tastingSaved: false,
     tastingSavedText: '',
+    // Debug scene pickers
+    debugPhases: [
+      { name: '清晨 Dawn', value: 'dawn' },
+      { name: '白天 Day', value: 'day' },
+      { name: '黄昏 Dusk', value: 'dusk' },
+      { name: '夜晚 Night', value: 'night' }
+    ],
+    debugWeathers: [
+      { name: '晴（日）', value: 'sun' },
+      { name: '晴（夜）', value: 'moon' },
+      { name: '多云', value: 'clouds' },
+      { name: '阴', value: 'overcast' },
+      { name: '雨', value: 'rain' },
+      { name: '雷阵雨', value: 'thunder' },
+      { name: '雪', value: 'snow' },
+      { name: '雾/霾', value: 'fog' }
+    ],
+    debugPhaseIdx: 1,
+    debugWeatherIdx: 0,
     // 页脚版本号（onLoad 从 globalData 读取）
     version: ''
   },
@@ -792,6 +811,38 @@ Page({
       clearInterval(this._sceneTimer);
       this._sceneTimer = null;
     }
+  },
+
+  // ==== Debug Scene Pickers ====
+  onDebugPhase: function (e) {
+    var idx = Number(e.detail.value);
+    var phase = this.data.debugPhases[idx].value;
+    var baseSrc = this._phaseToBase(phase);
+    this.setData({ debugPhaseIdx: idx, timePhase: phase, baseSrc: baseSrc, sceneReady: true });
+  },
+
+  onDebugWeather: function (e) {
+    var idx = Number(e.detail.value);
+    var w = this.data.debugWeathers[idx].value;
+    var timePhase = this.data.timePhase;
+    var overlayMap = {
+      sun: { src: 'overlay-sun.svg', anim: 'anim-sun', opacity: 1 },
+      moon: { src: 'overlay-moon.svg', anim: 'anim-twinkle', opacity: 1 },
+      clouds: { src: 'overlay-clouds-a.svg', anim: 'anim-clouds', opacity: 1 },
+      overcast: { src: 'overlay-overcast.svg', anim: 'anim-overcast', opacity: 1 },
+      rain: { src: 'overlay-rain.svg', anim: 'anim-rain', opacity: 0.8 },
+      thunder: { src: 'overlay-thunder.svg', anim: 'anim-lightning', opacity: 1 },
+      snow: { src: 'overlay-snow.svg', anim: 'anim-snow', opacity: 0.8 },
+      fog: { src: 'overlay-fog.svg', anim: 'anim-fog', opacity: 0.8 }
+    };
+    var overlay = overlayMap[w] || overlayMap.sun;
+    this.setData({
+      debugWeatherIdx: idx,
+      overlaySrc: overlay.src,
+      overlayAnimClass: overlay.anim,
+      overlayOpacity: overlay.opacity,
+      sceneReady: true
+    });
   },
 
   // ==== Daily Quote（每日茶语）====
