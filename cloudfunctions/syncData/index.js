@@ -5,10 +5,10 @@
  *
  * Merge strategy:
  * - history: union by date+teaId+type, local wins for same key (newer tastingNotes)
- * - profile: field-level merge, incoming (local) preferred for non-empty values
- * - settings: field-level merge, incoming (local) preferred
+ * - profile: whole-object last-write-wins using profileUpdatedAt
+ * - settings: whole-object last-write-wins using settingsUpdatedAt
  * - llm: field-level merge, incoming (local) preferred for non-empty strings and booleans
- * - teaLibrary: union by id, cloud wins for duplicates
+ * - teaLibrary: whole-library last-write-wins using teaLibraryUpdatedAt
  */
 
 var cloud = require('wx-server-sdk');
@@ -50,10 +50,13 @@ exports.main = async function(event, context) {
       var newDoc = {
         _openid: openid,
         profile: incomingData.profile || {},
+        profileUpdatedAt: validTimestamp(incomingData.profileUpdatedAt),
         history: Array.isArray(incomingData.history) ? incomingData.history : [],
         settings: incomingData.settings || {},
+        settingsUpdatedAt: validTimestamp(incomingData.settingsUpdatedAt),
         llm: incomingData.llm || {},
         teaLibrary: Array.isArray(incomingData.teaLibrary) ? incomingData.teaLibrary : [],
+        teaLibraryUpdatedAt: validTimestamp(incomingData.teaLibraryUpdatedAt),
         createdAt: db.serverDate(),
         updatedAt: db.serverDate()
       };
@@ -66,10 +69,13 @@ exports.main = async function(event, context) {
     var cloudDoc = existing.data[0];
     var cloudData = {
       profile: cloudDoc.profile || {},
+      profileUpdatedAt: validTimestamp(cloudDoc.profileUpdatedAt),
       history: Array.isArray(cloudDoc.history) ? cloudDoc.history : [],
       settings: cloudDoc.settings || {},
+      settingsUpdatedAt: validTimestamp(cloudDoc.settingsUpdatedAt),
       llm: cloudDoc.llm || {},
-      teaLibrary: Array.isArray(cloudDoc.teaLibrary) ? cloudDoc.teaLibrary : []
+      teaLibrary: Array.isArray(cloudDoc.teaLibrary) ? cloudDoc.teaLibrary : [],
+      teaLibraryUpdatedAt: validTimestamp(cloudDoc.teaLibraryUpdatedAt)
     };
 
     var merged = mergeData(cloudData, incomingData);
@@ -78,10 +84,13 @@ exports.main = async function(event, context) {
     await collection.doc(cloudDoc._id).update({
       data: {
         profile: merged.profile,
+        profileUpdatedAt: merged.profileUpdatedAt,
         history: merged.history,
         settings: merged.settings,
+        settingsUpdatedAt: merged.settingsUpdatedAt,
         llm: merged.llm,
         teaLibrary: merged.teaLibrary,
+        teaLibraryUpdatedAt: merged.teaLibraryUpdatedAt,
         updatedAt: db.serverDate()
       }
     });
@@ -98,7 +107,9 @@ exports.main = async function(event, context) {
  *
  * Strategy:
  * - history: union deduplicated by date+teaId+type
- * - profile/settings/llm/teaLibrary: prefer incoming (local) if present
+ * - profile/settings: select the newer complete snapshot
+ * - llm: prefer incoming (local) if present
+ * - teaLibrary: select the newer ordered snapshot
  *
  * @param {Object} cloud - Existing cloud data
  * @param {Object} local - Incoming local data
@@ -142,43 +153,53 @@ function mergeData(cloud, local) {
     return (b.date || '').localeCompare(a.date || '');
   });
 
+  var profileVersion = mergeVersionedObject(
+    cloud.profile,
+    cloud.profileUpdatedAt,
+    local.profile,
+    local.profileUpdatedAt
+  );
+  var settingsVersion = mergeVersionedObject(
+    cloud.settings,
+    cloud.settingsUpdatedAt,
+    local.settings,
+    local.settingsUpdatedAt
+  );
+  var libraryVersion = mergeTeaLibrary(
+    cloud.teaLibrary || [],
+    cloud.teaLibraryUpdatedAt,
+    local.teaLibrary || [],
+    local.teaLibraryUpdatedAt
+  );
+
   return {
     history: mergedHistory,
-    profile: mergeProfile(cloud.profile || {}, local.profile || {}),
-    settings: mergeSettings(cloud.settings || {}, local.settings || {}),
+    profile: profileVersion.value,
+    profileUpdatedAt: profileVersion.updatedAt,
+    settings: settingsVersion.value,
+    settingsUpdatedAt: settingsVersion.updatedAt,
     llm: mergeLLM(cloud.llm || {}, local.llm || {}),
-    teaLibrary: mergeTeaLibrary(cloud.teaLibrary || [], local.teaLibrary || [])
+    teaLibrary: libraryVersion.library,
+    teaLibraryUpdatedAt: libraryVersion.updatedAt
   };
 }
 
-// Field-level profile merge: incoming (local) preferred.
-// Non-empty incoming value overrides cloud; empty incoming falls back to cloud.
-function mergeProfile(cloud, local) {
-  var result = {};
-  var keys = ['gender', 'age', 'city', 'constitution'];
-  keys.forEach(function(k) {
-    if (local[k] !== undefined && local[k] !== null && local[k] !== '') {
-      result[k] = local[k];
-    } else if (cloud[k] !== undefined && cloud[k] !== null && cloud[k] !== '') {
-      result[k] = cloud[k];
-    } else {
-      result[k] = local[k] !== undefined ? local[k] : cloud[k];
-    }
-  });
-  var cqa = cloud.quizAnswers || {}, lqa = local.quizAnswers || {};
-  result.quizAnswers = {};
-  for (var lk in lqa) if (lqa.hasOwnProperty(lk)) result.quizAnswers[lk] = lqa[lk];
-  for (var ck in cqa) if (cqa.hasOwnProperty(ck) && result.quizAnswers[ck] === undefined) {
-    result.quizAnswers[ck] = cqa[ck];
-  }
-  return result;
-}
+function mergeVersionedObject(cloud, cloudUpdatedAt, local, localUpdatedAt) {
+  var c = cloud && typeof cloud === 'object' ? cloud : {};
+  var l = local && typeof local === 'object' ? local : {};
+  var cloudTs = validTimestamp(cloudUpdatedAt);
+  var localTs = validTimestamp(localUpdatedAt);
 
-function mergeSettings(cloud, local) {
-  var avoidDays = (typeof local.avoidDays === 'number' && local.avoidDays > 0)
-    ? local.avoidDays
-    : ((typeof cloud.avoidDays === 'number' && cloud.avoidDays > 0) ? cloud.avoidDays : 5);
-  return { avoidDays: avoidDays };
+  if (Object.keys(c).length === 0 && Object.keys(l).length > 0) {
+    return { value: l, updatedAt: localTs };
+  }
+  if (Object.keys(l).length === 0 && Object.keys(c).length > 0) {
+    return { value: c, updatedAt: cloudTs };
+  }
+  if (localTs > cloudTs) {
+    return { value: l, updatedAt: localTs };
+  }
+  return { value: c, updatedAt: cloudTs };
 }
 
 function mergeLLM(cloud, local) {
@@ -199,23 +220,36 @@ function mergeLLM(cloud, local) {
   return result;
 }
 
-// Tea library: union by id, cloud wins for duplicates.
-function mergeTeaLibrary(cloud, local) {
-  var map = {};
-  var order = [];
-  cloud.forEach(function(t) {
-    if (t && t.id !== undefined && map[t.id] === undefined) {
-      map[t.id] = t;
-      order.push(t.id);
-    }
-  });
-  local.forEach(function(t) {
-    if (t && t.id !== undefined && map[t.id] === undefined) {
-      map[t.id] = t;
-      order.push(t.id);
-    }
-  });
-  var result = [];
-  order.forEach(function(id) { result.push(map[id]); });
-  return result.length > 0 ? result : local;
+// Tea library is an ordered snapshot. Newer timestamp wins as a whole so
+// edits, deletions and ordering are all preserved. Cloud wins ties, allowing
+// a fresh device (default timestamp 0) to restore an existing cloud library.
+function mergeTeaLibrary(cloud, cloudUpdatedAt, local, localUpdatedAt) {
+  var cl = Array.isArray(cloud) ? cloud : [];
+  var ll = Array.isArray(local) ? local : [];
+  var cloudTs = validTimestamp(cloudUpdatedAt);
+  var localTs = validTimestamp(localUpdatedAt);
+
+  if (cl.length === 0 && ll.length > 0) {
+    return { library: ll, updatedAt: localTs };
+  }
+  if (ll.length === 0 && cl.length > 0) {
+    return { library: cl, updatedAt: cloudTs };
+  }
+  if (localTs > cloudTs) {
+    return { library: ll, updatedAt: localTs };
+  }
+  return { library: cl, updatedAt: cloudTs };
 }
+
+function validTimestamp(value) {
+  return (typeof value === 'number' && isFinite(value) && value > 0)
+    ? value
+    : 0;
+}
+
+// Exposed for the repository's dependency-free Node regression test.
+exports._test = {
+  mergeData: mergeData,
+  mergeVersionedObject: mergeVersionedObject,
+  mergeTeaLibrary: mergeTeaLibrary
+};

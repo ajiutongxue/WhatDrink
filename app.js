@@ -1,5 +1,6 @@
 const data = require('./utils/data.js');
 const tracker = require('./utils/tracker.js');
+const font = require('./utils/font.js');
 
 var SYNC_THROTTLE_MS = 30000; // 热启动同步节流，避免频繁切前后台刷爆云函数
 
@@ -13,6 +14,7 @@ App({
     const appData = data.load();
     this.globalData.appData = appData;
     this._lastSyncAt = 0;
+    font.loadSerifFont(); // 尽早加载衬线字体，覆盖系统默认无衬线
     this._doSync();
   },
 
@@ -56,6 +58,6 @@ App({
   globalData: {
     appData: null,
     syncing: false,
-    version: '1.0.2'
+    version: '1.0.3'
   }
 });

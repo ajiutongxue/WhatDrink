@@ -48,10 +48,12 @@ function getDefaultData() {
       constitution: null,
       quizAnswers: {}
     },
+    profileUpdatedAt: 0,
     history: [],
     settings: {
       avoidDays: 5
     },
+    settingsUpdatedAt: 0,
     llm: {
       enabled: false,
       apiKey: '',
@@ -60,7 +62,11 @@ function getDefaultData() {
       parserModel: 'deepseek-v4-pro',
       parserEnabled: false
     },
-    teaLibrary: teas
+    teaLibrary: teas,
+    // Whole-library last-write-wins version. Keeping this at 0 for a fresh
+    // install prevents the built-in defaults from overwriting a restored
+    // cloud library.
+    teaLibraryUpdatedAt: 0
   };
 }
 
@@ -79,14 +85,33 @@ function load() {
     if (raw && typeof raw === 'object' && raw.teaLibrary) {
       // Ensure all expected top-level keys exist
       var defaults = getDefaultData();
+      var library = Array.isArray(raw.teaLibrary) && raw.teaLibrary.length > 0
+        ? raw.teaLibrary
+        : defaults.teaLibrary;
+      var profile = _merge(defaults.profile, raw.profile);
+      var settings = _merge(defaults.settings, raw.settings);
+      var profileUpdatedAt = _validTimestamp(raw.profileUpdatedAt);
+      var settingsUpdatedAt = _validTimestamp(raw.settingsUpdatedAt);
+      var libraryUpdatedAt = _validTimestamp(raw.teaLibraryUpdatedAt);
+
+
+      // Migration for data created before teaLibraryUpdatedAt existed.
+      // Only a library that differs from the built-in defaults is considered
+      // a local edit. An untouched default library stays at version 0 so a
+      // custom cloud library can still restore onto a new device.
+      if (!libraryUpdatedAt && !_isDefaultTeaLibrary(library)) {
+        libraryUpdatedAt = Date.now();
+      }
+
       return {
-        profile: _merge(defaults.profile, raw.profile),
+        profile: profile,
+        profileUpdatedAt: profileUpdatedAt,
         history: Array.isArray(raw.history) ? raw.history : [],
-        settings: _merge(defaults.settings, raw.settings),
+        settings: settings,
+        settingsUpdatedAt: settingsUpdatedAt,
         llm: _merge(defaults.llm, raw.llm),
-        teaLibrary: Array.isArray(raw.teaLibrary) && raw.teaLibrary.length > 0
-          ? raw.teaLibrary
-          : defaults.teaLibrary
+        teaLibrary: library,
+        teaLibraryUpdatedAt: libraryUpdatedAt
       };
     }
   } catch (e) {
@@ -202,12 +227,19 @@ function importJSON(json) {
     var defaults = getDefaultData();
     var data = {
       profile: _merge(defaults.profile, parsed.profile),
+      profileUpdatedAt: parsed.profile && typeof parsed.profile === 'object' ? Date.now() : 0,
       history: Array.isArray(parsed.history) ? parsed.history : [],
       settings: _merge(defaults.settings, parsed.settings),
+      settingsUpdatedAt: parsed.settings && typeof parsed.settings === 'object' ? Date.now() : 0,
       llm: _merge(defaults.llm, parsed.llm),
       teaLibrary: Array.isArray(parsed.teaLibrary) && parsed.teaLibrary.length > 0
         ? parsed.teaLibrary
-        : defaults.teaLibrary
+        : defaults.teaLibrary,
+      // Importing a library is an explicit local replacement and must win
+      // over an older cloud snapshot on the next sync.
+      teaLibraryUpdatedAt: Array.isArray(parsed.teaLibrary) && parsed.teaLibrary.length > 0
+        ? Date.now()
+        : 0
     };
 
     save(data);
@@ -223,6 +255,11 @@ function importJSON(json) {
  */
 function reset() {
   var defaults = getDefaultData();
+  // Reset is an intentional change, not a fresh-install default.
+  var now = Date.now();
+  defaults.profileUpdatedAt = now;
+  defaults.settingsUpdatedAt = now;
+  defaults.teaLibraryUpdatedAt = now;
   save(defaults);
 }
 
@@ -351,49 +388,57 @@ function _mergeData(cloudData, localData) {
     return (b.date || '').localeCompare(a.date || '');
   });
 
+  var profileVersion = _mergeVersionedObject(
+    cloudData.profile,
+    cloudData.profileUpdatedAt,
+    localData.profile,
+    localData.profileUpdatedAt
+  );
+  var settingsVersion = _mergeVersionedObject(
+    cloudData.settings,
+    cloudData.settingsUpdatedAt,
+    localData.settings,
+    localData.settingsUpdatedAt
+  );
+  var libraryVersion = _mergeTeaLibrary(
+    cloudData.teaLibrary,
+    cloudData.teaLibraryUpdatedAt,
+    localData.teaLibrary,
+    localData.teaLibraryUpdatedAt
+  );
+
   return {
-    profile: _mergeProfile(cloudData.profile, localData.profile),
+    profile: profileVersion.value,
+    profileUpdatedAt: profileVersion.updatedAt,
     history: mergedHistory,
-    settings: _mergeSettings(cloudData.settings, localData.settings),
+    settings: settingsVersion.value,
+    settingsUpdatedAt: settingsVersion.updatedAt,
     llm: _mergeLLM(cloudData.llm, localData.llm),
-    teaLibrary: _mergeTeaLibrary(cloudData.teaLibrary, localData.teaLibrary)
+    teaLibrary: libraryVersion.library,
+    teaLibraryUpdatedAt: libraryVersion.updatedAt
   };
 }
 
 /**
- * Field-level profile merge: local preferred.
- * A non-empty local value overrides cloud; empty local falls back to cloud
- * (so a fresh install can still restore from cloud backup).
+ * Select a complete object snapshot by version. Cloud wins a tie so an
+ * untouched fresh-device default cannot overwrite previously synced data.
  */
-function _mergeProfile(cloud, local) {
-  var c = cloud || {}, l = local || {};
-  var result = {};
-  var keys = ['gender', 'age', 'city', 'constitution'];
-  keys.forEach(function(k) {
-    if (l[k] !== undefined && l[k] !== null && l[k] !== '') {
-      result[k] = l[k];
-    } else if (c[k] !== undefined && c[k] !== null && c[k] !== '') {
-      result[k] = c[k];
-    } else {
-      result[k] = l[k] !== undefined ? l[k] : c[k];
-    }
-  });
-  // quizAnswers: deep merge, local first
-  var cqa = c.quizAnswers || {}, lqa = l.quizAnswers || {};
-  result.quizAnswers = {};
-  for (var lk in lqa) if (lqa.hasOwnProperty(lk)) result.quizAnswers[lk] = lqa[lk];
-  for (var ck in cqa) if (cqa.hasOwnProperty(ck) && result.quizAnswers[ck] === undefined) {
-    result.quizAnswers[ck] = cqa[ck];
-  }
-  return result;
-}
+function _mergeVersionedObject(cloud, cloudUpdatedAt, local, localUpdatedAt) {
+  var c = cloud && typeof cloud === 'object' ? cloud : {};
+  var l = local && typeof local === 'object' ? local : {};
+  var cloudTs = _validTimestamp(cloudUpdatedAt);
+  var localTs = _validTimestamp(localUpdatedAt);
 
-function _mergeSettings(cloud, local) {
-  var c = cloud || {}, l = local || {};
-  var avoidDays = (typeof l.avoidDays === 'number' && l.avoidDays > 0)
-    ? l.avoidDays
-    : ((typeof c.avoidDays === 'number' && c.avoidDays > 0) ? c.avoidDays : 5);
-  return { avoidDays: avoidDays };
+  if (Object.keys(c).length === 0 && Object.keys(l).length > 0) {
+    return { value: l, updatedAt: localTs };
+  }
+  if (Object.keys(l).length === 0 && Object.keys(c).length > 0) {
+    return { value: c, updatedAt: cloudTs };
+  }
+  if (localTs > cloudTs) {
+    return { value: l, updatedAt: localTs };
+  }
+  return { value: c, updatedAt: cloudTs };
 }
 
 function _mergeLLM(cloud, local) {
@@ -416,29 +461,67 @@ function _mergeLLM(cloud, local) {
 }
 
 /**
- * Tea library: union by id, cloud wins for duplicates.
- * Prevents one device's additions from being wiped by another's older list.
+ * Tea library is an ordered, editable snapshot. Merge it as a whole using a
+ * last-write-wins timestamp so edits, deletions and ordering stay consistent.
+ * On equal/missing versions cloud wins, which lets a fresh device restore.
  */
-function _mergeTeaLibrary(cloud, local) {
+function _mergeTeaLibrary(cloud, cloudUpdatedAt, local, localUpdatedAt) {
   var cl = Array.isArray(cloud) ? cloud : [];
   var ll = Array.isArray(local) ? local : [];
-  var map = {};
-  var order = [];
-  cl.forEach(function(t) {
-    if (t && t.id !== undefined && map[t.id] === undefined) {
-      map[t.id] = t;
-      order.push(t.id);
+  var cloudTs = _validTimestamp(cloudUpdatedAt);
+  var localTs = _validTimestamp(localUpdatedAt);
+
+  if (cl.length === 0 && ll.length > 0) {
+    return { library: ll, updatedAt: localTs };
+  }
+  if (ll.length === 0 && cl.length > 0) {
+    return { library: cl, updatedAt: cloudTs };
+  }
+  if (localTs > cloudTs) {
+    return { library: ll, updatedAt: localTs };
+  }
+  return { library: cl, updatedAt: cloudTs };
+}
+
+function _validTimestamp(value) {
+  return (typeof value === 'number' && isFinite(value) && value > 0)
+    ? value
+    : 0;
+}
+
+
+/**
+ * Compare legacy local data with the bundled library without relying on
+ * object key order. A disabled tea or changed field/order counts as an edit.
+ */
+function _isDefaultTeaLibrary(library) {
+  if (!Array.isArray(library) || library.length !== teaData.TEAS.length) return false;
+  for (var i = 0; i < library.length; i++) {
+    var actual = library[i] || {};
+    var expected = teaData.TEAS[i] || {};
+    var fields = [
+      'id', 'name', 'brand', 'cat', 'year', 'nature',
+      'baseNature', 'caffeine', 'note'
+    ];
+    for (var f = 0; f < fields.length; f++) {
+      var key = fields[f];
+      if ((actual[key] || '') !== (expected[key] || '')) return false;
     }
-  });
-  ll.forEach(function(t) {
-    if (t && t.id !== undefined && map[t.id] === undefined) {
-      map[t.id] = t;
-      order.push(t.id);
-    }
-  });
-  var result = [];
-  order.forEach(function(id) { result.push(map[id]); });
-  return result.length > 0 ? result : ll;
+    if (!!actual.disabled) return false;
+    if (!_sameArray(actual.seasons, expected.seasons)) return false;
+    if (!_sameArray(actual.avoidSeasons, expected.avoidSeasons)) return false;
+  }
+  return true;
+}
+
+function _sameArray(a, b) {
+  var left = Array.isArray(a) ? a : [];
+  var right = Array.isArray(b) ? b : [];
+  if (left.length !== right.length) return false;
+  for (var i = 0; i < left.length; i++) {
+    if (left[i] !== right[i]) return false;
+  }
+  return true;
 }
 
 /**

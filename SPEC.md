@@ -1,6 +1,6 @@
 # 今天喝点什么茶 — 微信小程序产品规格书
 
-> 版本：v1.0 MVP | 日期：2026-07-13
+> 实现版本：v1.0.3 | 文档校准日期：2026-07-24 | 以当前仓库代码为准
 
 ---
 
@@ -30,61 +30,51 @@
 
 ### 2.1 技术栈
 
-| 层级 | 选型 | 说明 |
-|------|------|------|
-| 框架 | 原生微信小程序 | WXML + WXSS + JS，无第三方框架 |
-| 本地存储 | wx.setStorageSync | 离线缓存，10MB 容量上限 |
-| 云同步 | 微信云开发（云数据库） | 数据自动同步，换设备不丢数据 |
-| 天气 | wttr.in API | 免费、无需 Key、支持中文城市 |
-| AI | 阿里云百炼 / OpenAI 兼容 API | wx.request 调用，用户自配 Key |
-| 最低版本 | 基础库 2.25.0+ | 支持 env(safe-area-inset-bottom) |
+| 层级 | 当前实现 | 说明 |
+|------|----------|------|
+| 客户端 | 原生微信小程序 | WXML + WXSS + CommonJS JavaScript，无 UI 框架 |
+| 本地存储 | `wx.getStorageSync` / `wx.setStorageSync` | 主数据 Key 为 `tea_doctor_v1` |
+| 云同步 | 微信云开发 | `syncData` 云函数 + `tea_doctor` 云数据库集合 |
+| 品饮图片 | 微信云存储 | `tasting-images/` 路径，历史记录保存 fileID 与说明 |
+| 天气 | 高德地图 Web 服务 API | `getWeather` 云函数代理，客户端不直接访问高德 |
+| AI | OpenAI 兼容 Chat Completions API | 用户配置端点、API Key、解析模型和推荐模型 |
+| 日历 | 本地农历/节气数据 | `utils/lunar.js`，不依赖外部日历接口 |
+| 可视化 | Canvas 2D | 饮茶统计页环形图 |
+| 样式 | 暖屿粉彩主题 + 动态场景 | 时段基底、天气叠加、色温层；字体可选动态加载 |
+| 基础库 | 项目配置 `3.16.2` | `project.config.json` 中的当前开发者工具设置 |
 
 ### 2.2 项目结构
 
-```
-whatToDrinkToday/
-├── app.js                          # 全局逻辑、云开发初始化、数据初始化
-├── app.json                        # 页面路由、TabBar 配置
-├── app.wxss                        # 全局样式、CSS 变量、组件样式
-├── project.config.json             # 项目配置
-│
-├── cloudfunctions/                  # 云函数目录
-│   └── syncData/                   # 数据同步云函数
-│       ├── index.js
-│       └── package.json
-│
+```text
+WhatToDrinkToday/
+├── app.js / app.json / app.wxss       # 启动、路由、全局样式
+├── sitemap.json                        # 小程序索引规则
+├── package.json                        # 本地检查与测试命令
+├── README.md                           # 开发、配置、部署说明
+├── project.config.json                 # 微信开发者工具项目配置
+├── cloudfunctions/
+│   ├── getWeather/                     # 高德地理编码与实况天气代理
+│   └── syncData/                       # 按 openid 合并主数据
 ├── pages/
-│   ├── index/                      # 首页 — 今日推荐
-│   │   ├── index.js
-│   │   ├── index.json
-│   │   ├── index.wxml
-│   │   └── index.wxss
-│   ├── history/                    # 饮茶记录
-│   │   ├── history.js
-│   │   ├── history.json
-│   │   ├── history.wxml
-│   │   └── history.wxss
-│   ├── teaLib/                     # 茶叶库
-│   │   ├── teaLib.js
-│   │   ├── teaLib.json
-│   │   ├── teaLib.wxml
-│   │   └── teaLib.wxss
-│   └── settings/                   # 设置
-│       ├── settings.js
-│       ├── settings.json
-│       ├── settings.wxml
-│       └── settings.wxss
-│
+│   ├── index/                          # 今日推荐、动态背景、打卡、每日茶语
+│   ├── history/                        # 饮茶记录与品饮感受
+│   ├── teaLib/                         # 茶库筛选和增删改停用排序
+│   ├── settings/                       # 档案、体质、AI、同步、诊断
+│   └── stats/                          # 月度分布、茶性、Top 5、30 日频率
 ├── utils/
-│   ├── teaData.js                  # 89款茶叶初始数据
-│   ├── data.js                     # 数据层（本地缓存 + 云同步，统一接口）
-│   ├── recommend.js                # 推荐引擎（评分、排序、反重复）
-│   ├── parser.js                   # 自由文本解析器
-│   ├── weather.js                  # 天气服务封装
-│   └── llm.js                      # LLM API 调用封装
-│
-└── docs/
-    └── phase2.md                   # Phase 2 迭代计划
+│   ├── data.js                         # 本地缓存、云同步、导入导出
+│   ├── parser.js                       # LLM/关键词双阶段解析
+│   ├── recommend.js                    # 规则推荐引擎
+│   ├── llm.js                          # OpenAI 兼容请求、重试与错误分类
+│   ├── weather.js                      # getWeather 云函数客户端封装
+│   ├── teaData.js                      # 89 款初始茶与冲泡数据
+│   ├── lunar.js                        # 农历和节气
+│   ├── tracker.js                      # 本地诊断事件
+│   └── font.js                         # 可选衬线字体加载
+├── images/                             # TabBar 与动态背景 SVG/PNG
+├── scripts/                            # 工程静态检查
+├── tests/                              # 无第三方依赖回归测试
+└── docs/                               # 动态背景和后续规划
 ```
 
 ---
@@ -104,23 +94,26 @@ interface AppData {
     constitution: '偏寒' | '平和' | '偏热' | null;  // Phase 2
     quizAnswers: Record<number, number>;             // Phase 2
   };
+  profileUpdatedAt: number;    // 个人档案最后修改时间戳；0 表示未填写
 
-  history: HistoryEntry[];     // 饮茶记录（按时间正序）
+  history: HistoryEntry[];     // 饮茶记录；同步后按日期倒序
 
   settings: {
     avoidDays: number;         // 反重复天数，默认 5
   };
+  settingsUpdatedAt: number;   // 推荐设置最后修改时间戳；0 表示默认设置
 
   llm: {
     enabled: boolean;          // AI 增强推荐开关
     apiKey: string;            // API Key（解析和推荐共用）
     endpoint: string;          // API 端点 URL（共用）
     recModel: string;          // 推荐模型名称，默认 'deepseek-v4-pro'
-    parserModel: string;       // 解析模型名称，默认 'deepseek-v3'（更轻量）
+    parserModel: string;       // 解析模型名称，当前默认 'deepseek-v4-pro'
     parserEnabled: boolean;    // LLM 解析开关（关闭则仅用关键词匹配）
   };
 
-  teaLibrary: Tea[];           // 用户茶叶库（可编辑版本，覆盖初始数据）
+  teaLibrary: Tea[];           // 用户茶叶库（可编辑的有序整库快照）
+  teaLibraryUpdatedAt: number; // 茶库最后修改时间戳；0 表示未编辑的内置默认库
 }
 ```
 
@@ -139,6 +132,7 @@ interface Tea {
   seasons: string[];           // 适宜季节 ['春','夏']
   avoidSeasons: string[];      // 不宜季节
   note?: string;               // 备注，如 "疑似假货"
+  disabled?: boolean;           // 已喝完/停用，不参与推荐但保留历史
 }
 ```
 
@@ -179,83 +173,62 @@ interface HistoryEntry {
 
 ### 4.1 首页 — 今日推荐
 
-**路由**：`pages/index/index`（TabBar 第一个）
+**路由**：`pages/index/index`，TabBar「推荐」。
 
-**布局**：
-1. 顶部标题区（"今天喝点什么茶" + 当前季节/节气，小字灰色）
-2. 输入卡片（圆角大卡片，textarea + 解析标签 + 推荐按钮）
-3. 推荐结果区（动态渲染，见下方）
+当前功能：
 
-**输入卡片**：
-- textarea，placeholder 引导用户输入
-- 输入时实时解析，下方显示识别到的标签（城市、症状、偏好、回避）
-- 底部圆角按钮"开始推荐"
-
-**推荐流程**：
-```
-用户输入
-  → parser.js：LLM 解析（若开启）或关键词匹配
-  → 检测到城市变更 → weather.js 拉取新城市天气 → 同步更新 profile.city
-  → recommend.js 规则引擎评分 → 过滤硬排除项 → 排序取 top
-  → 若 LLM 推荐开启 → llm.js 调用深度模型 → 用 LLM 结果替换推荐和解释
-  → 渲染推荐卡片 + 打卡区
-```
-
-**推荐结果渲染**：
-- **主推卡片**（大卡片）：渐变背景、茶名 24px 粗体、品牌、属性/茶类/咖啡因/年份标签组、推荐说明（带左侧竖线装饰）、冲泡信息
-- **备选卡片**（紧凑横排）：左侧茶类图标圆形、右侧茶名+品牌+简短理由
-- **AI 标识**：若由 LLM 生成，主推卡片显示"AI 推荐"徽章 + 模型名称
-- **打卡区**：4个胶囊按钮——主推茶名（高亮）、备选茶名（虚线边框）、"喝的别的"（展开输入框）、"没喝"
-
-**"喝的别的"交互**：
-- 点击后展开输入框 + "记录"按钮
-- 输入茶名，支持从茶叶库模糊匹配
-- 匹配到则关联 teaId 记录，未匹配则存为自定义条目
-- 自定义记录同样参与反重复
-
-**加载状态**：
-- 天气获取中：按钮文字变为"获取天气中..."
-- LLM 分析中：显示居中大卡片，脑图标 + "AI 正在分析..." + 动画点
+- 展示公历、农历、星期、节气、节气寓意和民俗。
+- 根据小时选择 dawn/day/dusk/night 基底，根据天气选择晴、云、阴、雨、雪、雷、雾等叠加层，并提供开发调试选择器。
+- 每日茶语优先使用按天缓存的 AI 文案；无配置或失败时使用内置文案。
+- 自由文本实时解析城市、身体状态、回避茶类、偏好茶类和口味。
+- 城市变化后调用 `getWeather` 云函数并写回个人档案时间戳。
+- 先运行硬过滤和规则评分；深度推荐开启时，将合格候选交给 LLM，失败自动回退规则结果。
+- 展示主推、备选、推荐理由、茶性、年份、咖啡因和冲泡参数。
+- 支持主推、备选、自定义、没喝四种打卡；记录 `checkinTime`。
+- 打卡后可写最多 500 字品饮感受，并上传最多 6 张图片及每张说明。
+- AI 请求支持取消、错误分类和有限重试。
 
 ### 4.2 饮茶记录
 
-**路由**：`pages/history/history`（TabBar 第二个）
+**路由**：`pages/history/history`，TabBar「记录」。
 
-**布局**：
-- 时间线列表，最新在上
-- 每条记录：日期（MM-DD）+ 彩色圆点（茶类颜色）+ 茶名 + 标签（主推/备选/自选）+ 品牌·茶类
-- "没喝"记录：灰色圆点 + 灰色文字"今天没喝茶"
-- 空状态：居中提示"还没有饮茶记录"
+- 时间线倒序展示主推、备选、自选和未饮茶记录。
+- 展示打卡时间、茶名、品牌、茶类和记录类型。
+- 可补充、修改或清空品饮文字。
+- 可上传、预览、删除最多 6 张图片，并编辑图片说明。
+- 顶部入口跳转饮茶统计页。
 
 ### 4.3 茶叶库
 
-**路由**：`pages/teaLib/teaLib`（TabBar 第三个）
+**路由**：`pages/teaLib/teaLib`，TabBar「茶库」。
 
-**布局**：
-- 顶部筛选栏：横向滚动的茶类筛选标签（全部/绿茶/红茶/白茶/乌龙/生普/熟普/调味），选中态高亮
-- 茶叶列表：每行显示彩色圆点（茶类颜色）+ 茶名 + 属性标签 + 年份 + 咖啡因
-- 列表按分类分组，组头显示分类名和数量
-- 统计栏：底部显示总数和各分类数量
-
-**Phase 2 扩展**：
-- 点击进入茶叶详情（属性、历史饮用记录、编辑）
-- 增删茶叶（不重新发布）
+- 按全部、绿茶、红茶、白茶、乌龙、生普、熟普、调味筛选并按茶类分组。
+- 展示茶名、品牌、年份、茶性、咖啡因和停用状态。
+- 编辑模式支持添加、修改、停用/启用、删除、上移和下移排序。
+- 删除有历史记录的茶时给出风险确认。
+- 每次有效变更更新 `teaLibraryUpdatedAt`，茶库作为有序整库快照同步。
 
 ### 4.4 设置
 
-**路由**：`pages/settings/settings`（TabBar 第四个）
+**路由**：`pages/settings/settings`，TabBar「设置」。
 
-**区块**：
-1. **个人档案**：性别（单选）、年龄（数字输入）、常驻城市（文本输入）
-2. **AI 配置**：
-   - API Key（密码输入框，解析和推荐共用）
-   - API 端点（文本输入，共用）
-   - 智能解析：开关 + 模型名称输入（默认 deepseek-v3，轻量快速）
-   - 深度推荐：开关 + 模型名称输入（默认 deepseek-v4-pro，深度分析）
-3. **推荐设置**：反重复天数（数字输入，默认 5）
-4. **数据管理**：
-   - 云同步状态：显示上次同步时间 + 「立即同步」按钮
-   - 导出 JSON、导入 JSON（wx.chooseMessageFile）、重置所有数据
+区块：
+
+1. 个人档案：性别、年龄、常驻城市；点击保存后写入并更新 `profileUpdatedAt`。
+2. 体质辨识：5 题问卷，计算偏寒、平和、偏热；保存后影响推荐权重。
+3. AI 配置：API Key、端点、解析/推荐开关和模型名；必须点击保存。当前 LLM 合并仍采用本地非空值优先。
+4. 推荐设置：反重复天数；保存后更新 `settingsUpdatedAt`。
+5. 数据管理：立即同步、复制导出 JSON、从文件导入、重置全部数据。
+6. 运行诊断：查看和清理本地 tracker 日志。
+
+### 4.5 饮茶统计
+
+**路由**：`pages/stats/stats`，非 TabBar 页面，从饮茶记录进入。
+
+- 本月饮茶次数与茶类环形图。
+- 本月茶性分布。
+- 全历史最常喝茶 Top 5。
+- 最近 30 天饮茶频率、饮茶天数和总次数。
 
 ---
 
@@ -291,7 +264,7 @@ interface ParsedInput {
 
 #### 阶段一：LLM 语义解析
 
-使用配置中的 parserModel（默认 deepseek-v3，比推荐模型更轻量快速）调用 API。
+使用配置中的 `parserModel` 调用 API；当前新数据默认值为 `deepseek-v4-pro`，用户可以自行改名。
 
 **Prompt**：
 ```
@@ -420,71 +393,47 @@ base = 季节基准（春-0.5, 夏-1.2, 秋+0.3, 冬+1.2）
 **备选选择策略**：
 从过滤后的候选中，选 primary 后第一个与 primary 不同茶类的茶作为 alt。若找不到不同茶类的，取分数次高的。
 
-### 5.3 天气服务 — utils/weather.js
+### 5.3 天气服务
+
+客户端 `utils/weather.js` 不直接请求第三方域名，而是调用 `getWeather` 云函数：
 
 ```typescript
 interface WeatherData {
-  temp: number;           // 温度 °C
-  feelsLike: number;      // 体感温度
-  humidity: number;       // 湿度 %
-  desc: string;           // 天气描述（中文）
-  wind: number;           // 风速 km/h
-  city: string;           // 城市名
+  temp: number;
+  feelsLike: number;       // 高德无体感字段，当前等于 temp
+  humidity: number;
+  desc: string;            // 高德中文天气描述
+  wind: number;            // 兼容字段，当前为 0
+  winddirection: string;
+  windpower: string;
+  city: string;
+  reporttime: string;
 }
 
-// API: https://wttr.in/{city}?format=j1&lang=zh
-// 返回 WeatherData 或 null（失败时）
 function fetchWeather(city: string): Promise<WeatherData | null>
 ```
 
-**失败处理**：返回 null，推荐引擎在无天气数据时跳过天气维度评分。
+`cloudfunctions/getWeather` 先通过高德地理编码将城市转为 adcode，再获取实况天气。高德 Key 保存在被 `.gitignore` 排除的 `cloudfunctions/getWeather/config.json`。失败时客户端得到 `null`，推荐继续运行但跳过天气修正。
 
-### 5.4 LLM 调用 — utils/llm.js
+### 5.4 LLM 调用
 
-提供两个函数，共用 API Key 和端点，使用不同模型：
+`utils/llm.js` 使用 OpenAI 兼容的 `/chat/completions`：
 
 ```typescript
-interface LLMConfig {
-  apiKey: string;
-  endpoint: string;           // 如 'https://xxx.cn-beijing.maas.aliyuncs.com/compatible-mode/v1'
-  recModel: string;           // 推荐模型，如 'deepseek-v4-pro'
-  parserModel: string;        // 解析模型，如 'deepseek-v3'
-}
-
-// === 解析用（轻量模型，快速响应） ===
-interface ParsedLLMResult {
-  city: string | null;
-  states: string[];
-  avoidCats: string[];        // 茶类中文名，需后处理映射为 key
-  preferCats: string[];
-  mood: 'light' | 'strong' | 'sweet' | null;
-}
-
-function parseWithLLM(
-  input: string,
-  config: LLMConfig
-): Promise<ParsedLLMResult | null>
-
-// === 推荐用（深度模型，详细分析） ===
-interface LLMResult {
-  primary: { name: string; reason: string };
-  alternative: { name: string; reason: string };
-  excluded: string;
-}
-
-function callLLM(
-  candidates: ScoredTea[],
-  parsedInput: ParsedInput,
-  weather: WeatherData | null,
-  config: LLMConfig,
-  profile: Profile
-): Promise<LLMResult | null>
+function parseWithLLM(input: string, config: LLMConfig): Promise<ParsedInput | null>
+function callLLM(eligibleTeas: Tea[], context: RecommendContext, config: LLMConfig): Promise<LLMResult | null>
+function generateDailyQuote(context: QuoteContext, config: LLMConfig): Promise<string | null>
+function abortCurrent(): void
 ```
 
-**parseWithLLM 参数**：temperature: 0.1, max_tokens: 300, model: config.parserModel
-**callLLM 参数**：temperature: 0.7, max_tokens: 2000, model: config.recModel
+当前行为：
 
-**失败处理**：两个函数均在失败时返回 null，调用方各自 fallback（解析 fallback 到关键词匹配，推荐 fallback 到规则引擎）。
+- 解析：`temperature: 0.1`、`max_tokens: 300`。
+- 推荐：`temperature: 0.7`、`max_tokens: 2000`，仅允许从硬过滤后的候选茶中选择，并校验返回茶名。
+- 每日茶语：`max_tokens: 80`，按天缓存；失败使用内置文案。
+- 推荐请求对部分 HTTP/网络错误做有限重试，支持主动取消。
+- 统一处理完整 URL、缺少协议、Markdown JSON 代码块、HTTP 状态和网络错误分类。
+- 解析失败回退关键词；推荐失败回退规则引擎。
 
 ### 5.5 数据层 — utils/data.js
 
@@ -523,127 +472,53 @@ function getDefaultData(): AppData                 // 默认数据（含 89 款�
 
 **合并策略**（在云函数中执行）：
 - `history`：取并集，按 `date + teaId + type` 三元组去重
-- `profile`：以云端为准
-- `settings` / `llm`：以云端为准
-- `teaLibrary`：以云端为准（云端有则覆盖本地）
+- `profile`：按 `profileUpdatedAt` 选择较新的完整档案；时间相同或缺失时云端优先
+- `settings`：按 `settingsUpdatedAt` 选择较新的完整设置；时间相同或缺失时云端优先
+- `llm`：保持本地非空值优先的现有策略
+- `teaLibrary`：按 `teaLibraryUpdatedAt` 选择较新的整库快照，确保编辑、删除和排序一致；时间相同或缺失时云端优先，便于新设备恢复
 
-### 5.6 云函数 — cloudfunctions/syncData
+### 5.6 云函数
 
-云函数用于处理数据合并逻辑，避免在客户端做复杂的数据比对。
+#### `syncData`
 
-**功能**：接收客户端上传的数据，与云端现有数据合并后写回。
+- 通过 `cloud.getWXContext().OPENID` 隔离用户，每个 openid 对应 `tea_doctor` 集合中的一条文档。
+- 首次同步创建集合文档；后续同步合并并写回客户端。
+- `history` 按 `date + teaId + type` 合并，本地同键记录优先，同时保护云端已有的品饮文字和图片。
+- `profile`、`settings` 和 `teaLibrary` 分别按各自时间戳选择完整快照；本地时间必须严格更新才覆盖云端，平局由云端胜出。
+- `llm` 暂时保持字段级本地非空值优先；这意味着模型名和开关尚不具备可靠的跨设备最后写入语义。
 
-```javascript
-// cloudfunctions/syncData/index.js
-exports.main = async (event, context) => {
-  const wxContext = cloud.getWXContext();
-  const openid = wxContext.OPENID;
-  const db = cloud.database();
-  const collection = db.collection('tea_doctor');
+#### `getWeather`
 
-  // 查找当前用户的文档
-  const existing = await collection.where({ _openid: openid }).get();
-
-  if (existing.data.length === 0) {
-    // 首次同步，直接写入
-    await collection.add({ data: { ...event.data, _openid: openid, updatedAt: db.serverDate() } });
-  } else {
-    // 合并数据
-    const cloudData = existing.data[0];
-    const merged = mergeData(cloudData, event.data);
-    await collection.doc(cloudData._id).update({ data: { ...merged, updatedAt: db.serverDate() } });
-  }
-
-  return { success: true };
-};
-
-// 合并策略
-function mergeData(cloud, local) {
-  // history: 取并集，按 date+teaId+type 去重
-  const historyMap = new Map();
-  [...(cloud.history || []), ...(local.history || [])].forEach(h => {
-    historyMap.set(`${h.date}_${h.teaId}_${h.type}`, h);
-  });
-
-  return {
-    history: [...historyMap.values()],
-    profile: local.profile || cloud.profile,
-    settings: local.settings || cloud.settings,
-    llm: local.llm || cloud.llm,
-    teaLibrary: local.teaLibrary || cloud.teaLibrary,
-  };
-}
-```
+- 输入中文城市名。
+- 调用高德地理编码和实况天气接口。
+- 热实例内缓存城市 adcode，HTTPS 请求超时为 8 秒。
+- Key 通过本地 `config.json` 提供，不进入 Git。
 
 ---
 
-## 6. 全局样式规范
+## 6. 视觉与动态场景
 
-### 6.1 CSS 变量
+当前主题以暖色粉彩为主，核心变量定义在 `app.wxss`：
 
-```css
-page {
-  --bg: #FAF5ED;
-  --bg2: #F0E8DA;
-  --card: #FFFDF9;
-  --primary: #6B4F3A;
-  --accent: #C4793B;
-  --accent2: #D4956A;
-  --text: #3A2A1E;
-  --text2: #8A7668;
-  --text3: #B5A89A;
-  --border: #E8DFD0;
-  --border-light: #F0EBE3;
-  --nature-寒: #4A7FB5;
-  --nature-凉: #6AAFCF;
-  --nature-平: #A8A8A8;
-  --nature-温: #D4883A;
-  --nature-热: #C25B45;
-  --r-sm: 16rpx;
-  --r-md: 28rpx;
-  --r-lg: 40rpx;
-  --r-xl: 56rpx;
-}
-```
+- 背景：`--cream`、`--cream2`、`--blush`。
+- 强调：`--coral`、`--coral-deep`、`--sage`、`--sage-deep`。
+- 文字：`--cocoa`、`--ink`、`--ink2`、`--ink3`、`--ink4`。
+- 卡片：半透明 `--card` 与 `--card-border`。
+- 字体：优先 `NotoSerifSC` 和系统宋体；`utils/font.js` 的 `FONT_SOURCE` 为空时安全回退系统字体。
 
-### 6.2 组件视觉规范
+首页动态背景采用三层结构：
 
-| 组件 | 样式 |
-|------|------|
-| 主推卡片 | 渐变背景 #FDF8F2→#F7EDE0，圆角 56rpx，大阴影，装饰光圈 |
-| 备选卡片 | 白底，圆角 40rpx，小阴影，左侧圆形图标 |
-| 输入区 | 白底，圆角 56rpx，中阴影，无边框 textarea |
-| 推荐按钮 | 深色渐变 #7A5640→#5C3D2E，圆角 56rpx，高度 88rpx |
-| 打卡胶囊 | 圆角 56rpx，主推高亮底，备选虚线框，其余弱化 |
-| 标签 | 圆角 32rpx，各状态色（见 parser 标签色表） |
-| 茶性标签 | 白字圆角标签，颜色跟随茶性变量 |
+1. `base-*.svg`：dawn/day/dusk/night 时段基底。
+2. `overlay-*.svg`：太阳、月亮、云、阴、雨、雪、雷、雾等天气层。
+3. `scene-tint`：按时段调节前景色温和可读性。
+
+场景在页面显示时初始化，天气返回后更新；每分钟检查时段变化。首页底部的时段/天气选择器仅用于开发预览。
 
 ---
 
-## 7. TabBar 配置
+## 7. 路由和配置
 
-```json
-{
-  "tabBar": {
-    "color": "#B5A89A",
-    "selectedColor": "#C4793B",
-    "backgroundColor": "#FFFDF9",
-    "borderStyle": "white",
-    "list": [
-      { "pagePath": "pages/index/index", "text": "推荐", "iconPath": "...", "selectedIconPath": "..." },
-      { "pagePath": "pages/history/history", "text": "记录", "iconPath": "...", "selectedIconPath": "..." },
-      { "pagePath": "pages/teaLib/teaLib", "text": "茶库", "iconPath": "...", "selectedIconPath": "..." },
-      { "pagePath": "pages/settings/settings", "text": "设置", "iconPath": "...", "selectedIconPath": "..." }
-    ]
-  }
-}
-```
-
----
-
-## 8. 权限与配置
-
-### 8.1 app.json 核心配置
+TabBar 当前包含：推荐、记录、茶库、设置。`pages/stats/stats` 已注册，但通过记录页入口进入，不属于 TabBar。
 
 ```json
 {
@@ -651,80 +526,89 @@ page {
     "pages/index/index",
     "pages/history/history",
     "pages/teaLib/teaLib",
-    "pages/settings/settings"
+    "pages/settings/settings",
+    "pages/stats/stats"
   ],
   "window": {
     "navigationBarTitleText": "今天喝点什么茶",
-    "navigationBarBackgroundColor": "#5C3D2E",
-    "navigationBarTextStyle": "white",
-    "backgroundColor": "#FAF5ED"
+    "navigationBarBackgroundColor": "#FBF3E7",
+    "navigationBarTextStyle": "black",
+    "backgroundColor": "#FBF3E7"
   },
   "cloud": true,
   "sitemapLocation": "sitemap.json"
 }
 ```
 
-> `cloud: true` 启用云开发。云环境 ID 在 `app.js` 的 `wx.cloud.init()` 中配置。
-
-### 8.2 网络域名
-
-开发版/预览版不校验域名白名单，在微信开发者工具中勾选「不校验合法域名、web-view（业务域名）、TLS 版本以及 HTTPS 证书」即可。
-
-涉及的外部域名：
-- `https://wttr.in` — 天气 API
-- 用户自配的 LLM API 域名（如阿里云百炼）
+云环境 ID 当前直接配置在 `app.js`。项目为个人开发版/预览版用途，不以正式发布为目标。
 
 ---
 
-## 9. Phase 2 迭代计划（不在 MVP 范围）
+## 8. 外部服务与敏感配置
 
-### 9.1 体质辨识
-
-- 5 题测试（怕冷/怕热、饮水偏好、出汗、大便、唇色）
-- 结果分三档：偏寒、平和、偏热
-- 接入推荐引擎，调整理想茶性基准值
-
-### 9.2 茶叶库编辑
-
-- 添加茶叶：名称、品牌、茶类、年份、手动覆盖属性
-- 删除/停用茶叶
-- 编辑茶叶属性
-- 数据存储在本地，无需重新发布
-
-### 9.3 饮茶统计
-
-- 月度饮茶分布（按茶类饼图）
-- 饮茶频率趋势（折线图）
-- 最常喝的茶 Top 5
-
-### 9.4 微信能力集成（可选）
-
-- wx.getLocation 自动获取城市（需授权）
-- 分享推荐结果卡片到聊天
-
-> **不做**：订阅消息（需要上线正式版）、朋友圈分享（需要上线）
+- 高德天气仅由 `getWeather` 云函数访问：`restapi.amap.com`。
+- `cloudfunctions/getWeather/config.json` 必须包含 `amapKey`，并已被 `.gitignore` 排除。
+- 客户端会直接访问用户填写的 OpenAI 兼容 LLM 端点；开发工具需要关闭域名校验，真机环境需满足微信请求域名规则。
+- `llm.apiKey` 当前同时保存于本地数据和云数据库，这是已知安全欠账，尚未按“仅本地保存”改造。
+- 若启用远程字体，需要为 `utils/font.js` 配置 HTTPS `FONT_SOURCE`，并满足下载域名要求。
 
 ---
 
-## 10. 测试清单
+## 9. 已实现与待办边界
 
-### 10.1 功能测试
+### 已实现
 
-- [ ] 输入"人在长沙，有点上火" → 正确解析城市+热证 → 推荐寒/凉性茶
-- [ ] 输入"不想喝普洱" → 生普+熟普全部排除
-- [ ] 输入"昨晚没睡好" → 推荐低咖啡因茶
-- [ ] 输入"吃撑了" → 熟普/岩茶获得加分
-- [ ] 打卡主推 → 历史记录显示"主推"标签 → 5天内不再推荐该茶
-- [ ] 打卡"喝的别的" → 输入茶名 → 模糊匹配成功 → 历史记录显示"自选"标签
-- [ ] 打卡"没喝" → 历史记录显示灰色"今天没喝茶"
-- [ ] AI 推荐开启 → 等待加载 → 显示 AI 生成的推荐和详细解释
-- [ ] AI 推荐失败 → 自动 fallback 到规则引擎
-- [ ] 设置页修改城市 → 首页推荐使用新城市天气
-- [ ] 导出数据 → 得到合法 JSON → 导入后数据恢复
+- 体质辨识及推荐权重修正。
+- 茶库添加、编辑、停用、删除和排序。
+- 品饮文字、图片和图片说明。
+- 月度茶类/茶性统计、Top 5、最近 30 日频率。
+- 每日茶语、农历节气、动态天气背景。
+- 本地诊断日志和显式保存按钮。
+- `profile`、`settings`、`teaLibrary` 的时间戳同步；旧数据平局由云端优先。
 
-### 10.2 兼容性测试
+### 尚未实现或仍需改进
 
-- [ ] iPhone SE（小屏）布局正常
-- [ ] iPhone 14 Pro（刘海屏）安全区适配
-- [ ] 安卓主流机型（华为/小米）正常
-- [ ] 微信开发者工具模拟器各机型正常
+- 自动定位当前城市。
+- 推荐结果分享和报告图片分享。
+- 茶库详情页的单茶历史聚合、库存泡数/已撬状态和消耗提醒。
+- 二维码或自动收藏式离线备份。
+- LLM 配置的可靠跨设备版本合并。
+- API Key 仅本地保存。
+- 自动化微信开发者工具编译与真机端到端测试。
+
+---
+
+## 10. 验证要求
+
+### 自动检查
+
+根目录工程命令：
+
+```powershell
+npm test
+npm run check
+npm run verify
+```
+
+- `npm test`：运行数据同步、文本解析和推荐过滤回归测试。
+- `npm run check`：校验 JavaScript 语法、JSON、页面四件套、TabBar 资源、WXML 事件处理器和必要私密配置是否存在。
+- `npm run verify`：依次执行静态检查和测试。
+
+### 发布前人工检查
+
+- [x] 微信开发者工具能够无错误编译。
+- [x] `syncData` 与 `getWeather` 云函数已安装依赖并部署到当前环境。
+- [x] 模拟器修改档案/推荐设置后，手机预览版能通过“立即同步”得到新版本。
+- [x] 高德天气在模拟器和真机返回中文描述。
+- [x] 规则推荐、AI 回退、打卡、自定义茶、没喝记录均正常。
+- [x] 品饮图片能够上传、预览、删除并保留说明。
+- [x] 动态背景在四个时段及主要天气场景下文字可读。
+- [x] 小屏、刘海屏和至少一台安卓真机布局正常。
+
+---
+
+## 11. 文档维护规则
+
+- 数据结构、默认模型、同步策略、云函数或页面路由发生变化时，应在同一变更中更新本文件。
+- `docs/phase2.md` 作为后续想法清单；已落地能力以本文件和当前代码为准。
+- README 负责开发与部署步骤，本文件负责产品行为和实现契约。

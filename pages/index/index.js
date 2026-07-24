@@ -218,7 +218,7 @@ Page({
       day: now.getDate(),
       week: '周' + weekNames[now.getDay()],
       lunarDate: ln.getMonthInChinese() + '月' + ln.getDayInChinese(),
-      version: (app && app.globalData && app.globalData.version) || '1.0.2'
+      version: (app && app.globalData && app.globalData.version) || '1.0.3'
     });
   },
 
@@ -389,6 +389,7 @@ Page({
       if (parsed.city && parsed.city !== self._weatherCity) {
         self._weatherCity = parsed.city;
         appData.profile.city = parsed.city;
+        appData.profileUpdatedAt = Date.now();
         data.save(appData);
         self._appData = appData;
         self._fetchWeather(parsed.city);

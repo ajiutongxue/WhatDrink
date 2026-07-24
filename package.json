@@ -1,0 +1,14 @@
+{
+  "name": "what-to-drink-today",
+  "version": "1.0.3",
+  "private": true,
+  "description": "个人使用的微信饮茶推荐小程序",
+  "scripts": {
+    "check": "node scripts/check-project.js",
+    "test": "node tests/run.js",
+    "verify": "node scripts/verify.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

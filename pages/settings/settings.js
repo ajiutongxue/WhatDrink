@@ -171,6 +171,7 @@ Page({
     var appData = this._appData || data.load();
     appData.profile.quizAnswers = this.data.quizAnswers;
     appData.profile.constitution = this.data.constitution;
+    appData.profileUpdatedAt = Date.now();
     data.save(appData);
     this._appData = appData;
   },
@@ -206,6 +207,7 @@ Page({
     appData.profile.gender = this.data.gender;
     appData.profile.age = this.data.age;
     appData.profile.city = this.data.city;
+    appData.profileUpdatedAt = Date.now();
     data.save(appData);
     this._appData = appData;
   },
@@ -278,6 +280,7 @@ Page({
   _saveRecommendSettings: function () {
     var appData = this._appData || data.load();
     appData.settings.avoidDays = this.data.avoidDays;
+    appData.settingsUpdatedAt = Date.now();
     data.save(appData);
     this._appData = appData;
   },

@@ -294,6 +294,7 @@ Page({
     }
 
     appData.teaLibrary = lib;
+    appData.teaLibraryUpdatedAt = Date.now();
     data.save(appData);
     this._appData = appData;
     this._allTeas = lib;
@@ -314,6 +315,7 @@ Page({
       if (lib[i].id === id) { lib[i].disabled = !lib[i].disabled; break; }
     }
     appData.teaLibrary = lib;
+    appData.teaLibraryUpdatedAt = Date.now();
     data.save(appData);
     this._appData = appData;
     this._allTeas = lib;
@@ -334,6 +336,7 @@ Page({
     var doDelete = function () {
       var newLib = lib.filter(function (t) { return t.id !== id; });
       appData.teaLibrary = newLib;
+      appData.teaLibraryUpdatedAt = Date.now();
       data.save(appData);
       self._appData = appData;
       self._allTeas = newLib;
@@ -377,6 +380,7 @@ Page({
     lib[idx] = lib[target];
     lib[target] = tmp;
     appData.teaLibrary = lib;
+    appData.teaLibraryUpdatedAt = Date.now();
     data.save(appData);
     this._appData = appData;
     this._allTeas = lib;

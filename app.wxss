@@ -39,7 +39,7 @@ page {
   --r-lg: 40rpx;
   --r-pill: 999rpx;
 
-  font-family: "Songti SC", "STSongti-SC", "STSong", "SimSun", "Noto Serif SC", "Source Han Serif SC", serif;
+  font-family: "NotoSerifSC", "Songti SC", "STSongti-SC", "STSong", "SimSun", "Noto Serif SC", "Source Han Serif SC", serif;
   background: var(--cream);
   color: var(--ink);
   line-height: 1.8;
