@@ -117,7 +117,7 @@ Page({
       parserModel: l.parserModel || 'deepseek-v3',
       recEnabled: !!l.enabled,
       recModel: l.recModel || 'deepseek-v4-pro',
-      avoidDays: s.avoidDays || 5,
+      avoidDays: Math.max(2, parseInt(s.avoidDays) || 5),
       syncStatus: this._getSyncStatus()
     });
     this._loadDiagLogs();
@@ -274,7 +274,7 @@ Page({
 
   // ==== Recommend settings ====
   onAvoidDaysInput: function (e) {
-    this.setData({ avoidDays: parseInt(e.detail.value) || 5 });
+    this.setData({ avoidDays: Math.max(2, parseInt(e.detail.value) || 5) });
   },
 
   _saveRecommendSettings: function () {

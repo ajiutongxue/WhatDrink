@@ -400,8 +400,8 @@ Page({
       var avoidDays = (appData.settings && appData.settings.avoidDays) || 5;
       var constitution = (appData.profile && appData.profile.constitution) || null;
 
-      // 硬过滤候选池（去掉今天已喝/disabled/avoidCats）
-      var eligibleTeas = recommend.filterEligible(teaLib, parsed, history);
+      // 硬过滤候选池（含连续推荐上限，规则与 AI 共用）
+      var eligibleTeas = recommend.filterEligible(teaLib, parsed, history, avoidDays);
       if (!eligibleTeas || eligibleTeas.length === 0) {
         tracker.track('rec_empty', { stage: 'filter', ms: Date.now() - (self._recT0 || Date.now()) });
         self.setData({ loading: false, noResult: true, btnText: '今天喝点什么茶' });
@@ -536,8 +536,10 @@ Page({
   },
 
   _showLLMResult: function (llmRes, parsed) {
-    var primaryTea = this._matchTeaByName(llmRes.primary && llmRes.primary.name);
-    var altTea = this._matchTeaByName(llmRes.alternative && llmRes.alternative.name);
+    var primaryTea = this._findTeaById(llmRes.primary && llmRes.primary._teaId) ||
+      this._matchTeaByName(llmRes.primary && llmRes.primary.name);
+    var altTea = this._findTeaById(llmRes.alternative && llmRes.alternative._teaId) ||
+      this._matchTeaByName(llmRes.alternative && llmRes.alternative.name);
     if (!primaryTea) {
       console.warn('[llm] primary tea not matched, fallback to rule. LLM name:', llmRes.primary && llmRes.primary.name);
       tracker.track('llm_name_miss', { name: (llmRes.primary && llmRes.primary.name) || '' });
@@ -630,6 +632,15 @@ Page({
 
   _matchTeaByName: function (name) {
     return this._fuzzyMatchTea(name);
+  },
+
+  _findTeaById: function (id) {
+    if (id == null) return null;
+    var lib = (this._appData && this._appData.teaLibrary) || teaData.TEAS;
+    for (var i = 0; i < lib.length; i++) {
+      if (lib[i] && String(lib[i].id) === String(id)) return lib[i];
+    }
+    return null;
   },
 
   // Fuzzy match: score each tea by how well the input matches name+brand

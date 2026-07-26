@@ -103,11 +103,12 @@ function getIdealNature(season, weather, states, constitution, hour, todayNature
  * Filter tea library: remove disabled / today-drunk / avoidCats / quality concern.
  * Returns Tea[] without scoring or sorting.
  */
-function filterEligible(teaLibrary, parsed, history) {
+function filterEligible(teaLibrary, parsed, history, avoidDays) {
   var safeParsed = parsed || {};
   var safeAvoidCats = Array.isArray(safeParsed.avoidCats) ? safeParsed.avoidCats : [];
   var safeHistory = Array.isArray(history) ? history : [];
   var today = _formatDate(new Date());
+  var consecutiveBlocked = _getConsecutiveBlockedTeaIds(safeHistory, avoidDays);
 
   var todayTeaIds = {};
   for (var i = 0; i < safeHistory.length; i++) {
@@ -121,6 +122,7 @@ function filterEligible(teaLibrary, parsed, history) {
     var tea = teaLibrary[j];
     if (!tea || !tea.name) continue;
     if (tea.disabled) continue;
+    if (consecutiveBlocked[tea.id]) continue;
     if (todayTeaIds[tea.id]) continue;
     if (safeAvoidCats.indexOf(tea.cat) >= 0) continue;
     if (tea.note && tea.note.indexOf('疑似假货') >= 0) continue;
@@ -138,7 +140,7 @@ function filterEligible(teaLibrary, parsed, history) {
  * @param {Object} parsed - ParsedInput
  * @param {Object|null} weather
  * @param {Array} history - HistoryEntry[]
- * @param {number} avoidDays - anti-repetition window (default 5)
+ * @param {number} avoidDays - max consecutive drinking days before next-day block
  * @param {string|null} constitution
  * @returns {Object} { primary, alt, candidates, filteredCount }
  */
@@ -147,7 +149,7 @@ function recommend(teaLibrary, parsed, weather, history, avoidDays, constitution
     return { primary: null, alt: null, candidates: [], filteredCount: 0 };
   }
 
-  var safeAvoidDays = (typeof avoidDays === 'number' && avoidDays > 0) ? avoidDays : 5;
+  var safeAvoidDays = (typeof avoidDays === 'number' && avoidDays >= 2) ? avoidDays : 5;
   var safeParsed = parsed || {};
   var safeStates = Array.isArray(safeParsed.states) ? safeParsed.states : [];
   var safeAvoidCats = Array.isArray(safeParsed.avoidCats) ? safeParsed.avoidCats : [];
@@ -163,8 +165,10 @@ function recommend(teaLibrary, parsed, weather, history, avoidDays, constitution
   var todayNatureShift = _getTodayNatureShift(safeHistory, teaLibrary);
   var idealNature = getIdealNature(season, weather, safeStates, constitution, hour, todayNatureShift);
 
-  // Graded anti-repetition stats
-  var recentStats = _getRecentTeaStats(safeHistory, safeAvoidDays);
+  // Consumption recency still influences score, while consecutive drinking
+  // uses a separate hard limit based on completed calendar days.
+  var recentStats = _getRecentTeaStats(safeHistory, 5);
+  var consecutiveBlocked = _getConsecutiveBlockedTeaIds(safeHistory, safeAvoidDays);
 
   // Category frequency (last 3 days) for rotation
   var catFreq = _getCatFrequency(safeHistory, 3);
@@ -186,6 +190,7 @@ function recommend(teaLibrary, parsed, weather, history, avoidDays, constitution
       hour: hour,
       slot: slot,
       recentStats: recentStats,
+      consecutiveBlocked: consecutiveBlocked,
       catFreq: catFreq
     });
 
@@ -240,6 +245,13 @@ function _scoreTea(tea, ctx) {
     score -= 30;
     hardFiltered = true;
     avoids.push('品质存疑');
+  }
+
+  // --- Hard filter: reached consecutive drinking limit ---
+  if (ctx.consecutiveBlocked && ctx.consecutiveBlocked[tea.id]) {
+    score -= 80;
+    hardFiltered = true;
+    avoids.push('已连续喝满上限');
   }
 
   // --- Hard filter: today already drunk ---
@@ -493,6 +505,49 @@ function _getCurrentSeason() {
 }
 
 /**
+ * Return tea IDs that were actually drunk on each of the previous limit
+ * completed calendar days. With limit=5 a tea may still be recommended and
+ * drunk on day five, then is blocked on day six. A gap on any day resets the
+ * streak. Multiple drinks and skip entries on the same day do not change the
+ * one-day-per-tea aggregation.
+ */
+function _getConsecutiveBlockedTeaIds(history, limit) {
+  var threshold = Math.floor(Number(limit));
+  if (!isFinite(threshold) || threshold < 2) threshold = 2;
+  var byDate = {};
+  var entries = Array.isArray(history) ? history : [];
+
+  entries.forEach(function(entry) {
+    if (!entry || !entry.date || entry.type === 'skip') return;
+    if (typeof entry.teaId !== 'number' || entry.teaId < 0) return;
+    if (!byDate[entry.date]) byDate[entry.date] = {};
+    byDate[entry.date][entry.teaId] = true;
+  });
+
+  var blocked = {};
+  var candidates = null;
+  for (var offset = 1; offset <= threshold; offset++) {
+    var date = new Date();
+    date.setHours(12, 0, 0, 0);
+    date.setDate(date.getDate() - offset);
+    var dayIds = byDate[_formatDate(date)] || {};
+
+    if (candidates === null) {
+      candidates = {};
+      Object.keys(dayIds).forEach(function(id) { candidates[id] = true; });
+    } else {
+      Object.keys(candidates).forEach(function(id) {
+        if (!dayIds[id]) delete candidates[id];
+      });
+    }
+    if (Object.keys(candidates).length === 0) break;
+  }
+
+  Object.keys(candidates || {}).forEach(function(id) { blocked[id] = true; });
+  return blocked;
+}
+
+/**
  * Graded anti-repetition: returns per-tea stats with today/recent2/recent5 flags.
  */
 function _getRecentTeaStats(history, avoidDays) {
@@ -576,5 +631,6 @@ module.exports = {
   filterEligible: filterEligible,
   getIdealNature: getIdealNature,
   getTimeSlot: _getTimeSlot,
+  getConsecutiveBlockedTeaIds: _getConsecutiveBlockedTeaIds,
   adjustNature: teaData.adjustNature
 };

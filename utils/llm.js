@@ -120,7 +120,7 @@ function parseWithLLM(input, config) {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer ' + config.apiKey
         },
-        data: {
+        data: _applyNonThinking({
           model: config.parserModel,
           messages: [
             { role: 'system', content: systemPrompt },
@@ -128,7 +128,7 @@ function parseWithLLM(input, config) {
           ],
           temperature: 0.1,
           max_tokens: 300
-        },
+        }, config.parserModel, config.endpoint),
         success: function(res) {
           // Check HTTP status code — wx.request fires success for ALL responses
           if (res.statusCode !== 200) {
@@ -244,18 +244,10 @@ function callLLM(eligibleTeas, context, config) {
 
     // Build candidate list from eligible teas (no scores, LLM decides freely)
     var candidateList = [];
-    var maxCandidates = Math.min(eligibleTeas.length, 20);
-    for (var i = 0; i < maxCandidates; i++) {
+    for (var i = 0; i < eligibleTeas.length; i++) {
       var t = eligibleTeas[i];
       if (!t) continue;
-      candidateList.push(
-        (i + 1) + '. ' + t.name +
-        '（' + (t.brand || '') + '）' +
-        ' - ' + _catName(t.cat) +
-        ', 茶性:' + (t.nature || t.baseNature || '平') +
-        ', 咖啡因:' + (t.caffeine || '中') +
-        (t.year ? ', ' + t.year + '年' : '')
-      );
+      candidateList.push((i + 1) + '. ' + _candidateTeaText(t));
     }
 
     var ctx = context || {};
@@ -329,7 +321,7 @@ function callLLM(eligibleTeas, context, config) {
       '请严格按JSON返回：\n' +
       '{\n' +
       '  "primary": {\n' +
-      '    "name": "茶名，必须和候选里完全一致",\n' +
+      '    "name": "只复制候选行中破折号前的茶名（品牌），不要包含序号、破折号及后续属性",\n' +
       '    "tagline": "一句话标签，比如「午后温中和胃之选」",\n' +
       '    "narrative": "把今天的天气、时段、身体状况和选这款茶的理由，编织成一段连贯温暖的话，像写给朋友的便签，自然流畅、有画面感，2-3句，60-100字，不要分点、不要加引号",\n' +
       '    "reasons": ["理由1，短句子", "理由2，短句子", "理由3，短句子"],\n' +
@@ -339,7 +331,7 @@ function callLLM(eligibleTeas, context, config) {
       '    "pairing": "可选，搭配建议，比如「配点坚果不错」"\n' +
       '  },\n' +
       '  "alternative": {\n' +
-      '    "name": "备选茶名",\n' +
+      '    "name": "只复制备选候选行中破折号前的茶名（品牌）",\n' +
       '    "why_different": "和主推的区别，比如「想喝清爽点的选这个」",\n' +
       '    "reasons": ["理由1", "理由2"],\n' +
       '    "brew_tip": "冲泡建议"\n' +
@@ -359,7 +351,7 @@ function callLLM(eligibleTeas, context, config) {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer ' + config.apiKey
         },
-        data: {
+        data: _applyNonThinking({
           model: config.recModel,
           messages: [
             { role: 'system', content: systemPrompt },
@@ -367,7 +359,7 @@ function callLLM(eligibleTeas, context, config) {
           ],
           temperature: 0.5,
           max_tokens: 2000
-        },
+        }, config.recModel, config.endpoint),
         success: function(res) {
           // Check HTTP status code — wx.request fires success for ALL responses
           if (res.statusCode !== 200) {
@@ -402,16 +394,6 @@ function callLLM(eligibleTeas, context, config) {
               return;
             }
 
-            // Validate names exist in eligible teas
-            var nameMap = {};
-            eligibleTeas.forEach(function(t) {
-              if (t && t.name) {
-                nameMap[t.name] = true;
-                // 候选列表以「name（brand）」展示，LLM 常原样返回，一并视为合法
-                if (t.brand) nameMap[t.name + '（' + t.brand + '）'] = true;
-              }
-            });
-
             var result = {
               primary: {
                 name: parsed.primary.name || '',
@@ -432,8 +414,34 @@ function callLLM(eligibleTeas, context, config) {
               today_avoid_note: parsed.today_avoid_note || ''
             };
 
-            if (!nameMap[result.primary.name]) {
+            // 模型常把候选原样抄成「序号. name (brand)」，也可能混用
+            // 全/半角括号。只在本次 eligibleTeas 内归一化匹配，既容忍这些
+            // 展示差异，又不会把真正的茶库外名称放进来。
+            var primaryTea = _resolveEligibleTea(result.primary.name, eligibleTeas);
+            if (!primaryTea) {
               console.warn('[llm] primary name not in eligible:', result.primary.name);
+              _setError('AI 返回了候选范围外的茶，已切换规则推荐', 'eligible');
+              tracker.track('llm_rec', { ok: false, ms: Date.now() - t0, attempts: attempt + 1, model: config.recModel, errType: 'eligible' });
+              resolve(null);
+              return;
+            }
+            result.primary.name = primaryTea.name;
+            result.primary._teaId = primaryTea.id;
+
+            if (result.alternative.name) {
+              var alternativeTea = _resolveEligibleTea(result.alternative.name, eligibleTeas);
+              if (!alternativeTea) {
+                console.warn('[llm] alternative name not in eligible, dropped:', result.alternative.name);
+                result.alternative = {
+                  name: '',
+                  why_different: '',
+                  reasons: [],
+                  brew_tip: ''
+                };
+              } else {
+                result.alternative.name = alternativeTea.name;
+                result.alternative._teaId = alternativeTea.id;
+              }
             }
 
             tracker.track('llm_rec', { ok: true, ms: Date.now() - t0, attempts: attempt + 1, model: config.recModel });
@@ -529,7 +537,7 @@ function generateDailyQuote(context, config) {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer ' + config.apiKey
       },
-      data: {
+      data: _applyNonThinking({
         model: model,
         messages: [
           { role: 'system', content: systemPrompt },
@@ -537,7 +545,7 @@ function generateDailyQuote(context, config) {
         ],
         temperature: 0.85,
         max_tokens: 80
-      },
+      }, model, config.endpoint),
       success: function(res) {
         if (res.statusCode !== 200) {
           console.warn('[llm] generateDailyQuote HTTP ' + res.statusCode);
@@ -572,6 +580,83 @@ function generateDailyQuote(context, config) {
 // ============================================================
 // Internal helpers
 // ============================================================
+
+/**
+ * Resolve a model-returned display name against this request's eligible pool.
+ * Matching remains pool-bound. Formatting noise is ignored, but fuzzy semantic
+ * matching is deliberately not used here.
+ */
+function _resolveEligibleTea(value, eligibleTeas) {
+  var normalized = _normalizeEligibleName(value);
+  if (!normalized) return null;
+
+  var matches = [];
+  for (var i = 0; i < (eligibleTeas || []).length; i++) {
+    var tea = eligibleTeas[i];
+    if (!tea || !tea.name) continue;
+    var nameKey = _normalizeEligibleName(tea.name);
+    var displayKey = _normalizeEligibleName(tea.name + (tea.brand ? '（' + tea.brand + '）' : ''));
+    var candidateLineKey = _normalizeEligibleName(_candidateTeaText(tea));
+    if (normalized === nameKey || normalized === displayKey || normalized === candidateLineKey) matches.push(tea);
+  }
+  return matches.length ? matches[0] : null;
+}
+
+function _candidateTeaText(tea) {
+  return tea.name +
+    '（' + (tea.brand || '') + '）' +
+    ' - ' + _catName(tea.cat) +
+    ', 茶性:' + (tea.nature || tea.baseNature || '平') +
+    ', 咖啡因:' + (tea.caffeine || '中') +
+    (tea.year ? ', ' + tea.year + '年' : '');
+}
+
+function _normalizeEligibleName(value) {
+  if (value == null) return '';
+  return String(value)
+    .trim()
+    .replace(/^(?:\d+|[一二三四五六七八九十]+)\s*[.、:：)]\s*/, '')
+    .replace(/^[-*•]\s*/, '')
+    .replace(/^[`"'“”‘’]+|[`"'“”‘’]+$/g, '')
+    .toLowerCase()
+    .replace(/[（）()\[\]【】\s*_`]/g, '');
+}
+
+/**
+ * Disable reasoning when the provider/model exposes a compatible switch.
+ * Some dated Qwen snapshots are thinking-only; sending false to those models
+ * causes a request error, so they are deliberately left unchanged.
+ */
+function _applyNonThinking(data, model, endpoint) {
+  var payload = data || {};
+  var modelName = String(model || '').toLowerCase();
+  var endpointName = String(endpoint || '').toLowerCase();
+  var qwenThinkingOnly =
+    modelName === 'qwen3.7-max-preview' ||
+    modelName === 'qwen3.7-max-2026-05-17' ||
+    modelName === 'qwen3.8-max-preview';
+
+  if (qwenThinkingOnly) return payload;
+
+  // Alibaba Model Studio uses enable_thinking for its OpenAI-compatible API,
+  // including Qwen and hosted Kimi models.
+  if (endpointName.indexOf('dashscope') >= 0 ||
+      modelName.indexOf('qwen') === 0 ||
+      modelName.indexOf('kimi') === 0) {
+    payload.enable_thinking = false;
+    return payload;
+  }
+
+  // Native DeepSeek and Zhipu-compatible APIs use a thinking object.
+  if (endpointName.indexOf('api.deepseek.com') >= 0 ||
+      endpointName.indexOf('bigmodel.cn') >= 0 ||
+      modelName.indexOf('deepseek-v4-') === 0 ||
+      modelName.indexOf('glm-') === 0) {
+    payload.thinking = { type: 'disabled' };
+  }
+
+  return payload;
+}
 
 /**
  * Generate a user-friendly error message from HTTP status code.

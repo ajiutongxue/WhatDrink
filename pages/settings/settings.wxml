@@ -168,15 +168,16 @@
     </view>
 
     <view class="setting-group">
-      <text class="setting-label">反重复天数</text>
+      <text class="setting-label">连续推荐上限</text>
       <view class="setting-inline-row">
         <input
           class="setting-input setting-input-short"
           type="number"
+          min="2"
           value="{{avoidDays}}"
           bindinput="onAvoidDaysInput"
         />
-        <text class="setting-inline-hint">天内不重复推荐同一款茶</text>
+        <text class="setting-inline-hint">天（连续喝满后，次日不再推荐）</text>
       </view>
     </view>
 

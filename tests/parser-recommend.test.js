@@ -14,11 +14,17 @@ var parser = require('../utils/parser');
 var recommend = require('../utils/recommend');
 var teaData = require('../utils/teaData');
 
-function today() {
+function dateDaysAgo(days) {
   var d = new Date();
+  d.setHours(12, 0, 0, 0);
+  d.setDate(d.getDate() - (days || 0));
   return d.getFullYear() + '-' +
     ('0' + (d.getMonth() + 1)).slice(-2) + '-' +
     ('0' + d.getDate()).slice(-2);
+}
+
+function today() {
+  return dateDaysAgo(0);
 }
 
 async function run() {
@@ -55,6 +61,39 @@ async function run() {
     [{ date: today(), teaId: 3, type: 'primary' }]
   );
   assert.deepStrictEqual(eligible.map(function(tea) { return tea.id; }), [1], 'hard filters must exclude disabled/today/quality/avoided teas');
+  var firstFourDrinkingDays = [1, 2, 3, 4].map(function(days, idx) {
+    return { date: dateDaysAgo(days), teaId: 1, type: idx % 2 ? 'alt' : 'primary' };
+  });
+  assert.ok(!recommend.getConsecutiveBlockedTeaIds(firstFourDrinkingDays, 5)[1], 'tea must still be eligible after four consecutive drinking days');
+
+  var firstFiveDrinkingDays = firstFourDrinkingDays.concat([
+    { date: dateDaysAgo(5), teaId: 1, type: 'custom' }
+  ]);
+  assert.ok(recommend.getConsecutiveBlockedTeaIds(firstFiveDrinkingDays, 5)[1], 'tea must be blocked only after five completed drinking days');
+
+  var multiSessionHistory = firstFiveDrinkingDays.concat([
+    { date: dateDaysAgo(3), teaId: -1, type: 'skip' },
+    { date: dateDaysAgo(3), teaId: 1, type: 'primary' },
+    { date: dateDaysAgo(2), teaId: -1, type: 'custom' }
+  ]);
+  assert.ok(recommend.getConsecutiveBlockedTeaIds(multiSessionHistory, 5)[1], 'skip, duplicate, and unknown custom entries must not override actual drinks on the same day');
+
+  var twoTeasPerDay = [];
+  [1, 2, 3, 4, 5].forEach(function(days) {
+    twoTeasPerDay.push({ date: dateDaysAgo(days), teaId: 1, type: 'primary' });
+    twoTeasPerDay.push({ date: dateDaysAgo(days), teaId: 5, type: 'custom' });
+  });
+  var multiTeaBlocked = recommend.getConsecutiveBlockedTeaIds(twoTeasPerDay, 5);
+  assert.ok(multiTeaBlocked[1] && multiTeaBlocked[5], 'multiple teas drunk per day must build independent streaks');
+
+  var streakWithGap = [1, 2, 4, 5, 6].map(function(days) {
+    return { date: dateDaysAgo(days), teaId: 1, type: 'primary' };
+  });
+  streakWithGap.push({ date: dateDaysAgo(3), teaId: 5, type: 'custom' });
+  assert.ok(!recommend.getConsecutiveBlockedTeaIds(streakWithGap, 5)[1], 'drinking another tea must reset this tea streak even if it was recommended');
+
+  var streakFiltered = recommend.filterEligible(library, {}, firstFiveDrinkingDays, 5);
+  assert.ok(streakFiltered.every(function(tea) { return tea.id !== 1; }), 'day-six block must apply to the shared AI/rule candidate pool');
 
   var coldConstitution = recommend.getIdealNature('春', null, [], '偏寒', 10, 0);
   var hotConstitution = recommend.getIdealNature('春', null, [], '偏热', 10, 0);
