@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>统计 · UI 原型</title>
+<link rel="stylesheet" href="/ui-prototype/styles/tokens.css"><link rel="stylesheet" href="/ui-prototype/styles/base.css"><link rel="stylesheet" href="/ui-prototype/styles/components.css"><link rel="stylesheet" href="/ui-prototype/styles/pages.css"></head>
+<body><main class="prototype-page statistics-page" data-page="statistics">
+  <section class="state-panel" data-state="empty" data-state-label="空数据">
+    <header class="row between stats-header" data-section="header"><div><h1 class="page-title">饮茶统计</h1><div class="page-subtitle">2026 年 7 月</div></div><a class="pill" href="/ui-prototype/pages/history.html">返回记录</a></header>
+    <article class="card empty" data-section="category-chart"><span class="empty-icon">📊</span>本月暂无饮茶记录</article>
+    <article class="card empty" data-section="frequency-chart" style="margin-top:14px"><span class="empty-icon">🍃</span>完成打卡后生成统计</article>
+  </section>
+  <section class="state-panel" data-state="populated" data-state-label="完整统计" hidden>
+    <header class="row between stats-header" data-section="header"><div><h1 class="page-title">饮茶统计</h1><div class="page-subtitle">2026 年 7 月</div></div><a class="pill" href="/ui-prototype/pages/history.html">返回记录</a></header>
+    <div class="section-stack">
+      <article class="card" data-section="category-chart"><div class="card-title">🥧 本月茶类分布</div><div class="donut"></div><div class="row between"><span><i class="tea-dot" style="display:inline-block;background:var(--coral)"></i> 绿茶</span><b>7次 · 38%</b></div><div class="row between"><span><i class="tea-dot" style="display:inline-block"></i> 白茶</span><b>5次 · 28%</b></div></article>
+      <article class="card" data-section="nature-chart"><div class="card-title">⚖️ 本月茶性分布</div><div class="bar-row"><span>凉</span><div class="bar-track"><div class="bar-fill" style="width:72%"></div></div><b>8</b></div><div class="bar-row"><span>平</span><div class="bar-track"><div class="bar-fill" style="width:50%;background:var(--sage)"></div></div><b>6</b></div><div class="bar-row"><span>温</span><div class="bar-track"><div class="bar-fill" style="width:30%;background:#d99a6a"></div></div><b>4</b></div></article>
+      <article class="card" data-section="top-five"><div class="card-title">🏆 最常喝的茶 Top 5</div><div class="bar-row"><b>1</b><span>蒙顶甘露</span><b>5次</b></div><div class="bar-row"><b>2</b><span>白牡丹</span><b>4次</b></div><div class="bar-row"><b>3</b><span>凤凰单丛</span><b>3次</b></div></article>
+      <article class="card" data-section="frequency-chart"><div class="card-title">📈 最近 30 天饮茶频率</div><div class="frequency"><i style="height:25%"></i><i style="height:70%"></i><i style="height:42%"></i><i style="height:88%"></i><i style="height:18%"></i><i style="height:58%"></i><i style="height:76%"></i><i style="height:34%"></i><i style="height:92%"></i><i style="height:52%"></i><i style="height:66%"></i><i style="height:38%"></i></div><div class="row between tiny"><span>06月27日</span><span>近30天</span><span>07月26日</span></div></article>
+    </div>
+  </section>
+</main><script src="/ui-prototype/scripts/prototype.js"></script></body></html>

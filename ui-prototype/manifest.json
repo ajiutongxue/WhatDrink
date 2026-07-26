@@ -1,0 +1,44 @@
+{
+  "version": 1,
+  "viewports": [
+    { "id": "compact", "label": "375 × 812", "width": 375, "height": 812 },
+    { "id": "regular", "label": "390 × 844", "width": 390, "height": 844 }
+  ],
+  "pages": [
+    {
+      "id": "recommendation",
+      "label": "推荐",
+      "prototype": "ui-prototype/pages/recommendation.html",
+      "miniProgram": "pages/index/index",
+      "states": ["initial", "input", "loading", "rule-result", "ai-result", "no-result", "checked-in", "tasting"]
+    },
+    {
+      "id": "history",
+      "label": "记录",
+      "prototype": "ui-prototype/pages/history.html",
+      "miniProgram": "pages/history/history",
+      "states": ["empty", "list", "expanded", "editing"]
+    },
+    {
+      "id": "tea-library",
+      "label": "茶库",
+      "prototype": "ui-prototype/pages/tea-library.html",
+      "miniProgram": "pages/teaLib/teaLib",
+      "states": ["browse", "filtered-empty", "manage", "form"]
+    },
+    {
+      "id": "settings",
+      "label": "设置",
+      "prototype": "ui-prototype/pages/settings.html",
+      "miniProgram": "pages/settings/settings",
+      "states": ["default", "quiz", "ai", "syncing", "diagnostics"]
+    },
+    {
+      "id": "statistics",
+      "label": "统计",
+      "prototype": "ui-prototype/pages/statistics.html",
+      "miniProgram": "pages/stats/stats",
+      "states": ["empty", "populated"]
+    }
+  ]
+}

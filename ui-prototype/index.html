@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>今天喝点什么茶 · UI 镜像原型</title>
+  <link rel="stylesheet" href="/ui-prototype/styles/tokens.css">
+  <link rel="stylesheet" href="/ui-prototype/styles/base.css">
+  <link rel="stylesheet" href="/ui-prototype/styles/pages.css">
+</head>
+<body class="prototype-hub">
+  <header class="hub-header">
+    <div class="page-subtitle">WHAT TO DRINK TODAY · DESIGN SOURCE</div>
+    <h1>UI 镜像原型</h1>
+    <p class="muted">切换页面、视觉状态和目标视口。这里不请求真实天气、云数据或 LLM。</p>
+    <div class="hub-controls">
+      <select id="hub-page" aria-label="页面"></select>
+      <select id="hub-state" aria-label="状态"></select>
+      <select id="hub-viewport" aria-label="视口"></select>
+      <select id="hub-phase" aria-label="时段"><option value="dawn">清晨</option><option value="day">白天</option><option value="dusk">黄昏</option><option value="night">夜晚</option></select>
+      <select id="hub-weather" aria-label="天气"><option value="sunny">晴</option><option value="cloudy">多云</option><option value="overcast">阴</option><option value="rain">雨</option><option value="thunder">雷</option><option value="snow">雪</option><option value="fog">雾</option></select>
+    </div>
+  </header>
+  <main class="device-stage">
+    <div class="device" style="width:375px;height:812px">
+      <iframe id="prototype-frame" title="小程序 UI 原型"></iframe>
+    </div>
+  </main>
+  <script src="/ui-prototype/scripts/prototype.js"></script>
+</body>
+</html>

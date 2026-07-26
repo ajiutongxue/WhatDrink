@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>茶库 · UI 原型</title>
+<link rel="stylesheet" href="/ui-prototype/styles/tokens.css"><link rel="stylesheet" href="/ui-prototype/styles/base.css"><link rel="stylesheet" href="/ui-prototype/styles/components.css"><link rel="stylesheet" href="/ui-prototype/styles/pages.css"></head>
+<body><main class="prototype-page library-page" data-page="tea-library">
+  <section class="state-panel" data-state="browse" data-state-label="分类浏览">
+    <header class="row between library-toolbar" data-section="toolbar"><div><h1 class="page-title">我的茶库</h1><div class="page-subtitle">共 89 款茶叶</div></div><div class="row"><button class="secondary-button">＋ 添加</button><button class="ghost-button">管理</button></div></header>
+    <div class="filter-row" data-section="filters"><span class="pill active">全部</span><span class="pill">绿茶</span><span class="pill">白茶</span><span class="pill">乌龙</span><span class="pill">红茶</span></div>
+    <div data-section="tea-list"><div class="group-title">绿茶 <span class="tiny">12款</span></div><article class="card"><div class="tea-row row"><i class="tea-dot"></i><b class="tea-name">蒙顶甘露</b><span class="tag sage">凉</span><span class="tiny">2025</span></div><div class="tea-row row"><i class="tea-dot"></i><b class="tea-name">西湖龙井</b><span class="tag sage">凉</span><span class="tiny">2024</span></div></article><div class="group-title">白茶 <span class="tiny">8款</span></div><article class="card"><div class="tea-row row"><i class="tea-dot" style="background:#bcc4bc"></i><b class="tea-name">白牡丹</b><span class="tag">平</span><span class="tiny">2023</span></div></article></div>
+  </section>
+  <section class="state-panel" data-state="filtered-empty" data-state-label="筛选为空" hidden>
+    <header class="row between library-toolbar" data-section="toolbar"><div><h1 class="page-title">我的茶库</h1><div class="page-subtitle">筛选结果</div></div><button class="secondary-button">＋ 添加</button></header>
+    <div class="filter-row" data-section="filters"><span class="pill">全部</span><span class="pill active">黄茶</span><span class="pill">黑茶</span></div>
+    <article class="card empty" data-section="tea-list"><span class="empty-icon">🌿</span>该分类下暂无茶叶<br><button class="ghost-button" style="margin-top:10px">清除筛选</button></article>
+  </section>
+  <section class="state-panel" data-state="manage" data-state-label="管理模式" hidden>
+    <header class="row between library-toolbar" data-section="toolbar"><div><h1 class="page-title">管理茶库</h1><div class="page-subtitle">排序、停用或编辑</div></div><button class="primary-button">完成</button></header>
+    <article class="card" data-section="tea-list">
+      <div class="manage-row row"><i class="tea-dot"></i><div class="tea-name"><b>蒙顶甘露</b><div class="tiny">绿茶 · 凉 · 2025</div></div><div class="manage-actions"><button>↑</button><button>↓</button><button>编</button><button>停</button></div></div>
+      <div class="manage-row row"><i class="tea-dot" style="background:#bcc4bc"></i><div class="tea-name"><b>白牡丹</b><div class="tiny">白茶 · 平 · 2023</div></div><div class="manage-actions"><button>↑</button><button>↓</button><button>编</button><button>停</button></div></div>
+      <div class="manage-row row" style="opacity:.48"><i class="tea-dot"></i><div class="tea-name"><b>陈年六堡</b><div class="tiny">已停用</div></div><div class="manage-actions"><button>↑</button><button>↓</button><button>编</button><button>启</button></div></div>
+    </article>
+  </section>
+  <section class="state-panel" data-state="form" data-state-label="新增/编辑弹层" hidden>
+    <header data-section="toolbar"><h1 class="page-title">我的茶库</h1><div class="page-subtitle">共 89 款茶叶</div></header>
+    <article class="card empty" data-section="tea-list"><span class="empty-icon">🍵</span>茶库内容位于弹层下方</article>
+    <div class="modal-mask" data-section="tea-form"><form class="modal-sheet"><h2 style="margin-top:0">添加茶叶</h2><label class="field-label">茶名 *</label><input class="field" value="蒙顶雪芽"><label class="field-label">品牌</label><input class="field" placeholder="选填"><label class="field-label">茶类</label><div class="field row between">绿茶 <span>⌄</span></div><div class="row"><div style="flex:1"><label class="field-label">年份</label><input class="field" value="2025"></div><div style="flex:1"><label class="field-label">茶性</label><div class="field">凉</div></div></div><label class="field-label">备注</label><input class="field" placeholder="选填"><div class="row" style="margin-top:18px"><button type="button" class="ghost-button" style="flex:1">取消</button><button type="button" class="primary-button" style="flex:1">保存</button></div></form></div>
+  </section>
+  <nav class="tabbar" data-section="tabbar"><a href="/ui-prototype/pages/recommendation.html"><img src="/images/tab-rec.png" alt="">推荐</a><a href="/ui-prototype/pages/history.html"><img src="/images/tab-history.png" alt="">记录</a><a class="active" href="/ui-prototype/pages/tea-library.html"><img src="/images/tab-lib-active.png" alt="">茶库</a><a href="/ui-prototype/pages/settings.html"><img src="/images/tab-settings.png" alt="">设置</a></nav>
+</main><script src="/ui-prototype/scripts/prototype.js"></script></body></html>

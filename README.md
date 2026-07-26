@@ -78,9 +78,20 @@ npm run verify
 
 - `npm test`：运行全部 `tests/*.test.js`。
 - `npm run check`：检查 JavaScript 语法、JSON、页面文件、TabBar 资源、WXML 事件处理器及云函数配置。
-- `npm run verify`：依次运行静态检查和测试。
+- `npm run verify`：依次运行项目静态检查、UI 原型结构检查和全部测试。
 
 这些命令不能替代微信开发者工具编译和真机测试。
+
+## UI 设计迭代
+
+项目包含一套与五个小程序页面及关键状态对应的静态 HTML 镜像原型：
+
+```powershell
+npm run ui:preview
+npm run ui:check
+```
+
+浏览器原型是视觉设计源，不请求真实天气、云数据或 LLM；业务行为仍以小程序和 `SPEC.md` 为准。页面映射、状态矩阵和双端校准流程见 [HTML UI 镜像原型行动计划](./docs/ui-prototype-plan.md)，具体运行方式见 [原型说明](./ui-prototype/README.md)。
 
 ## 同步语义
 
@@ -104,6 +115,8 @@ utils/           数据、解析、推荐、天气、LLM、节气等模块
 images/          TabBar 与动态场景资源
 scripts/         工程静态检查与组合验证
  tests/          无第三方依赖回归测试
+ui-prototype/    五页 HTML UI 镜像原型
+docs/            实施计划与后续规划
 SPEC.md          产品行为和实现契约
 ```
 

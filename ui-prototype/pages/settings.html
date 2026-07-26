@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>设置 · UI 原型</title>
+<link rel="stylesheet" href="/ui-prototype/styles/tokens.css"><link rel="stylesheet" href="/ui-prototype/styles/base.css"><link rel="stylesheet" href="/ui-prototype/styles/components.css"><link rel="stylesheet" href="/ui-prototype/styles/pages.css"></head>
+<body><main class="prototype-page settings-page" data-page="settings">
+  <section class="state-panel" data-state="default" data-state-label="默认">
+    <header data-section="header" style="margin-bottom:17px"><h1 class="page-title">设置</h1><div class="page-subtitle">个人档案与推荐偏好</div></header>
+    <article class="card" data-section="profile"><div class="card-title">👤 个人档案</div><div class="row"><div style="flex:1"><label class="field-label">年龄</label><input class="field" value="32"></div><div style="flex:1"><label class="field-label">常驻城市</label><input class="field" value="成都"></div></div><button class="primary-button" style="width:100%;margin-top:14px">保存</button></article>
+    <article class="card" data-section="constitution"><div class="row between"><div><div class="card-title">🏥 体质辨识</div><b>平和体质</b></div><span class="pill">重新测试</span></div></article>
+    <article class="card" data-section="ai"><div class="card-title">🧠 AI 配置</div><div class="row between"><span>智能解析</span><i class="switch on"></i></div><div class="row between" style="margin-top:13px"><span>深度推荐</span><i class="switch on"></i></div></article>
+    <article class="card" data-section="data"><div class="card-title">💾 数据管理</div><div class="row between"><div><b>云同步</b><div class="tiny">今天 10:31 已同步</div></div><button class="ghost-button">立即同步</button></div></article>
+  </section>
+  <section class="state-panel" data-state="quiz" data-state-label="体质测试" hidden>
+    <header data-section="header" style="margin-bottom:17px"><h1 class="page-title">设置</h1><div class="page-subtitle">体质辨识</div></header>
+    <article class="card" data-section="constitution"><div class="card-title">🏥 5 道题 · 第 3 题</div><h3>平时容易出汗吗？</h3><div class="quiz-options"><span class="pill">很少</span><span class="pill selected">正常</span><span class="pill">容易</span></div><div class="row between" style="margin-top:22px"><span class="tiny">3 / 5</span><button class="primary-button">下一题</button></div></article>
+  </section>
+  <section class="state-panel" data-state="ai" data-state-label="AI 开关状态" hidden>
+    <header data-section="header" style="margin-bottom:17px"><h1 class="page-title">设置</h1><div class="page-subtitle">AI 配置</div></header>
+    <article class="card" data-section="ai"><div class="card-title">🧠 AI 配置</div><p class="muted">原型仅展示控件，不会发送请求。</p><label class="field-label">API Key</label><input class="field" value="••••••••••••" disabled><label class="field-label">API 端点</label><input class="field" value="https://example.invalid/v1" disabled><div class="row between" style="margin-top:16px"><span>智能解析</span><i class="switch on"></i></div><label class="field-label">解析模型</label><input class="field" value="demo-parser" disabled><div class="row between" style="margin-top:16px"><span>深度推荐</span><i class="switch"></i></div><button class="primary-button" style="width:100%;margin-top:16px">保存</button></article>
+  </section>
+  <section class="state-panel" data-state="syncing" data-state-label="同步中" hidden>
+    <header data-section="header" style="margin-bottom:17px"><h1 class="page-title">设置</h1><div class="page-subtitle">数据管理</div></header>
+    <article class="card" data-section="data"><div class="card-title">💾 数据管理</div><div class="row between"><div><b>云同步</b><div class="tiny">正在合并本地与云端数据…</div></div><button class="ghost-button" disabled>同步中…</button></div><div class="skeleton" style="height:8px;margin-top:18px"></div></article>
+  </section>
+  <section class="state-panel" data-state="diagnostics" data-state-label="诊断展开" hidden>
+    <header data-section="header" style="margin-bottom:17px"><h1 class="page-title">设置</h1><div class="page-subtitle">运行诊断</div></header>
+    <article class="card" data-section="diagnostics"><div class="card-title">🩺 运行诊断 <span class="tiny">3 条记录</span></div><p class="muted">最近一次推荐流程的关键节点。</p><div class="diagnostic"><b>10:28:16 · recommend_start</b><br><span class="muted">候选 24 款</span></div><div class="diagnostic"><b>10:28:17 · parser_success</b><br><span class="muted">842ms</span></div><div class="diagnostic"><b>10:28:20 · recommendation_success</b><br><span class="muted">AI · 2874ms</span></div><div class="row" style="margin-top:14px"><button class="ghost-button">刷新</button><button class="ghost-button">清空日志</button></div></article>
+  </section>
+  <nav class="tabbar" data-section="tabbar"><a href="/ui-prototype/pages/recommendation.html"><img src="/images/tab-rec.png" alt="">推荐</a><a href="/ui-prototype/pages/history.html"><img src="/images/tab-history.png" alt="">记录</a><a href="/ui-prototype/pages/tea-library.html"><img src="/images/tab-lib.png" alt="">茶库</a><a class="active" href="/ui-prototype/pages/settings.html"><img src="/images/tab-settings-active.png" alt="">设置</a></nav>
+</main><script src="/ui-prototype/scripts/prototype.js"></script></body></html>

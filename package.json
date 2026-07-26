@@ -6,6 +6,8 @@
   "scripts": {
     "check": "node scripts/check-project.js",
     "test": "node tests/run.js",
+    "ui:check": "node scripts/check-ui-prototype.js",
+    "ui:preview": "node scripts/serve-ui-prototype.js",
     "verify": "node scripts/verify.js"
   },
   "engines": {

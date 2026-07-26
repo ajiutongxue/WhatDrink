@@ -1,0 +1,37 @@
+:root {
+  --cream: #fbf3e7;
+  --cream-2: #f6eadb;
+  --blush: #f5dcc9;
+  --blush-soft: #faeadd;
+  --coral: #de8260;
+  --coral-deep: #c96b4c;
+  --coral-soft: rgba(222, 130, 96, 0.14);
+  --sage: #8fae87;
+  --sage-deep: #6f9468;
+  --sage-soft: #dde9d6;
+  --lavender: #b4a8c8;
+  --cocoa: #3e2f2b;
+  --ink: #4a3a33;
+  --ink-2: #75625a;
+  --ink-3: #a08d83;
+  --ink-4: #c9b8ad;
+  --card: rgba(255, 252, 246, 0.82);
+  --card-border: rgba(222, 130, 96, 0.16);
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-pill: 999px;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --shadow-card: 0 8px 24px rgba(150, 110, 90, 0.08);
+  --font-serif: "Noto Serif SC", "Songti SC", "STSongti-SC", "SimSun", serif;
+  --font-sans: Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --motion-fast: 160ms;
+  --motion-base: 280ms;
+  --safe-bottom: 18px;
+}

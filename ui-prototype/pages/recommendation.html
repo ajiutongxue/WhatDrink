@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>推荐 · UI 原型</title>
+  <link rel="stylesheet" href="/ui-prototype/styles/tokens.css">
+  <link rel="stylesheet" href="/ui-prototype/styles/base.css">
+  <link rel="stylesheet" href="/ui-prototype/styles/components.css">
+  <link rel="stylesheet" href="/ui-prototype/styles/pages.css">
+</head>
+<body>
+<main class="prototype-page recommendation-page" data-page="recommendation">
+  <div class="scene-container scene-ready phase-day" aria-hidden="true">
+    <img class="scene-base" src="/images/base-day.svg" alt="">
+    <img class="scene-overlay anim-clouds" src="/images/overlay-clouds-a.svg" alt="">
+    <div class="scene-tint tint-day"></div>
+  </div>
+
+  <section class="state-panel" data-state="initial" data-state-label="初始">
+    <header class="hero" data-section="weather">
+      <div class="hero-date">七月廿六 · 成都</div><div class="hero-term">大暑</div>
+      <div class="weather"><b>29°</b><span>多云</span><span>·</span><span>暑热正盛</span></div>
+    </header>
+    <div class="input-zone" data-section="input" aria-label="点击输入今日状态"></div>
+    <div class="btn-rec-wrap" data-section="recommend-action"><button class="btn-rec">看看今天喝什么</button></div>
+  </section>
+
+  <section class="state-panel" data-state="input" data-state-label="输入展开" hidden>
+    <header class="hero" data-section="weather"><div class="hero-date">七月廿六 · 成都</div><div class="hero-term">大暑</div></header>
+    <div class="input-zone" data-section="input">
+      <textarea class="field" aria-label="今日状态">昨晚睡得有点晚，今天想喝清爽一点的。</textarea>
+      <div class="row" style="margin-top:9px"><span class="tag coral">有点困</span><span class="tag sage">想清爽</span><span class="tag">成都</span></div>
+    </div>
+    <div class="btn-rec-wrap" data-section="recommend-action"><button class="btn-rec">生成今日推荐</button></div>
+  </section>
+
+  <section class="state-panel" data-state="loading" data-state-label="加载中" hidden>
+    <header class="hero" data-section="weather"><div class="hero-date">正在结合天气与近期记录</div><div class="hero-term">寻茶</div></header>
+    <article class="card recommendation-card" data-section="recommendation">
+      <div class="skeleton" style="height:14px;width:70px"></div>
+      <div class="skeleton" style="height:34px;width:58%;margin:18px 0"></div>
+      <div class="skeleton" style="height:84px"></div>
+    </article>
+    <p class="muted" style="text-align:center">正在从你的茶库中挑选合适的一杯…</p>
+  </section>
+
+  <section class="state-panel" data-state="rule-result" data-state-label="规则推荐" hidden>
+    <header class="hero" data-section="weather"><div class="hero-date">七月廿六 · 成都</div><div class="hero-term">大暑</div><div class="weather"><b>29°</b><span>多云</span></div></header>
+    <article class="card recommendation-card" data-section="recommendation">
+      <span class="tag sage">本地算法推荐</span><h1 class="recommendation-name">蒙顶甘露</h1><div class="muted">川茶 · 2025</div>
+      <div class="row" style="margin-top:12px"><span class="tag">绿茶</span><span class="tag sage">凉</span><span class="tag">低咖啡因</span></div>
+      <p class="recommendation-reason">天气闷热，今天适合一杯清鲜、负担较轻的绿茶。</p>
+      <div class="brew">85℃ · 90秒 · 4克</div>
+    </article>
+    <article class="card" data-section="alternate" style="margin-top:14px"><div class="tiny">换个方向</div><b>白牡丹</b><span class="muted"> · 福鼎白茶</span></article>
+    <div class="card" data-section="checkin" style="margin-top:14px"><div class="card-title">今天实际喝了什么？</div><div class="checkin-grid"><button class="primary-button">蒙顶甘露</button><button class="secondary-button">白牡丹</button><button class="ghost-button">喝的别的</button><button class="ghost-button">没喝</button></div></div>
+  </section>
+
+  <section class="state-panel" data-state="ai-result" data-state-label="AI 推荐" hidden>
+    <header class="hero" data-section="weather"><div class="hero-date">七月廿六 · 成都</div><div class="hero-term">大暑</div></header>
+    <article class="card recommendation-card" data-section="recommendation">
+      <span class="tag coral">AI 推荐</span><h1 class="recommendation-name">蒙顶甘露</h1><div class="muted">川茶 · 春茶</div>
+      <p class="recommendation-reason">你昨晚休息偏晚，又想要清爽感。蒙顶甘露的嫩香与轻盈鲜甜，既回应盛夏天气，也不会让今天的味觉过于沉重。</p>
+      <div class="brew">水温 85℃ · 第一泡 60–90 秒</div>
+    </article>
+    <article class="card" data-section="alternate" style="margin-top:14px"><div class="tiny">备选 · 更柔和</div><b>白牡丹</b><p class="muted">甜润一些，适合慢慢喝。</p></article>
+  </section>
+
+  <section class="state-panel" data-state="no-result" data-state-label="无结果" hidden>
+    <header class="hero" data-section="weather"><div class="hero-date">七月廿六 · 成都</div><div class="hero-term">大暑</div></header>
+    <article class="card empty" data-section="recommendation"><span class="empty-icon">🍃</span><b>今天没有合适的候选</b><p>可以放宽回避条件，或去茶库启用更多茶叶。</p><button class="secondary-button">重新输入</button></article>
+  </section>
+
+  <section class="state-panel" data-state="checked-in" data-state-label="已打卡" hidden>
+    <header class="hero" data-section="weather"><div class="hero-date">今日已记录</div><div class="hero-term">甘露</div></header>
+    <article class="card" data-section="checkin"><span class="tag sage">已打卡</span><h2>蒙顶甘露</h2><p class="muted">今天 10:28 · 主推</p><button class="ghost-button">写几句品饮感受</button></article>
+  </section>
+
+  <section class="state-panel" data-state="tasting" data-state-label="品饮记录" hidden>
+    <header class="hero" data-section="weather"><div class="hero-date">今日已记录</div><div class="hero-term">甘露</div></header>
+    <article class="card" data-section="tasting">
+      <div class="card-title">品饮感受</div><textarea class="field" rows="5">清甜，有嫩栗香，第二泡更柔和。</textarea>
+      <div class="thumbs"><div class="thumb"></div><div class="thumb" style="background:linear-gradient(135deg,#f6d9af,#96b59b)"></div></div>
+      <div class="row between" style="margin-top:13px"><span class="tiny">18 / 500</span><button class="primary-button">保存</button></div>
+    </article>
+  </section>
+
+  <nav class="tabbar" data-section="tabbar">
+    <a class="active" href="/ui-prototype/pages/recommendation.html"><img src="/images/tab-rec-active.png" alt="">推荐</a>
+    <a href="/ui-prototype/pages/history.html"><img src="/images/tab-history.png" alt="">记录</a>
+    <a href="/ui-prototype/pages/tea-library.html"><img src="/images/tab-lib.png" alt="">茶库</a>
+    <a href="/ui-prototype/pages/settings.html"><img src="/images/tab-settings.png" alt="">设置</a>
+  </nav>
+</main>
+<script src="/ui-prototype/scripts/fixtures.js"></script><script src="/ui-prototype/scripts/prototype.js"></script>
+</body></html>
