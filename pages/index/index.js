@@ -401,7 +401,7 @@ Page({
       var constitution = (appData.profile && appData.profile.constitution) || null;
 
       // 硬过滤候选池（含连续推荐上限，规则与 AI 共用）
-      var eligibleTeas = recommend.filterEligible(teaLib, parsed, history, avoidDays);
+      var eligibleTeas = recommend.filterEligible(teaLib, parsed, history, avoidDays, appData.temporaryAvoids);
       if (!eligibleTeas || eligibleTeas.length === 0) {
         tracker.track('rec_empty', { stage: 'filter', ms: Date.now() - (self._recT0 || Date.now()) });
         self.setData({ loading: false, noResult: true, btnText: '今天喝点什么茶' });
@@ -421,7 +421,7 @@ Page({
         }
         self._callLLM(eligibleTeas, parsed, appData, history, constitution, avoidDays);
       } else {
-        var result = recommend.recommend(teaLib, parsed, self._weatherData, history, avoidDays, constitution);
+        var result = recommend.recommend(teaLib, parsed, self._weatherData, history, avoidDays, constitution, appData.temporaryAvoids, appData.llm && appData.llm.noteAnalysisEnabled);
         if (!result.primary) {
           tracker.track('rec_empty', { stage: 'score', ms: Date.now() - (self._recT0 || Date.now()) });
           self.setData({ loading: false, noResult: true, btnText: '今天喝点什么茶' });
@@ -463,6 +463,7 @@ Page({
       avoidCats: (parsed && parsed.avoidCats) || [],
       preferCats: (parsed && parsed.preferCats) || [],
       mood: parsed && parsed.mood,
+      preferenceSummary: recommend.buildPreferenceContext(history, teaLib, appData.llm && appData.llm.noteAnalysisEnabled !== false).summary,
       profile: appData.profile
     };
 
@@ -484,7 +485,7 @@ Page({
   },
 
   _fallbackRule: function (parsed, appData, history, constitution, avoidDays) {
-    var result = recommend.recommend(appData.teaLibrary || teaData.TEAS, parsed, this._weatherData, history, avoidDays, constitution);
+    var result = recommend.recommend(appData.teaLibrary || teaData.TEAS, parsed, this._weatherData, history, avoidDays, constitution, appData.temporaryAvoids, appData.llm && appData.llm.noteAnalysisEnabled);
     if (result.primary) {
       this._showRuleResult(result, parsed);
     } else {
@@ -938,7 +939,10 @@ Page({
   },
   onSkipToday: function () {
     var appData = this._appData || data.load();
+    var createdAt = Date.now();
     appData.history.push({
+      id: 'h_' + createdAt + '_' + Math.random().toString(36).slice(2, 8),
+      updatedAt: createdAt,
       date: this._today(), teaId: -1, teaName: '今天没喝茶',
       teaCat: 'none', teaBrand: '', type: 'skip'
     });
@@ -958,7 +962,10 @@ Page({
       if (lib[i].id === teaId) { tea = lib[i]; break; }
     }
     var now = new Date();
+    var createdAt = Date.now();
     appData.history.push({
+      id: 'h_' + createdAt + '_' + Math.random().toString(36).slice(2, 8),
+      updatedAt: createdAt,
       date: this._today(),
       teaId: tea ? tea.id : teaId,
       teaName: tea ? tea.name : teaName,
@@ -1105,10 +1112,25 @@ Page({
     }
     var appData = this._appData || data.load();
     var idx = this._lastCheckinIdx;
+    var analyze = false;
+    var sourceUpdatedAt = 0;
+    var entryId = '';
     if (idx !== undefined && idx >= 0 && idx < appData.history.length) {
-      appData.history[idx].tastingNotes = text;
-      appData.history[idx].imageFileIDs = imgs.slice();
+      var entry = appData.history[idx];
+      var previousText = entry.tastingNotes || '';
+      var now = Date.now();
+      entry.tastingNotes = text;
+      entry.imageFileIDs = imgs.slice();
+      entry.updatedAt = now;
+      entryId = entry.id || '';
+      if (text !== previousText) {
+        entry.notesUpdatedAt = now;
+        sourceUpdatedAt = now;
+        delete entry.noteAnalysis;
+        analyze = !!text && appData.llm && appData.llm.noteAnalysisEnabled !== false;
+      }
       data.save(appData);
+      tracker.track('tasting_note_saved', { source: 'home', chars: text.length, images: imgs.length, analysisRequested: analyze });
       this._appData = appData;
     }
     this.setData({
@@ -1117,6 +1139,30 @@ Page({
       tastingSavedText: text
     });
     wx.showToast({ title: '感受已保存', icon: 'success', duration: 1500 });
+    if (analyze) this._analyzeSavedNote(entryId, idx, sourceUpdatedAt);
+  },
+
+  _analyzeSavedNote: function (entryId, originalIdx, sourceUpdatedAt) {
+    var appData = this._appData || data.load();
+    var entry = appData.history[originalIdx];
+    if (!entry || Number(entry.notesUpdatedAt) !== Number(sourceUpdatedAt)) return;
+    var tea = null;
+    var library = appData.teaLibrary || teaData.TEAS;
+    for (var i = 0; i < library.length; i++) if (library[i] && library[i].id === entry.teaId) { tea = library[i]; break; }
+    var self = this;
+    llm.analyzeTastingNote(entry.tastingNotes, tea, { sourceUpdatedAt: sourceUpdatedAt }, appData.llm).then(function(analysis) {
+      if (!analysis) return;
+      var latest = data.load();
+      var target = null;
+      if (entryId) {
+        for (var j = 0; j < latest.history.length; j++) if (latest.history[j].id === entryId) { target = latest.history[j]; break; }
+      } else target = latest.history[originalIdx];
+      if (!target || Number(target.notesUpdatedAt) !== Number(sourceUpdatedAt)) return;
+      target.noteAnalysis = analysis;
+      target.updatedAt = Date.now();
+      data.save(latest);
+      self._appData = latest;
+    });
   },
 
   _today: function () {

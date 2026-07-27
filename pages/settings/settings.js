@@ -225,6 +225,10 @@ Page({
     this.setData({ parserEnabled: e.detail.value });
   },
 
+  onNoteAnalysisToggle: function (e) {
+    this.setData({ noteAnalysisEnabled: e.detail.value });
+  },
+
   onParserModelInput: function (e) {
     this.setData({ parserModel: e.detail.value });
   },

@@ -4,7 +4,7 @@
  * Uses openid from WeChat context to identify users.
  *
  * Merge strategy:
- * - history: union by date+teaId+type, local wins for same key (newer tastingNotes)
+ * - history: stable IDs preserve separate sessions; per-entry updatedAt is last-write-wins; legacy entries use date+teaId+type
  * - profile: whole-object last-write-wins using profileUpdatedAt
  * - settings: whole-object last-write-wins using settingsUpdatedAt
  * - llm: field-level merge, incoming (local) preferred for non-empty strings and booleans
@@ -52,6 +52,7 @@ exports.main = async function(event, context) {
         profile: incomingData.profile || {},
         profileUpdatedAt: validTimestamp(incomingData.profileUpdatedAt),
         history: Array.isArray(incomingData.history) ? incomingData.history : [],
+        temporaryAvoids: incomingData.temporaryAvoids && typeof incomingData.temporaryAvoids === 'object' ? incomingData.temporaryAvoids : {},
         settings: incomingData.settings || {},
         settingsUpdatedAt: validTimestamp(incomingData.settingsUpdatedAt),
         llm: incomingData.llm || {},
@@ -71,6 +72,7 @@ exports.main = async function(event, context) {
       profile: cloudDoc.profile || {},
       profileUpdatedAt: validTimestamp(cloudDoc.profileUpdatedAt),
       history: Array.isArray(cloudDoc.history) ? cloudDoc.history : [],
+      temporaryAvoids: cloudDoc.temporaryAvoids && typeof cloudDoc.temporaryAvoids === 'object' ? cloudDoc.temporaryAvoids : {},
       settings: cloudDoc.settings || {},
       settingsUpdatedAt: validTimestamp(cloudDoc.settingsUpdatedAt),
       llm: cloudDoc.llm || {},
@@ -86,6 +88,7 @@ exports.main = async function(event, context) {
         profile: merged.profile,
         profileUpdatedAt: merged.profileUpdatedAt,
         history: merged.history,
+        temporaryAvoids: merged.temporaryAvoids,
         settings: merged.settings,
         settingsUpdatedAt: merged.settingsUpdatedAt,
         llm: merged.llm,
@@ -106,7 +109,8 @@ exports.main = async function(event, context) {
  * Merge cloud data with incoming local data.
  *
  * Strategy:
- * - history: union deduplicated by date+teaId+type
+ * - history: stable ID union with per-entry updatedAt; legacy entries fall back to date+teaId+type
+ * - temporaryAvoids: per-tea last-write-wins, including inactive cancellation tombstones
  * - profile/settings: select the newer complete snapshot
  * - llm: prefer incoming (local) if present
  * - teaLibrary: select the newer ordered snapshot
@@ -116,42 +120,8 @@ exports.main = async function(event, context) {
  * @returns {Object} Merged data
  */
 function mergeData(cloud, local) {
-  // History: union by date+teaId+type, local wins for same key
-  // (local may carry newer tastingNotes just edited by user)
-  var historyMap = new Map();
-
-  var cloudHistory = (cloud && Array.isArray(cloud.history)) ? cloud.history : [];
-  var localHistory = (local && Array.isArray(local.history)) ? local.history : [];
-
-  cloudHistory.forEach(function(h) {
-    if (h && h.date) {
-      var key = h.date + '_' + (h.teaId || 0) + '_' + (h.type || 'unknown');
-      historyMap.set(key, h);
-    }
-  });
-  localHistory.forEach(function(h) {
-    if (h && h.date) {
-      var key = h.date + '_' + (h.teaId || 0) + '_' + (h.type || 'unknown');
-      var existing = historyMap.get(key);
-      if (existing) {
-        // Keep cloud tastingNotes if local doesn't have one
-        if (!h.tastingNotes && existing.tastingNotes) {
-          h.tastingNotes = existing.tastingNotes;
-        }
-        // Keep cloud imageFileIDs if local doesn't have any
-        if ((!h.imageFileIDs || h.imageFileIDs.length === 0) && existing.imageFileIDs && existing.imageFileIDs.length > 0) {
-          h.imageFileIDs = existing.imageFileIDs;
-        }
-      }
-      historyMap.set(key, h);
-    }
-  });
-
-  var mergedHistory = [];
-  historyMap.forEach(function(val) { mergedHistory.push(val); });
-  mergedHistory.sort(function(a, b) {
-    return (b.date || '').localeCompare(a.date || '');
-  });
+  var mergedHistory = mergeHistory(cloud.history, local.history);
+  var mergedTemporaryAvoids = mergeTemporaryAvoids(cloud.temporaryAvoids, local.temporaryAvoids);
 
   var profileVersion = mergeVersionedObject(
     cloud.profile,
@@ -174,6 +144,7 @@ function mergeData(cloud, local) {
 
   return {
     history: mergedHistory,
+    temporaryAvoids: mergedTemporaryAvoids,
     profile: profileVersion.value,
     profileUpdatedAt: profileVersion.updatedAt,
     settings: settingsVersion.value,
@@ -182,6 +153,55 @@ function mergeData(cloud, local) {
     teaLibrary: libraryVersion.library,
     teaLibraryUpdatedAt: libraryVersion.updatedAt
   };
+}
+
+function historyKey(h) {
+  if (h && h.id) return 'id_' + h.id;
+  return 'legacy_' + ((h && h.date) || '') + '_' + ((h && h.teaId) || 0) + '_' + ((h && h.type) || 'unknown');
+}
+
+function mergeHistory(cloudHistory, localHistory) {
+  var map = new Map();
+  (Array.isArray(cloudHistory) ? cloudHistory : []).forEach(function(h) {
+    if (h && h.date) map.set(historyKey(h), h);
+  });
+  (Array.isArray(localHistory) ? localHistory : []).forEach(function(h) {
+    if (!h || !h.date) return;
+    var key = historyKey(h);
+    var existing = map.get(key);
+    if (!existing) { map.set(key, h); return; }
+    var cloudTs = validTimestamp(existing.updatedAt);
+    var localTs = validTimestamp(h.updatedAt);
+    if (cloudTs || localTs) {
+      map.set(key, localTs >= cloudTs ? h : existing);
+      return;
+    }
+    if (!h.tastingNotes && existing.tastingNotes) h.tastingNotes = existing.tastingNotes;
+    if ((!h.imageFileIDs || h.imageFileIDs.length === 0) && existing.imageFileIDs && existing.imageFileIDs.length > 0) {
+      h.imageFileIDs = existing.imageFileIDs;
+    }
+    map.set(key, h);
+  });
+  var merged = [];
+  map.forEach(function(value) { merged.push(value); });
+  return merged.sort(function(a, b) {
+    var dateCmp = (b.date || '').localeCompare(a.date || '');
+    if (dateCmp) return dateCmp;
+    return validTimestamp(b.updatedAt) - validTimestamp(a.updatedAt);
+  });
+}
+
+function mergeTemporaryAvoids(cloud, local) {
+  var result = {};
+  var c = cloud && typeof cloud === 'object' ? cloud : {};
+  var l = local && typeof local === 'object' ? local : {};
+  Object.keys(c).forEach(function(key) { result[key] = c[key]; });
+  Object.keys(l).forEach(function(key) {
+    var cv = result[key] || {};
+    var lv = l[key] || {};
+    if (validTimestamp(lv.updatedAt) >= validTimestamp(cv.updatedAt)) result[key] = lv;
+  });
+  return result;
 }
 
 function mergeVersionedObject(cloud, cloudUpdatedAt, local, localUpdatedAt) {
@@ -217,6 +237,9 @@ function mergeLLM(cloud, local) {
   result.parserEnabled = (typeof local.parserEnabled === 'boolean')
     ? local.parserEnabled
     : ((typeof cloud.parserEnabled === 'boolean') ? cloud.parserEnabled : false);
+  result.noteAnalysisEnabled = (typeof local.noteAnalysisEnabled === 'boolean')
+    ? local.noteAnalysisEnabled
+    : ((typeof cloud.noteAnalysisEnabled === 'boolean') ? cloud.noteAnalysisEnabled : true);
   return result;
 }
 
@@ -250,6 +273,8 @@ function validTimestamp(value) {
 // Exposed for the repository's dependency-free Node regression test.
 exports._test = {
   mergeData: mergeData,
+  mergeHistory: mergeHistory,
+  mergeTemporaryAvoids: mergeTemporaryAvoids,
   mergeVersionedObject: mergeVersionedObject,
   mergeTeaLibrary: mergeTeaLibrary
 };

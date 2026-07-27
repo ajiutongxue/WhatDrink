@@ -103,16 +103,17 @@ function getIdealNature(season, weather, states, constitution, hour, todayNature
  * Filter tea library: remove disabled / today-drunk / avoidCats / quality concern.
  * Returns Tea[] without scoring or sorting.
  */
-function filterEligible(teaLibrary, parsed, history, avoidDays) {
+function filterEligible(teaLibrary, parsed, history, avoidDays, temporaryAvoids) {
   var safeParsed = parsed || {};
   var safeAvoidCats = Array.isArray(safeParsed.avoidCats) ? safeParsed.avoidCats : [];
   var safeHistory = Array.isArray(history) ? history : [];
   var today = _formatDate(new Date());
   var consecutiveBlocked = _getConsecutiveBlockedTeaIds(safeHistory, avoidDays);
+  var temporarilyBlocked = _getActiveTemporaryAvoidTeaIds(temporaryAvoids);
 
   var todayTeaIds = {};
   for (var i = 0; i < safeHistory.length; i++) {
-    if (safeHistory[i].date === today && safeHistory[i].teaId >= 0) {
+    if (safeHistory[i].date === today && safeHistory[i].type !== 'skip' && safeHistory[i].teaId >= 0) {
       todayTeaIds[safeHistory[i].teaId] = true;
     }
   }
@@ -123,6 +124,7 @@ function filterEligible(teaLibrary, parsed, history, avoidDays) {
     if (!tea || !tea.name) continue;
     if (tea.disabled) continue;
     if (consecutiveBlocked[tea.id]) continue;
+    if (temporarilyBlocked[tea.id]) continue;
     if (todayTeaIds[tea.id]) continue;
     if (safeAvoidCats.indexOf(tea.cat) >= 0) continue;
     if (tea.note && tea.note.indexOf('疑似假货') >= 0) continue;
@@ -144,7 +146,7 @@ function filterEligible(teaLibrary, parsed, history, avoidDays) {
  * @param {string|null} constitution
  * @returns {Object} { primary, alt, candidates, filteredCount }
  */
-function recommend(teaLibrary, parsed, weather, history, avoidDays, constitution) {
+function recommend(teaLibrary, parsed, weather, history, avoidDays, constitution, temporaryAvoids, noteAnalysisEnabled) {
   if (!teaLibrary || !teaLibrary.length) {
     return { primary: null, alt: null, candidates: [], filteredCount: 0 };
   }
@@ -165,13 +167,12 @@ function recommend(teaLibrary, parsed, weather, history, avoidDays, constitution
   var todayNatureShift = _getTodayNatureShift(safeHistory, teaLibrary);
   var idealNature = getIdealNature(season, weather, safeStates, constitution, hour, todayNatureShift);
 
-  // Consumption recency still influences score, while consecutive drinking
-  // uses a separate hard limit based on completed calendar days.
-  var recentStats = _getRecentTeaStats(safeHistory, 5);
+  // Today and the consecutive-day ceiling remain hard filters. Recent drinking
+  // contributes positive, decaying preference momentum instead of a repetition penalty.
+  var recentStats = _getTodayTeaStats(safeHistory);
   var consecutiveBlocked = _getConsecutiveBlockedTeaIds(safeHistory, safeAvoidDays);
-
-  // Category frequency (last 3 days) for rotation
-  var catFreq = _getCatFrequency(safeHistory, 3);
+  var temporarilyBlocked = _getActiveTemporaryAvoidTeaIds(temporaryAvoids);
+  var preference = buildPreferenceContext(safeHistory, teaLibrary, noteAnalysisEnabled !== false);
 
   // Score all eligible teas
   var candidates = [];
@@ -191,7 +192,8 @@ function recommend(teaLibrary, parsed, weather, history, avoidDays, constitution
       slot: slot,
       recentStats: recentStats,
       consecutiveBlocked: consecutiveBlocked,
-      catFreq: catFreq
+      temporarilyBlocked: temporarilyBlocked,
+      preferenceScore: _preferenceScoreForTea(tea, preference)
     });
 
     candidates.push(scored);
@@ -205,18 +207,27 @@ function recommend(teaLibrary, parsed, weather, history, avoidDays, constitution
     }
   }
 
+  eligible.forEach(function(item) {
+    item.baseScore = item.score;
+    item.preferenceScore = item.preferenceScore || 0;
+    item.score = item.baseScore + item.preferenceScore;
+  });
   eligible.sort(function(a, b) { return b.score - a.score; });
 
   var primary = eligible.length > 0 ? eligible[0] : null;
   var alt = null;
   if (primary && eligible.length > 1) {
-    for (var k = 1; k < eligible.length; k++) {
-      if (eligible[k].tea.cat !== primary.tea.cat) {
-        alt = eligible[k];
-        break;
-      }
-    }
-    if (!alt) alt = eligible[1];
+    var bestBase = eligible.reduce(function(best, item) { return Math.max(best, item.baseScore); }, -Infinity);
+    var explorationPool = eligible.filter(function(item) {
+      return item.tea.id !== primary.tea.id && item.baseScore >= bestBase - 20;
+    });
+    explorationPool.forEach(function(item) {
+      item.explorationScore = item.baseScore + 0.25 * item.preferenceScore;
+      if (!preference.recent14TeaIds[item.tea.id]) item.explorationScore += 6;
+      if (item.tea.cat !== primary.tea.cat) item.explorationScore += 3;
+    });
+    explorationPool.sort(function(a, b) { return b.explorationScore - a.explorationScore; });
+    alt = explorationPool[0] || null;
   }
 
   return {
@@ -254,6 +265,13 @@ function _scoreTea(tea, ctx) {
     avoids.push('已连续喝满上限');
   }
 
+  // --- Hard filter: temporarily avoided ---
+  if (ctx.temporarilyBlocked && ctx.temporarilyBlocked[tea.id]) {
+    score -= 80;
+    hardFiltered = true;
+    avoids.push('暂时不想喝');
+  }
+
   // --- Hard filter: today already drunk ---
   if (ctx.recentStats && ctx.recentStats[tea.id] && ctx.recentStats[tea.id].today) {
     score -= 80;
@@ -266,22 +284,6 @@ function _scoreTea(tea, ctx) {
     score -= 60;
     hardFiltered = true;
     avoids.push('用户指定不想喝');
-  }
-
-  // --- Graded anti-repetition (not hard filter) ---
-  if (ctx.recentStats && ctx.recentStats[tea.id]) {
-    var stats = ctx.recentStats[tea.id];
-    if (stats.recent2 && !stats.today) {
-      score -= 15;
-    } else if (stats.recent5 && !stats.today) {
-      score -= 5;
-    }
-  }
-
-  // --- Category rotation (last 3 days) ---
-  if (ctx.catFreq && ctx.catFreq[tea.cat] >= 2) {
-    score -= 10;
-    if (avoids.length < 2) avoids.push('近3天已多次饮用同类');
   }
 
   // --- Nature match (0 ~ +30) ---
@@ -352,6 +354,7 @@ function _scoreTea(tea, ctx) {
   return {
     tea: tea,
     score: score,
+    preferenceScore: ctx.preferenceScore || 0,
     reasons: reasons,
     avoids: avoids,
     hardFiltered: hardFiltered
@@ -547,44 +550,75 @@ function _getConsecutiveBlockedTeaIds(history, limit) {
   return blocked;
 }
 
-/**
- * Graded anti-repetition: returns per-tea stats with today/recent2/recent5 flags.
- */
-function _getRecentTeaStats(history, avoidDays) {
+function _getActiveTemporaryAvoidTeaIds(temporaryAvoids, now) {
   var result = {};
-  if (!history || !history.length) return result;
-
-  var now = new Date();
-  var today = _formatDate(now);
-  var cutoff2 = _formatDate(new Date(now.getTime() - 2 * 86400000));
-  var cutoff5 = _formatDate(new Date(now.getTime() - avoidDays * 86400000));
-
-  for (var i = 0; i < history.length; i++) {
-    var entry = history[i];
-    if (!entry || !entry.date || entry.teaId == null || entry.teaId < 0) continue;
-    if (!result[entry.teaId]) result[entry.teaId] = { today: false, recent2: false, recent5: false };
-    if (entry.date === today) result[entry.teaId].today = true;
-    if (entry.date >= cutoff2) result[entry.teaId].recent2 = true;
-    if (entry.date >= cutoff5) result[entry.teaId].recent5 = true;
-  }
+  var source = temporaryAvoids && typeof temporaryAvoids === 'object' ? temporaryAvoids : {};
+  var current = typeof now === 'number' ? now : Date.now();
+  Object.keys(source).forEach(function(id) {
+    var state = source[id];
+    if (state && state.active === true && Number(state.expiresAt) > current) result[id] = true;
+  });
   return result;
 }
 
-/**
- * Category frequency in last N days (for rotation incentive).
- */
-function _getCatFrequency(history, days) {
-  var result = {};
-  if (!history || !history.length) return result;
-  var cutoff = _formatDate(new Date(Date.now() - days * 86400000));
+function _entryAgeDays(entry, now) {
+  if (!entry || !entry.date) return 9999;
+  var parts = entry.date.split('-').map(Number);
+  if (parts.length !== 3) return 9999;
+  var day = new Date(parts[0], parts[1] - 1, parts[2], 12, 0, 0, 0).getTime();
+  return Math.max(0, ((now || Date.now()) - day) / 86400000);
+}
 
-  for (var i = 0; i < history.length; i++) {
-    var entry = history[i];
-    if (!entry || !entry.date || entry.date < cutoff) continue;
-    if (entry.type === 'skip') continue;
-    var cat = entry.teaCat || 'unknown';
-    result[cat] = (result[cat] || 0) + 1;
-  }
+function buildPreferenceContext(history, teaLibrary, noteAnalysisEnabled, now) {
+  var teaSignals = {};
+  var categorySignals = {};
+  var noteSignals = {};
+  var recent14TeaIds = {};
+  var libMap = {};
+  (teaLibrary || []).forEach(function(tea) { if (tea && tea.id != null) libMap[tea.id] = tea; });
+  (history || []).forEach(function(entry) {
+    if (!entry || entry.type === 'skip' || typeof entry.teaId !== 'number' || entry.teaId < 0) return;
+    var tea = libMap[entry.teaId];
+    if (!tea) return;
+    var age = _entryAgeDays(entry, now);
+    var decay = Math.pow(0.5, age / 30);
+    var weight = entry.type === 'custom' ? 1 : 0.7;
+    teaSignals[tea.id] = (teaSignals[tea.id] || 0) + weight * decay;
+    categorySignals[tea.cat] = (categorySignals[tea.cat] || 0) + weight * decay;
+    if (age <= 14) recent14TeaIds[tea.id] = true;
+    var analysisCurrent = !entry.notesUpdatedAt || Number(entry.noteAnalysis && entry.noteAnalysis.sourceUpdatedAt) === Number(entry.notesUpdatedAt);
+    if (noteAnalysisEnabled !== false && analysisCurrent && entry.noteAnalysis && Number(entry.noteAnalysis.confidence) >= 0.8) {
+      var sentiment = entry.noteAnalysis.explicitSentiment;
+      if (sentiment === 'positive') noteSignals[tea.id] = (noteSignals[tea.id] || 0) + 8 * decay;
+      if (sentiment === 'negative') noteSignals[tea.id] = (noteSignals[tea.id] || 0) - 12 * decay;
+    }
+  });
+  var topTeas = Object.keys(teaSignals).sort(function(a,b){ return teaSignals[b]-teaSignals[a]; }).slice(0,3).map(function(id){ return libMap[id] && libMap[id].name; }).filter(Boolean);
+  var topCats = Object.keys(categorySignals).sort(function(a,b){ return categorySignals[b]-categorySignals[a]; }).slice(0,2).map(function(cat){ return teaData.CAT_NAMES[cat] || cat; });
+  var explicit = Object.keys(noteSignals).sort(function(a,b){ return Math.abs(noteSignals[b])-Math.abs(noteSignals[a]); }).slice(0,3).map(function(id){
+    return (libMap[id] ? libMap[id].name : id) + (noteSignals[id] > 0 ? '：近期明确喜欢' : '：近期明确不喜欢');
+  });
+  return {
+    teaSignals: teaSignals, categorySignals: categorySignals, noteSignals: noteSignals, recent14TeaIds: recent14TeaIds,
+    summary: { recentFavorites: topTeas, recentCategories: topCats, explicitSignals: explicit, halfLifeDays: 30 }
+  };
+}
+
+function _preferenceScoreForTea(tea, context) {
+  var drinkTea = Math.min(12, (context.teaSignals[tea.id] || 0) * 4);
+  var drinkCat = Math.min(6, (context.categorySignals[tea.cat] || 0) * 1.5);
+  var note = Math.max(-15, Math.min(10, context.noteSignals[tea.id] || 0));
+  return Math.max(-15, Math.min(18, drinkTea + drinkCat + note));
+}
+
+/** Return actual tea IDs already drunk today. */
+function _getTodayTeaStats(history) {
+  var result = {};
+  var today = _formatDate(new Date());
+  (history || []).forEach(function(entry) {
+    if (!entry || entry.type === 'skip' || entry.date !== today || typeof entry.teaId !== 'number' || entry.teaId < 0) return;
+    result[entry.teaId] = { today: true };
+  });
   return result;
 }
 
@@ -632,5 +666,8 @@ module.exports = {
   getIdealNature: getIdealNature,
   getTimeSlot: _getTimeSlot,
   getConsecutiveBlockedTeaIds: _getConsecutiveBlockedTeaIds,
+  getActiveTemporaryAvoidTeaIds: _getActiveTemporaryAvoidTeaIds,
+  buildPreferenceContext: buildPreferenceContext,
+  preferenceScoreForTea: _preferenceScoreForTea,
   adjustNature: teaData.adjustNature
 };

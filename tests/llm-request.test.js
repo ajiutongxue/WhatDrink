@@ -115,6 +115,23 @@ async function run() {
   assert.strictEqual(outside, null, 'a genuinely out-of-pool tea must still be rejected');
   assert.strictEqual(llm.getLastErrorType(), 'eligible');
 
+  mockResult = {
+    explicitSentiment: 'positive', confidence: 0.91,
+    likedTraits: ['花香', '模型自造标签'], dislikedTraits: [],
+    observations: ['桂花香明显'], brewingNote: '90度水', contextNotes: '', summary: '明确觉得好喝'
+  };
+  capturedRequest = null;
+  var noteAnalysis = await llm.analyzeTastingNote('桂花香明显，今天觉得很好喝，下次还想喝。', { name: '测试茶' }, { sourceUpdatedAt: 123 }, {
+    apiKey: 'test-key', endpoint: 'https://dashscope.aliyuncs.com/compatible-mode/v1', parserModel: 'qwen3.7-plus'
+  });
+  assert.strictEqual(capturedRequest.data.model, 'qwen3.7-plus', 'note analysis must use the configured parser model');
+  assert.ok(capturedRequest.data.messages[1].content.indexOf('不得把中性描述猜成喜好') >= 0 || capturedRequest.data.messages[0].content.indexOf('不得把中性描述猜成喜好') >= 0, 'note prompt must explicitly require conservative sentiment');
+  assert.strictEqual(noteAnalysis.explicitSentiment, 'positive');
+  assert.deepStrictEqual(noteAnalysis.likedTraits, ['花香'], 'note traits must be constrained to the allowlist');
+  assert.strictEqual(noteAnalysis.sourceUpdatedAt, 123);
+  var conservative = llm.normalizeNoteAnalysis({ explicitSentiment: 'negative', confidence: 0.6, dislikedTraits: ['涩'] }, 456);
+  assert.strictEqual(conservative.explicitSentiment, 'unknown', 'low-confidence inferred sentiment must not affect preference');
+
   console.log('llm request tests passed');
 }
 

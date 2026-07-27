@@ -50,6 +50,7 @@ function getDefaultData() {
     },
     profileUpdatedAt: 0,
     history: [],
+    temporaryAvoids: {},
     settings: {
       avoidDays: 5
     },
@@ -60,7 +61,8 @@ function getDefaultData() {
       endpoint: '',
       recModel: 'deepseek-v4-pro',
       parserModel: 'deepseek-v4-pro',
-      parserEnabled: false
+      parserEnabled: false,
+      noteAnalysisEnabled: true
     },
     teaLibrary: teas,
     // Whole-library last-write-wins version. Keeping this at 0 for a fresh
@@ -107,6 +109,7 @@ function load() {
         profile: profile,
         profileUpdatedAt: profileUpdatedAt,
         history: Array.isArray(raw.history) ? raw.history : [],
+        temporaryAvoids: raw.temporaryAvoids && typeof raw.temporaryAvoids === 'object' ? raw.temporaryAvoids : {},
         settings: settings,
         settingsUpdatedAt: settingsUpdatedAt,
         llm: _merge(defaults.llm, raw.llm),
@@ -229,6 +232,7 @@ function importJSON(json) {
       profile: _merge(defaults.profile, parsed.profile),
       profileUpdatedAt: parsed.profile && typeof parsed.profile === 'object' ? Date.now() : 0,
       history: Array.isArray(parsed.history) ? parsed.history : [],
+      temporaryAvoids: parsed.temporaryAvoids && typeof parsed.temporaryAvoids === 'object' ? parsed.temporaryAvoids : {},
       settings: _merge(defaults.settings, parsed.settings),
       settingsUpdatedAt: parsed.settings && typeof parsed.settings === 'object' ? Date.now() : 0,
       llm: _merge(defaults.llm, parsed.llm),
@@ -350,43 +354,8 @@ function _mergeData(cloudData, localData) {
   if (!cloudData) return localData;
   if (!localData) return cloudData;
 
-  // History: union by date+teaId+type, local wins for same key
-  // (local may carry newer tastingNotes just edited by user)
-  var historyMap = {};
-  var cloudHistory = Array.isArray(cloudData.history) ? cloudData.history : [];
-  var localHistory = Array.isArray(localData.history) ? localData.history : [];
-
-  cloudHistory.forEach(function(h) {
-    if (h && h.date) {
-      var key = h.date + '_' + (h.teaId || 0) + '_' + (h.type || 'unknown');
-      historyMap[key] = h;
-    }
-  });
-  localHistory.forEach(function(h) {
-    if (h && h.date) {
-      var key = h.date + '_' + (h.teaId || 0) + '_' + (h.type || 'unknown');
-      var existing = historyMap[key];
-      if (existing) {
-        // Field-level merge: keep cloud tastingNotes if local doesn't have one
-        if (!h.tastingNotes && existing.tastingNotes) {
-          h.tastingNotes = existing.tastingNotes;
-        }
-        // Keep cloud imageFileIDs if local doesn't have any
-        if ((!h.imageFileIDs || h.imageFileIDs.length === 0) && existing.imageFileIDs && existing.imageFileIDs.length > 0) {
-          h.imageFileIDs = existing.imageFileIDs;
-        }
-      }
-      historyMap[key] = h;
-    }
-  });
-
-  var mergedHistory = [];
-  for (var k in historyMap) {
-    if (historyMap.hasOwnProperty(k)) mergedHistory.push(historyMap[k]);
-  }
-  mergedHistory.sort(function(a, b) {
-    return (b.date || '').localeCompare(a.date || '');
-  });
+  var mergedHistory = _mergeHistory(cloudData.history, localData.history);
+  var mergedTemporaryAvoids = _mergeTemporaryAvoids(cloudData.temporaryAvoids, localData.temporaryAvoids);
 
   var profileVersion = _mergeVersionedObject(
     cloudData.profile,
@@ -411,12 +380,62 @@ function _mergeData(cloudData, localData) {
     profile: profileVersion.value,
     profileUpdatedAt: profileVersion.updatedAt,
     history: mergedHistory,
+    temporaryAvoids: mergedTemporaryAvoids,
     settings: settingsVersion.value,
     settingsUpdatedAt: settingsVersion.updatedAt,
     llm: _mergeLLM(cloudData.llm, localData.llm),
     teaLibrary: libraryVersion.library,
     teaLibraryUpdatedAt: libraryVersion.updatedAt
   };
+}
+
+function _historyKey(h) {
+  if (h && h.id) return 'id_' + h.id;
+  return 'legacy_' + ((h && h.date) || '') + '_' + ((h && h.teaId) || 0) + '_' + ((h && h.type) || 'unknown');
+}
+
+function _mergeHistory(cloud, local) {
+  var map = {};
+  var cloudList = Array.isArray(cloud) ? cloud : [];
+  var localList = Array.isArray(local) ? local : [];
+  cloudList.forEach(function(h) {
+    if (h && h.date) map[_historyKey(h)] = h;
+  });
+  localList.forEach(function(h) {
+    if (!h || !h.date) return;
+    var key = _historyKey(h);
+    var existing = map[key];
+    if (!existing) { map[key] = h; return; }
+    var cloudTs = _validTimestamp(existing.updatedAt);
+    var localTs = _validTimestamp(h.updatedAt);
+    if (cloudTs || localTs) {
+      map[key] = localTs >= cloudTs ? h : existing;
+      return;
+    }
+    if (!h.tastingNotes && existing.tastingNotes) h.tastingNotes = existing.tastingNotes;
+    if ((!h.imageFileIDs || h.imageFileIDs.length === 0) && existing.imageFileIDs && existing.imageFileIDs.length > 0) {
+      h.imageFileIDs = existing.imageFileIDs;
+    }
+    map[key] = h;
+  });
+  return Object.keys(map).map(function(key) { return map[key]; }).sort(function(a, b) {
+    var dateCmp = (b.date || '').localeCompare(a.date || '');
+    if (dateCmp) return dateCmp;
+    return (_validTimestamp(b.updatedAt) - _validTimestamp(a.updatedAt));
+  });
+}
+
+function _mergeTemporaryAvoids(cloud, local) {
+  var result = {};
+  var c = cloud && typeof cloud === 'object' ? cloud : {};
+  var l = local && typeof local === 'object' ? local : {};
+  Object.keys(c).forEach(function(key) { result[key] = c[key]; });
+  Object.keys(l).forEach(function(key) {
+    var cv = result[key] || {};
+    var lv = l[key] || {};
+    if (_validTimestamp(lv.updatedAt) >= _validTimestamp(cv.updatedAt)) result[key] = lv;
+  });
+  return result;
 }
 
 /**
@@ -457,6 +476,9 @@ function _mergeLLM(cloud, local) {
   result.parserEnabled = (typeof l.parserEnabled === 'boolean')
     ? l.parserEnabled
     : ((typeof c.parserEnabled === 'boolean') ? c.parserEnabled : false);
+  result.noteAnalysisEnabled = (typeof l.noteAnalysisEnabled === 'boolean')
+    ? l.noteAnalysisEnabled
+    : ((typeof c.noteAnalysisEnabled === 'boolean') ? c.noteAnalysisEnabled : true);
   return result;
 }
 

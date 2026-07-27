@@ -26,6 +26,7 @@ function baseData(library, updatedAt) {
   return {
     profile: {},
     history: [],
+    temporaryAvoids: {},
     settings: {},
     llm: {},
     teaLibrary: library,
@@ -80,6 +81,20 @@ async function run() {
     { city: '本地默认' }, 0
   );
   assert.strictEqual(profileTie.value.city, '云端', 'profile/settings ties must prefer cloud');
+
+  var historyCloud = baseData(cloudLibrary, 100);
+  historyCloud.history = [{ id: 'a', date: '2026-07-27', teaId: 1, type: 'primary', updatedAt: 100, tastingNotes: 'old' }];
+  historyCloud.temporaryAvoids = { '1': { active: true, expiresAt: 9999, updatedAt: 100 } };
+  var historyLocal = baseData(localLibrary, 200);
+  historyLocal.history = [
+    { id: 'a', date: '2026-07-27', teaId: 1, type: 'primary', updatedAt: 200, tastingNotes: 'new', noteAnalysis: { explicitSentiment: 'positive' } },
+    { id: 'b', date: '2026-07-27', teaId: 1, type: 'primary', updatedAt: 150 }
+  ];
+  historyLocal.temporaryAvoids = { '1': { active: false, updatedAt: 300 } };
+  var eventMerge = cloudMerge.mergeData(historyCloud, historyLocal);
+  assert.strictEqual(eventMerge.history.length, 2, 'stable IDs must preserve multiple same-day sessions of the same tea and type');
+  assert.strictEqual(eventMerge.history.filter(function(h){ return h.id === 'a'; })[0].tastingNotes, 'new', 'newer history entry including analysis must win as a unit');
+  assert.strictEqual(eventMerge.temporaryAvoids['1'].active, false, 'newer cancellation tombstone must restore recommendation across devices');
 
   var stored = null;
   var rawLocal = baseData(localLibrary, 500);

@@ -95,6 +95,29 @@ async function run() {
   var streakFiltered = recommend.filterEligible(library, {}, firstFiveDrinkingDays, 5);
   assert.ok(streakFiltered.every(function(tea) { return tea.id !== 1; }), 'day-six block must apply to the shared AI/rule candidate pool');
 
+  var activeAvoid = { '1': { active: true, expiresAt: Date.now() + 86400000, updatedAt: Date.now() } };
+  var temporaryFiltered = recommend.filterEligible(library, {}, [], 5, activeAvoid);
+  assert.ok(temporaryFiltered.every(function(tea) { return tea.id !== 1; }), 'active temporary avoids must be a shared hard filter');
+  var expiredFiltered = recommend.filterEligible(library, {}, [], 5, { '1': { active: true, expiresAt: Date.now() - 1 } });
+  assert.ok(expiredFiltered.some(function(tea) { return tea.id === 1; }), 'expired temporary avoids must restore eligibility automatically');
+
+  var preferenceLibrary = [
+    { id: 11, name: '近期喜欢', cat: 'green', nature: '平', baseNature: '平', caffeine: '中' },
+    { id: 12, name: '同类探索', cat: 'green', nature: '平', baseNature: '平', caffeine: '中' },
+    { id: 13, name: '相邻探索', cat: 'white', nature: '平', baseNature: '平', caffeine: '中' }
+  ];
+  var recentPreferenceHistory = [{
+    date: dateDaysAgo(1), teaId: 11, teaCat: 'green', type: 'custom',
+    noteAnalysis: { explicitSentiment: 'positive', confidence: 0.9 }
+  }];
+  var pref = recommend.buildPreferenceContext(recentPreferenceHistory, preferenceLibrary, true);
+  assert.ok(recommend.preferenceScoreForTea(preferenceLibrary[0], pref) > recommend.preferenceScoreForTea(preferenceLibrary[1], pref), 'recent actual drinking and explicit liking must raise tea preference');
+  var notesOff = recommend.buildPreferenceContext(recentPreferenceHistory, preferenceLibrary, false);
+  assert.ok(recommend.preferenceScoreForTea(preferenceLibrary[0], pref) > recommend.preferenceScoreForTea(preferenceLibrary[0], notesOff), 'disabling note analysis must stop stored analyses affecting preference');
+  var dynamicResult = recommend.recommend(preferenceLibrary, {}, null, recentPreferenceHistory, 5, null, {}, true);
+  assert.strictEqual(dynamicResult.primary.tea.id, 11, 'primary should follow recent taste momentum');
+  assert.strictEqual(dynamicResult.alt.tea.id, 13, 'alternative should prefer adjacent exploration when base fitness is comparable');
+
   var coldConstitution = recommend.getIdealNature('春', null, [], '偏寒', 10, 0);
   var hotConstitution = recommend.getIdealNature('春', null, [], '偏热', 10, 0);
   assert.ok(coldConstitution > hotConstitution, 'constitution must shift ideal nature in opposite directions');

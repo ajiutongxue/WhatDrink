@@ -52,6 +52,13 @@
             </text>
           </view>
 
+          <view class="history-preference-action" wx:if="{{item.canTemporarilyAvoid}}">
+            <text class="history-avoid-link {{item.temporarilyAvoided ? 'is-active' : ''}}" bindtap="onToggleTemporaryAvoid" data-tea-id="{{item.teaId}}">
+              {{item.temporarilyAvoided ? '恢复推荐' : '暂时不想喝'}}
+            </text>
+            <text class="history-avoid-hint" wx:if="{{item.temporarilyAvoided}}">30天后自动恢复</text>
+          </view>
+
           <!-- Existing tasting notes display (show when not editing this entry) -->
           <view class="history-notes-display" wx:if="{{item.hasNotes && editingIdx !== item.idx}}">
             <text wx:if="{{item.tastingNotes}}">{{item.tastingNotes}}</text>

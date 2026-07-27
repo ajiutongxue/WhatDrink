@@ -138,6 +138,15 @@
       <view class="setting-model-hint" wx:if="{{parserEnabled}}">轻量模型，用于解析输入文本</view>
     </view>
 
+    <!-- Free-form tasting note analysis -->
+    <view class="setting-group">
+      <view class="setting-toggle-row">
+        <text class="setting-toggle-label">分析新品饮笔记</text>
+        <switch checked="{{noteAnalysisEnabled}}" color="#C4793B" bindchange="onNoteAnalysisToggle" />
+      </view>
+      <view class="setting-model-hint">保存新笔记时，文字会发送到已配置的 AI 端点并使用智能解析模型；关闭后不发送，也不用于偏好判断。</view>
+    </view>
+
     <!-- Recommend toggle + model -->
     <view class="setting-group">
       <view class="setting-toggle-row">

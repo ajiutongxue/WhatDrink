@@ -97,6 +97,7 @@ interface AppData {
   profileUpdatedAt: number;    // 个人档案最后修改时间戳；0 表示未填写
 
   history: HistoryEntry[];     // 饮茶记录；同步后按日期倒序
+  temporaryAvoids: Record<string, TemporaryAvoidState>; // 每款茶的临时回避状态
   settings: {
     avoidDays: number;         // 连续推荐上限，默认 5；连续喝满 5 天后次日硬排除
   };
@@ -109,6 +110,7 @@ interface AppData {
     recModel: string;          // 推荐模型名称，默认 'deepseek-v4-pro'
     parserModel: string;       // 解析模型名称，当前默认 'deepseek-v4-pro'
     parserEnabled: boolean;    // LLM 解析开关（关闭则仅用关键词匹配）
+    noteAnalysisEnabled: boolean; // 新品饮笔记分析开关，默认开启
   };
 
   teaLibrary: Tea[];           // 用户茶叶库（可编辑的有序整库快照）
@@ -154,6 +156,8 @@ interface Tea {
 
 ```typescript
 interface HistoryEntry {
+  id?: string;          // 新记录的稳定事件 ID；旧记录可无
+  updatedAt?: number;   // 记录最后修改时间
   date: string;        // ISO 日期 'YYYY-MM-DD'
   teaId: number;       // 茶叶 ID，-1 表示自定义/没喝
   teaName: string;     // 茶名（自定义时为用户输入）
@@ -163,6 +167,15 @@ interface HistoryEntry {
   tastingNotes?: string;    // 品饮感受（可选），打卡后或从历史页面补充
   imageFileIDs?: Array<{ fileID: string; caption: string }>;  // 品饮图片（可选），最多 6 张云存储 fileID，每张可配 40 字说明
   checkinTime?: string;  // 打卡时间 'HH:MM'（可选），用于时段感知推荐
+  notesUpdatedAt?: number; // 品饮文字最后修改时间
+  noteAnalysis?: NoteAnalysis; // 仅新品饮文字的保守结构化分析
+}
+
+interface TemporaryAvoidState {
+  active: boolean;
+  markedAt: number;
+  expiresAt: number;     // 默认标记后 30 天
+  updatedAt: number;     // 同步冲突判断，取消也保留 tombstone
 }
 ```
 
@@ -184,7 +197,7 @@ interface HistoryEntry {
 - 先运行硬过滤和规则评分；深度推荐开启时，将合格候选交给 LLM，失败自动回退规则结果。
 - 展示主推、备选、推荐理由、茶性、年份、咖啡因和冲泡参数。
 - 支持主推、备选、自定义、没喝四种打卡；记录 `checkinTime`。
-- 打卡后可写最多 500 字品饮感受，并上传最多 6 张图片及每张说明。
+- 打卡后可写最多 500 字品饮感受，并上传最多 6 张图片及每张说明；新品饮文字可在保存后后台保守分析。
 - AI 请求支持取消、错误分类和有限重试。
 
 ### 4.2 饮茶记录
@@ -193,6 +206,7 @@ interface HistoryEntry {
 
 - 时间线倒序展示主推、备选、自选和未饮茶记录。
 - 展示打卡时间、茶名、品牌、茶类和记录类型。
+- 对可匹配茶库的记录可设置“暂时不想喝”，默认 30 天内硬排除，也可手动恢复。
 - 可补充、修改或清空品饮文字。
 - 可上传、预览、删除最多 6 张图片，并编辑图片说明。
 - 顶部入口跳转饮茶统计页。
@@ -329,6 +343,8 @@ interface ParsedInput {
 - weather: WeatherData | null（天气数据）
 - history: HistoryEntry[]（饮茶记录）
 - avoidDays: number（连续推荐上限，最小 2）
+- temporaryAvoids: 每款茶的临时回避状态
+- noteAnalysisEnabled: 是否使用已保存的笔记分析
 
 **输出**：
 ```typescript
@@ -360,6 +376,8 @@ interface ScoredTea {
 | 口味偏好 | +8 | light→低咖啡因+寒凉平，strong→高咖啡因 |
 | 连续推荐限制 | -80（硬排除） | 前 X 个完整自然日每天都实际喝过同一款茶时，次日排除 |
 | 品质存疑 | -30（硬排除） | note 含"疑似假货"的茶 |
+| 暂时不想喝 | -80（硬排除） | 标记后 30 天内排除，可手动恢复 |
+| 动态偏好 | -15 ~ +18 | 近期实际饮用与明确笔记态度，30 天半衰期 |
 
 **理想茶性计算**：
 ```
@@ -395,8 +413,11 @@ base = 季节基准（春-0.5, 夏-1.2, 秋+0.3, 冬+1.2）
 **硬排除过滤**：
 带 hardFiltered=true 的候选在最终选择前被完全移除，不进入 primary/alt 选择池。
 
-**备选选择策略**：
-从过滤后的候选中，选 primary 后第一个与 primary 不同茶类的茶作为 alt。若找不到不同茶类的，取分数次高的。
+**动态偏好与主备选策略**：
+- 实际饮用按 30 天半衰期衰减；自选权重 1.0，主推/备选打卡权重 0.7。茶款饮用加分封顶 12，茶类加分封顶 6。
+- 只有置信度至少 0.8 的明确喜欢/不喜欢笔记才影响分数；模糊观察保持 unknown。笔记影响封顶 `[-15,+10]`，总偏好封顶 `[-15,+18]`。
+- 主推按“基础适配分 + 完整偏好分”排序。备选只在基础分距最优不超过 20 的候选中探索，使用 25% 偏好分，并奖励 14 天未喝和不同茶类。
+- 原有近期 2/5 天重复扣分和茶类轮换扣分已移除；今日已喝与连续上限仍是硬排除。
 
 ### 5.3 天气服务
 
@@ -428,6 +449,7 @@ function fetchWeather(city: string): Promise<WeatherData | null>
 function parseWithLLM(input: string, config: LLMConfig): Promise<ParsedInput | null>
 function callLLM(eligibleTeas: Tea[], context: RecommendContext, config: LLMConfig): Promise<LLMResult | null>
 function generateDailyQuote(context: QuoteContext, config: LLMConfig): Promise<string | null>
+function analyzeTastingNote(note: string, tea: Tea, context: object, config: LLMConfig): Promise<NoteAnalysis | null>
 function abortCurrent(): void
 ```
 
@@ -436,6 +458,8 @@ function abortCurrent(): void
 - 解析：`temperature: 0.1`、`max_tokens: 300`，支持时关闭模型思考模式。
 - 推荐：`temperature: 0.5`、`max_tokens: 2000`，将硬过滤后的全部候选茶交给 LLM，仅允许从候选中选择并校验返回茶名。
 - 每日茶语：`max_tokens: 80`，按天缓存；支持时关闭模型思考模式，失败使用内置文案。
+- 品饮笔记：仅保存新文字时后台调用 `parserModel`；原文不会进入推荐 prompt。只允许白名单风味特征，低置信度态度强制归为 unknown，失败不影响笔记保存，也不回填旧笔记。
+- 推荐 prompt 只接收压缩后的近期茶款/茶类/明确态度摘要；主推贴近近期口味，备选探索相邻口味。
 - Qwen、DeepSeek、GLM 等可切换模型的请求默认关闭思考；thinking-only 模型保持其强制思考行为，避免传入不支持的参数。
 - 推荐请求对部分 HTTP/网络错误做有限重试，支持主动取消。
 - 统一处理完整 URL、缺少协议、Markdown JSON 代码块、HTTP 状态和网络错误分类。
@@ -477,7 +501,8 @@ function getDefaultData(): AppData                 // 默认数据（含 89 款�
 3. 设置页「立即同步」按钮：手动调用 `data.sync()`
 
 **合并策略**（在云函数中执行）：
-- `history`：取并集，按 `date + teaId + type` 三元组去重
+- `history`：新记录按稳定 `id` 取并集，同 ID 按 `updatedAt` 选择较新完整记录；旧记录兼容 `date + teaId + type`
+- `temporaryAvoids`：每款茶按 `updatedAt` 合并，取消状态作为 tombstone 保留
 - `profile`：按 `profileUpdatedAt` 选择较新的完整档案；时间相同或缺失时云端优先
 - `settings`：按 `settingsUpdatedAt` 选择较新的完整设置；时间相同或缺失时云端优先
 - `llm`：保持本地非空值优先的现有策略
@@ -489,7 +514,8 @@ function getDefaultData(): AppData                 // 默认数据（含 89 款�
 
 - 通过 `cloud.getWXContext().OPENID` 隔离用户，每个 openid 对应 `tea_doctor` 集合中的一条文档。
 - 首次同步创建集合文档；后续同步合并并写回客户端。
-- `history` 按 `date + teaId + type` 合并，本地同键记录优先，同时保护云端已有的品饮文字和图片。
+- `history` 新记录按稳定 `id` 合并并以 `updatedAt` 判新旧；旧记录仍按 `date + teaId + type` 兼容合并。
+- `temporaryAvoids` 每款茶独立按 `updatedAt` 合并，手动恢复会同步为 inactive tombstone。
 - `profile`、`settings` 和 `teaLibrary` 分别按各自时间戳选择完整快照；本地时间必须严格更新才覆盖云端，平局由云端胜出。
 - `llm` 暂时保持字段级本地非空值优先；这意味着模型名和开关尚不具备可靠的跨设备最后写入语义。
 

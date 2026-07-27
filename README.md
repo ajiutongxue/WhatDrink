@@ -97,7 +97,8 @@ npm run ui:check
 
 主数据使用本地缓存 Key `tea_doctor_v1`，云端使用 `tea_doctor` 集合，并按 openid 隔离。
 
-- `history`：按 `date + teaId + type` 合并。
+- `history`：新记录按稳定 `id` 合并并以 `updatedAt` 判新旧，旧记录兼容 `date + teaId + type`。
+- `temporaryAvoids`：每款茶按 `updatedAt` 合并，取消状态也同步。
 - `profile`：`profileUpdatedAt` 较新的完整档案胜出。
 - `settings`：`settingsUpdatedAt` 较新的完整设置胜出。
 - `teaLibrary`：`teaLibraryUpdatedAt` 较新的有序整库快照胜出。

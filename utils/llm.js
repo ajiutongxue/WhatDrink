@@ -289,6 +289,15 @@ function callLLM(eligibleTeas, context, config) {
       moodDesc = '口味偏好：' + (moodMap[ctx.mood] || ctx.mood);
     }
 
+    var preferenceDesc = '暂无足够的近期偏好数据';
+    if (ctx.preferenceSummary) {
+      var prefParts = [];
+      if (ctx.preferenceSummary.recentFavorites && ctx.preferenceSummary.recentFavorites.length) prefParts.push('近期常喝：' + ctx.preferenceSummary.recentFavorites.join('、'));
+      if (ctx.preferenceSummary.recentCategories && ctx.preferenceSummary.recentCategories.length) prefParts.push('近期茶类：' + ctx.preferenceSummary.recentCategories.join('、'));
+      if (ctx.preferenceSummary.explicitSignals && ctx.preferenceSummary.explicitSignals.length) prefParts.push(ctx.preferenceSummary.explicitSignals.join('；'));
+      if (prefParts.length) preferenceDesc = prefParts.join('；');
+    }
+
     var profileDesc = '未设置';
     if (ctx.profile) {
       var parts = [];
@@ -315,8 +324,9 @@ function callLLM(eligibleTeas, context, config) {
       (avoidDesc ? '【回避】' + avoidDesc + '\n' : '') +
       (preferDesc ? '【偏好】' + preferDesc + '\n' : '') +
       (moodDesc ? '【口味】' + moodDesc + '\n' : '') +
+      '【近期偏好】' + preferenceDesc + '（由近期饮用和明确态度汇总，不含原始笔记）\n' +
       '\n【候选茶叶】（已过滤今日已喝和不想喝的）：\n' + candidateList.join('\n') + '\n\n' +
-      '请综合时段、天气、身体状况、今日已饮茶（注意茶性平衡），选出主推和备选各一款。' +
+      '请综合时段、天气、身体状况、今日已饮茶（注意茶性平衡），选出主推和备选各一款。主推应贴近近期偏好；备选应在仍适合当下的前提下探索相邻口味，不要只是重复主推。' +
       '理由需包含时段分析和今日已饮茶的平衡考量。\n\n' +
       '请严格按JSON返回：\n' +
       '{\n' +
@@ -481,6 +491,88 @@ function callLLM(eligibleTeas, context, config) {
       });
     };
     doRequest();
+  });
+}
+
+// ============================================================
+// analyzeTastingNote - conservative analysis of a newly saved free-form note
+// ============================================================
+
+var NOTE_TRAITS = ['花香','果香','蜜香','陈香','焙火香','青味','甜润','鲜爽','醇厚','清淡','浓郁','苦','涩','顺滑'];
+
+function _shortText(value, limit) {
+  if (typeof value !== 'string') return '';
+  return value.trim().slice(0, limit);
+}
+
+function _allowedTraits(value) {
+  if (!Array.isArray(value)) return [];
+  var result = [];
+  value.forEach(function(item) {
+    if (NOTE_TRAITS.indexOf(item) >= 0 && result.indexOf(item) < 0) result.push(item);
+  });
+  return result.slice(0, 6);
+}
+
+function _normalizeNoteAnalysis(parsed, sourceUpdatedAt) {
+  var sentiment = parsed && parsed.explicitSentiment;
+  if (['positive', 'negative', 'unknown'].indexOf(sentiment) < 0) sentiment = 'unknown';
+  var confidence = Math.max(0, Math.min(1, Number(parsed && parsed.confidence) || 0));
+  if (sentiment !== 'unknown' && confidence < 0.8) sentiment = 'unknown';
+  return {
+    version: 1,
+    sourceUpdatedAt: Number(sourceUpdatedAt) || Date.now(),
+    analyzedAt: Date.now(),
+    explicitSentiment: sentiment,
+    confidence: confidence,
+    likedTraits: _allowedTraits(parsed && parsed.likedTraits),
+    dislikedTraits: _allowedTraits(parsed && parsed.dislikedTraits),
+    observations: Array.isArray(parsed && parsed.observations) ? parsed.observations.map(function(v){ return _shortText(v, 40); }).filter(Boolean).slice(0, 5) : [],
+    brewingNote: _shortText(parsed && parsed.brewingNote, 80),
+    contextNotes: _shortText(parsed && parsed.contextNotes, 80),
+    summary: _shortText(parsed && parsed.summary, 100)
+  };
+}
+
+function analyzeTastingNote(note, tea, context, config) {
+  return new Promise(function(resolve) {
+    var text = _shortText(note, 500);
+    if (!text || !config || !config.apiKey || !config.endpoint || !config.parserModel) { resolve(null); return; }
+    var t0 = Date.now();
+    var sourceUpdatedAt = context && context.sourceUpdatedAt;
+    var prompt = '茶款：' + ((tea && tea.name) || '未知') + '\n品饮笔记：' + text + '\n\n' +
+      '只分析文字中明确表达的内容。描述香气、滋味、冲泡过程或事实，不等于喜欢或不喜欢。' +
+      '只有出现明确态度（如喜欢、好喝、想再喝、不喜欢、难喝、不想再喝）时，explicitSentiment 才能为 positive 或 negative，且 confidence 才可达到 0.8；否则必须为 unknown。' +
+      '不要推断健康、体质、季节原因，也不要建议自动屏蔽茶。\n' +
+      '严格返回JSON：{"explicitSentiment":"positive|negative|unknown","confidence":0到1,"likedTraits":[],"dislikedTraits":[],"observations":[],"brewingNote":"","contextNotes":"","summary":""}。' +
+      '特征只能从以下列表选择：' + NOTE_TRAITS.join('、');
+    var attempt = 0;
+    var request = function() {
+      _currentTask = wx.request({
+        url: _buildUrl(config.endpoint, '/chat/completions'), method: 'POST', timeout: 30000,
+        header: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + config.apiKey },
+        data: _applyNonThinking({ model: config.parserModel, messages: [
+          { role: 'system', content: '你是保守的品饮笔记结构化助手。不得把中性描述猜成喜好。' },
+          { role: 'user', content: prompt }
+        ], temperature: 0.1, max_tokens: 700 }, config.parserModel, config.endpoint),
+        success: function(res) {
+          if (res.statusCode !== 200) {
+            if (RETRIABLE_CODES.indexOf(res.statusCode) >= 0 && attempt < 1) { attempt++; setTimeout(request, 800); return; }
+            tracker.track('llm_note_analysis', { ok: false, model: config.parserModel, http: res.statusCode, ms: Date.now() - t0 }); resolve(null); return;
+          }
+          var parsed = _parseJSON(_extractContent(res.data));
+          if (!parsed) { tracker.track('llm_note_analysis', { ok: false, model: config.parserModel, errType: 'parse', ms: Date.now() - t0 }); resolve(null); return; }
+          var result = _normalizeNoteAnalysis(parsed, sourceUpdatedAt);
+          tracker.track('llm_note_analysis', { ok: true, model: config.parserModel, ms: Date.now() - t0 }); resolve(result);
+        },
+        fail: function(err) {
+          var cls = _classifyNetError(err);
+          if ((cls.type === 'timeout' || cls.type === 'network') && attempt < 1) { attempt++; setTimeout(request, 800); return; }
+          tracker.track('llm_note_analysis', { ok: false, model: config.parserModel, errType: cls.type, ms: Date.now() - t0 }); resolve(null);
+        }
+      });
+    };
+    request();
   });
 }
 
@@ -821,6 +913,8 @@ module.exports = {
   parseWithLLM: parseWithLLM,
   callLLM: callLLM,
   generateDailyQuote: generateDailyQuote,
+  analyzeTastingNote: analyzeTastingNote,
+  normalizeNoteAnalysis: _normalizeNoteAnalysis,
   getLastError: getLastError,
   getLastErrorType: getLastErrorType,
   clearLastError: clearLastError,
