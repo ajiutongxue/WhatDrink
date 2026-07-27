@@ -1006,6 +1006,7 @@
 /* ---- Cards: increase opacity on dark backgrounds ---- */
 .phase-dusk .rec-hero,
 .phase-dusk .checkin-card,
+.phase-dusk .custom-drink-card,
 .phase-dusk .soft-input,
 .phase-dusk .rec-alt {
   background: rgba(255, 252, 246, 0.88);
@@ -1013,6 +1014,7 @@
 
 .phase-night .rec-hero,
 .phase-night .checkin-card,
+.phase-night .custom-drink-card,
 .phase-night .soft-input,
 .phase-night .rec-alt {
   background: rgba(40, 44, 60, 0.82);
@@ -1107,3 +1109,7 @@
   border-color: rgba(200, 184, 216, 0.2);
   color: rgba(216, 212, 228, 0.7);
 }
+
+.phase-night .custom-drink-title { color: rgba(232, 228, 240, 0.9); }
+.phase-night .custom-drink-row input { color: rgba(232, 228, 240, 0.9); background: rgba(60, 64, 80, 0.6); border-color: rgba(200, 184, 216, 0.2); }
+.phase-night .rec-action-btn.avoid { background: rgba(60, 64, 80, 0.6); color: rgba(232, 228, 240, 0.8); }

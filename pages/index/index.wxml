@@ -160,6 +160,11 @@
         <view class="avoid-info" wx:if="{{rec.avoidInfo}}">
           <text>{{rec.avoidInfo}}</text>
         </view>
+
+        <view class="rec-card-actions" wx:if="{{!checkedIn}}">
+          <button class="rec-action-btn drink" bindtap="onCheckinPrimary">喝这个</button>
+          <button class="rec-action-btn avoid" bindtap="onTemporarilyAvoidRecommendation" data-tea-id="{{rec.primary._teaId}}">近期不想喝</button>
+        </view>
       </view>
 
       <!-- ===== Alternative ===== -->
@@ -192,27 +197,25 @@
           <view class="rec-alt-brew" wx:if="{{rec.alt.brew}}">
             <text>{{rec.alt.brew.temp}} · {{rec.alt.brew.ratio}}</text>
           </view>
+          <view class="rec-card-actions rec-alt-actions" wx:if="{{!checkedIn}}">
+            <button class="rec-action-btn drink" bindtap="onCheckinAlt">喝这个</button>
+            <button class="rec-action-btn avoid" bindtap="onTemporarilyAvoidRecommendation" data-tea-id="{{rec.alt._teaId}}">近期不想喝</button>
+          </view>
         </view>
       </view>
 
-      <!-- ===== Checkin ===== -->
-      <view class="checkin-card" wx:if="{{!checkedIn}}">
-        <view class="checkin-title">今天喝了什么</view>
-        <view class="checkin-row">
-          <button class="checkin-pill hero" bindtap="onCheckinPrimary">{{rec.primary.name}}</button>
-          <button class="checkin-pill secondary" wx:if="{{rec.alt}}" bindtap="onCheckinAlt">{{rec.alt.name}}</button>
-          <button class="checkin-pill muted" bindtap="onShowCustom">喝的别的</button>
-          <button class="checkin-pill muted" bindtap="onSkipToday">没喝</button>
-        </view>
-        <view class="checkin-custom" wx:if="{{showCustom}}">
+      <!-- ===== Drink something else ===== -->
+      <view class="custom-drink-card" wx:if="{{!checkedIn}}">
+        <view class="custom-drink-title">我喝了别的</view>
+        <view class="custom-drink-row">
           <input
             value="{{customTeaName}}"
             bindinput="onCustomInput"
-            placeholder="茶名"
+            placeholder="输入实际喝的茶"
             confirm-type="done"
             bindconfirm="onCheckinCustom"
           />
-          <button class="checkin-custom-btn" bindtap="onCheckinCustom">记录</button>
+          <button class="rec-action-btn drink custom-drink-btn" bindtap="onCheckinCustom">喝这个</button>
         </view>
       </view>
 
@@ -221,7 +224,7 @@
         <view class="checkin-title">今日打卡完成 ✓</view>
         <view class="checkin-done-text">{{checkinMsg}}</view>
 
-        <block wx:if="{{!isSkip}}">
+        <block>
           <view class="tasting-entry" wx:if="{{!showTasting}}">
             <text class="tasting-trigger" bindtap="onShowTasting">写几句品饮感受</text>
           </view>

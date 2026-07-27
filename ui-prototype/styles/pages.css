@@ -28,6 +28,10 @@
 .recommendation-reason { margin: 14px 0; padding: 12px; border-radius: 14px; background: var(--blush-soft); }
 .brew { padding: 11px 13px; border-radius: 14px; background: var(--sage-soft); color: var(--sage-deep); }
 .checkin-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+.recommendation-actions { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:9px; margin-top:15px; padding-top:14px; border-top:1px solid rgba(201,184,173,.35); }
+.custom-drink-prototype-row { display:flex; flex-direction:column; align-items:stretch; gap:8px; }
+.custom-drink-prototype-row .field { flex:1; min-width:0; }
+.custom-drink-prototype-row button { width:100%; }
 .history-header, .library-toolbar, .stats-header { margin-bottom: 17px; }
 .history-item, .tea-row, .manage-row {
   padding: 14px 0;

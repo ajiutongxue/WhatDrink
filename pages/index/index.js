@@ -163,8 +163,6 @@ Page({
     parsedTags: [],
     checkedIn: false,
     checkinMsg: '',
-    isSkip: false,
-    showCustom: false,
     customTeaName: '',
     // Tasting notes
     showTasting: false,
@@ -531,7 +529,7 @@ Page({
 
     this.setData({
       loading: false, hasResult: true, noResult: false,
-      rec: rec, checkedIn: false, showCustom: false, btnText: '今天喝点什么茶'
+      rec: rec, checkedIn: false, btnText: '今天喝点什么茶'
     });
     tracker.track('rec_done', { mode: 'rule', ms: Date.now() - (this._recT0 || Date.now()), tea: rec.primary.name });
   },
@@ -591,7 +589,7 @@ Page({
 
     this.setData({
       loading: false, hasResult: true, noResult: false,
-      rec: rec, checkedIn: false, showCustom: false, btnText: '今天喝点什么茶'
+      rec: rec, checkedIn: false, btnText: '今天喝点什么茶'
     });
     tracker.track('rec_done', { mode: 'ai', ms: Date.now() - (this._recT0 || Date.now()), tea: rec.primary.name });
   },
@@ -929,7 +927,25 @@ Page({
     var rec = this.data.rec;
     if (rec && rec.alt) this._doCheckin(rec.alt._teaId, rec.alt.name, 'alt');
   },
-  onShowCustom: function () { this.setData({ showCustom: true }); },
+  onTemporarilyAvoidRecommendation: function (e) {
+    var teaId = Number(e.currentTarget.dataset.teaId);
+    if (!isFinite(teaId) || teaId < 0) return;
+    var appData = this._appData || data.load();
+    if (!appData.temporaryAvoids || typeof appData.temporaryAvoids !== 'object') appData.temporaryAvoids = {};
+    var now = Date.now();
+    appData.temporaryAvoids[String(teaId)] = {
+      active: true,
+      markedAt: now,
+      expiresAt: now + 30 * 86400000,
+      updatedAt: now
+    };
+    data.save(appData);
+    tracker.track('temporary_avoid_set', { teaId: teaId, days: 30, source: 'recommendation' });
+    this._appData = appData;
+    this.setData({ hasResult: false, rec: null, checkedIn: false });
+    wx.showToast({ title: '30天内不再推荐', icon: 'none' });
+    this.onRecommend();
+  },
   onCustomInput: function (e) { this.setData({ customTeaName: e.detail.value }); },
   onCheckinCustom: function () {
     var name = (this.data.customTeaName || '').trim();
@@ -937,23 +953,6 @@ Page({
     var matched = this._fuzzyMatchTea(name);
     this._doCheckin(matched ? matched.id : -1, matched ? matched.name : name, 'custom');
   },
-  onSkipToday: function () {
-    var appData = this._appData || data.load();
-    var createdAt = Date.now();
-    appData.history.push({
-      id: 'h_' + createdAt + '_' + Math.random().toString(36).slice(2, 8),
-      updatedAt: createdAt,
-      date: this._today(), teaId: -1, teaName: '今天没喝茶',
-      teaCat: 'none', teaBrand: '', type: 'skip'
-    });
-    data.save(appData);
-    this._appData = appData;
-    this.setData({
-      checkedIn: true, checkinMsg: '今天没有喝茶', isSkip: true,
-      showTasting: false, tastingDraft: '', tastingSaved: false, tastingSavedText: ''
-    });
-  },
-
   _doCheckin: function (teaId, teaName, type) {
     var appData = this._appData || data.load();
     var lib = appData.teaLibrary || teaData.TEAS;
@@ -979,9 +978,9 @@ Page({
     this._lastCheckinIdx = appData.history.length - 1;
     var typeNames = { primary: '主推', alt: '备选', custom: '自选' };
     this.setData({
-      checkedIn: true, isSkip: false,
+      checkedIn: true,
       checkinMsg: '今天喝了「' + (tea ? tea.name : teaName) + '」(' + (typeNames[type] || type) + ')',
-      showTasting: false, tastingDraft: '', tastingImages: [], tastingSaved: false, tastingSavedText: ''
+      customTeaName: '', showTasting: false, tastingDraft: '', tastingImages: [], tastingSaved: false, tastingSavedText: ''
     });
     wx.showToast({ title: '已记录', icon: 'success', duration: 1500 });
   },
