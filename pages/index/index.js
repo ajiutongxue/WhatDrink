@@ -4,6 +4,7 @@ var weather = require('../../utils/weather');
 var llm = require('../../utils/llm');
 var recommend = require('../../utils/recommend');
 var teaData = require('../../utils/teaData');
+var teaMatch = require('../../utils/teaMatch');
 var lunarLib = require('../../utils/lunar');
 var tracker = require('../../utils/tracker');
 
@@ -950,7 +951,17 @@ Page({
   onCheckinCustom: function () {
     var name = (this.data.customTeaName || '').trim();
     if (!name) { wx.showToast({ title: '请输入茶名', icon: 'none' }); return; }
-    var matched = this._fuzzyMatchTea(name);
+    var library = (this._appData && this._appData.teaLibrary) || teaData.TEAS;
+    var result = teaMatch.matchTeaInput(name, library);
+    if (result.status === 'ambiguous') {
+      wx.showModal({
+        title: '请补充年份',
+        content: '茶库中有多款同名茶，请输入年份后再记录。',
+        showCancel: false
+      });
+      return;
+    }
+    var matched = result.status === 'matched' ? result.tea : null;
     this._doCheckin(matched ? matched.id : -1, matched ? matched.name : name, 'custom');
   },
   _doCheckin: function (teaId, teaName, type) {
@@ -970,6 +981,7 @@ Page({
       teaName: tea ? tea.name : teaName,
       teaCat: tea ? tea.cat : 'unknown',
       teaBrand: tea ? tea.brand : '',
+      teaYear: tea && tea.year ? tea.year : null,
       type: type,
       checkinTime: ('0' + now.getHours()).slice(-2) + ':' + ('0' + now.getMinutes()).slice(-2)
     });

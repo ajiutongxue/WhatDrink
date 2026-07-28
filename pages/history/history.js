@@ -1,5 +1,6 @@
 var data = require('../../utils/data');
 var teaData = require('../../utils/teaData');
+var historyOrder = require('../../utils/historyOrder');
 var llm = require('../../utils/llm');
 var tracker = require('../../utils/tracker');
 
@@ -30,6 +31,11 @@ Page({
     var appData = data.load();
     this._appData = appData;
     var history = appData.history || [];
+    var library = appData.teaLibrary || teaData.TEAS;
+    var libraryById = {};
+    for (var li = 0; li < library.length; li++) {
+      if (library[li]) libraryById[String(library[li].id)] = library[li];
+    }
     var temporaryAvoids = appData.temporaryAvoids || {};
     var now = Date.now();
     var list = [];
@@ -42,22 +48,27 @@ Page({
       skip: ''
     };
 
-    // Reverse order (newest first), track original index for editing
-    for (var i = history.length - 1; i >= 0; i--) {
-      var h = history[i];
+    // Sort display independently from persisted/cloud array order.
+    // Keep the original index so edits still target the right entry.
+    var ordered = historyOrder.sortHistoryForDisplay(history);
+    for (var i = 0; i < ordered.length; i++) {
+      var h = ordered[i].entry;
+      var originalIdx = ordered[i].index;
       var catName = teaData.CAT_NAMES[h.teaCat] || '';
       if (h.teaCat === 'unknown') catName = '自定义';
       if (h.teaCat === 'none') catName = '';
 
       var avoidState = temporaryAvoids[String(h.teaId)] || {};
       var temporarilyAvoided = avoidState.active === true && Number(avoidState.expiresAt) > now;
+      var linkedTea = libraryById[String(h.teaId)] || null;
       list.push({
-        idx: i,  // original index in history array
+        idx: originalIdx,
         dateShort: h.date.slice(5),
         checkinTime: h.checkinTime || '',
         teaId: h.teaId,
         teaName: h.teaName,
         teaBrand: h.teaBrand || '',
+        teaYear: h.teaYear || (linkedTea && linkedTea.year) || null,
         teaCat: h.teaCat || 'green',
         teaCatName: catName,
         isSkip: h.type === 'skip',

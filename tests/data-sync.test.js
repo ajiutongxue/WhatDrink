@@ -149,6 +149,31 @@ async function run() {
   rawLocal.teaLibrary[0].name = 'legacy local edit';
   assert.ok(clientData.load().teaLibraryUpdatedAt > 0, 'legacy customized library must be migrated');
 
+  rawLocal = clientData.getDefaultData();
+  rawLocal.history = [{
+    id: 'h_1900000000000_repair', date: '2026-07-28', checkinTime: '18:30',
+    teaId: -1, teaName: '2022晒白金紧压寿眉', teaCat: 'unknown', teaBrand: '', type: 'custom',
+    tastingNotes: '保留笔记', imageFileIDs: [{ fileID: 'cloud://keep', caption: '' }], updatedAt: 10
+  }];
+  stored = null;
+  var repairedLocal = clientData.load();
+  assert.strictEqual(repairedLocal.history[0].teaId, 12, 'local load must repair a strong unique custom history link');
+  assert.strictEqual(repairedLocal.history[0].tastingNotes, '保留笔记');
+  assert.strictEqual(repairedLocal.history[0].imageFileIDs[0].fileID, 'cloud://keep');
+  assert.strictEqual(stored.history[0].teaId, 12, 'load-time repair must persist immediately');
+
+  rawLocal = clientData.getDefaultData();
+  global.wx.cloud.callFunction = function(options) {
+    var cloudOnly = clientData.getDefaultData();
+    cloudOnly.history = [{
+      id: 'h_1900000000001_cloud', date: '2026-07-28', teaId: -1,
+      teaName: '2022年晒白金紧压寿眉', teaCat: 'unknown', teaBrand: '', type: 'custom', updatedAt: 10
+    }];
+    options.success({ result: { success: true, data: cloudOnly } });
+  };
+  var repairedCloud = await clientData.sync();
+  assert.strictEqual(repairedCloud.history[0].teaId, 12, 'post-sync merged cloud history must also be repaired');
+
   console.log('data-sync tests passed');
 }
 

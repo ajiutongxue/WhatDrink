@@ -147,6 +147,14 @@
       <input class="tea-lib-input" value="{{form.note}}" bindinput="onNoteInput" placeholder="选填，如 疑似假货" placeholder-class="tea-lib-ph" />
     </view>
 
+    <view class="tea-lib-field tea-lib-avoid-field" wx:if="{{formType === 'edit'}}">
+      <view class="tea-lib-avoid-copy">
+        <text class="tea-lib-label tea-lib-avoid-label">暂时不想喝</text>
+        <text class="tea-lib-avoid-hint">开启后 30 天内不参与推荐</text>
+      </view>
+      <switch checked="{{form.temporarilyAvoided}}" bindchange="onAvoidChange" color="#C25B45" />
+    </view>
+
     <view class="tea-lib-form-actions">
       <view class="tea-lib-form-btn cancel" bindtap="onFormCancel">取消</view>
       <view class="tea-lib-form-btn save" bindtap="onFormSave">保存</view>

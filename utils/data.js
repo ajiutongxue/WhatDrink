@@ -5,6 +5,7 @@
  */
 
 var teaData = require('./teaData');
+var teaMatch = require('./teaMatch');
 
 var STORAGE_KEY = 'tea_doctor_v1';
 var CLOUD_COLLECTION = 'tea_doctor';
@@ -105,7 +106,7 @@ function load() {
         libraryUpdatedAt = Date.now();
       }
 
-      return {
+      var appData = {
         profile: profile,
         profileUpdatedAt: profileUpdatedAt,
         history: Array.isArray(raw.history) ? raw.history : [],
@@ -116,6 +117,8 @@ function load() {
         teaLibrary: library,
         teaLibraryUpdatedAt: libraryUpdatedAt
       };
+      _repairHistoryLinks(appData, true);
+      return appData;
     }
   } catch (e) {
     console.warn('[data] load error:', e);
@@ -177,6 +180,7 @@ function sync() {
       success: function(res) {
         if (res && res.result && res.result.success && res.result.data) {
           var merged = _mergeData(res.result.data, local);
+          _repairHistoryLinks(merged, false);
           save(merged);
           _setLastSyncTime(Date.now());
           resolve(merged);
@@ -246,6 +250,7 @@ function importJSON(json) {
         : 0
     };
 
+    _repairHistoryLinks(data, false);
     save(data);
     return true;
   } catch (e) {
@@ -270,6 +275,22 @@ function reset() {
 // ============================================================
 // Internal helpers
 // ============================================================
+
+function _repairHistoryLinks(appData, persistImmediately) {
+  if (!appData || typeof appData !== 'object') return 0;
+  var repaired = teaMatch.repairCustomHistoryLinks(
+    appData.history,
+    appData.teaLibrary || teaData.TEAS
+  );
+  if (repaired > 0 && persistImmediately) {
+    try {
+      wx.setStorageSync(STORAGE_KEY, appData);
+    } catch (e) {
+      console.warn('[data] history link repair persist error:', e);
+    }
+  }
+  return repaired;
+}
 
 /**
  * Simple shallow merge: target properties overridden by source (if defined).

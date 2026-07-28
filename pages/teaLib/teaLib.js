@@ -48,7 +48,7 @@ Page({
     form: {
       id: null,
       name: '', brand: '', cat: 'green',
-      year: '', nature: '寒', caffeine: '中', note: ''
+      year: '', nature: '寒', caffeine: '中', note: '', temporarilyAvoided: false
     },
     catOptionNames: CAT_LABELS,
     catIndex: 0,
@@ -60,6 +60,7 @@ Page({
 
   _allTeas: [],
   _appData: null,
+  _formAvoidInitiallyActive: false,
 
   onLoad: function () {
     var list = FILTER_LIST.map(function (f) {
@@ -178,8 +179,9 @@ Page({
     var def = teaData.CAT_DEFAULTS[cat];
     var form = {
       id: null, name: '', brand: '', cat: cat,
-      year: '', nature: def.baseNature, caffeine: def.caffeine, note: ''
+      year: '', nature: def.baseNature, caffeine: def.caffeine, note: '', temporarilyAvoided: false
     };
+    this._formAvoidInitiallyActive = false;
     this.setData({
       showForm: true, formType: 'add', formTitle: '添加茶叶', form: form,
       catIndex: this._catIndex(cat),
@@ -192,11 +194,16 @@ Page({
     var id = e.currentTarget.dataset.id;
     var tea = this._findTea(id);
     if (!tea) return;
+    var appData = this._appData || data.load();
+    var avoidState = (appData.temporaryAvoids || {})[String(tea.id)] || {};
+    var temporarilyAvoided = avoidState.active === true && Number(avoidState.expiresAt) > Date.now();
     var form = {
       id: tea.id, name: tea.name, brand: tea.brand || '', cat: tea.cat,
       year: tea.year ? String(tea.year) : '',
-      nature: tea.nature || tea.baseNature, caffeine: tea.caffeine, note: tea.note || ''
+      nature: tea.nature || tea.baseNature, caffeine: tea.caffeine, note: tea.note || '',
+      temporarilyAvoided: temporarilyAvoided
     };
+    this._formAvoidInitiallyActive = temporarilyAvoided;
     this.setData({
       showForm: true, formType: 'edit', formTitle: '编辑茶叶', form: form,
       catIndex: this._catIndex(tea.cat),
@@ -209,6 +216,7 @@ Page({
   onBrandInput: function (e) { this.setData({ 'form.brand': e.detail.value }); },
   onYearInput: function (e) { this.setData({ 'form.year': e.detail.value }); },
   onNoteInput: function (e) { this.setData({ 'form.note': e.detail.value }); },
+  onAvoidChange: function (e) { this.setData({ 'form.temporarilyAvoided': !!e.detail.value }); },
 
   onCatChange: function (e) {
     var idx = parseInt(e.detail.value);
@@ -291,6 +299,24 @@ Page({
       for (var i = 0; i < lib.length; i++) {
         if (lib[i].id === f.id) { lib[i] = teaObj; break; }
       }
+    }
+
+    if (this.data.formType === 'edit' && !!f.temporarilyAvoided !== this._formAvoidInitiallyActive) {
+      if (!appData.temporaryAvoids || typeof appData.temporaryAvoids !== 'object') {
+        appData.temporaryAvoids = {};
+      }
+      var key = String(f.id);
+      var previous = appData.temporaryAvoids[key] || {};
+      var avoidNow = Date.now();
+      appData.temporaryAvoids[key] = f.temporarilyAvoided
+        ? { active: true, markedAt: avoidNow, expiresAt: avoidNow + 30 * 86400000, updatedAt: avoidNow }
+        : {
+            active: false,
+            markedAt: previous.markedAt || 0,
+            expiresAt: previous.expiresAt || 0,
+            updatedAt: avoidNow
+          };
+      this._formAvoidInitiallyActive = !!f.temporarilyAvoided;
     }
 
     appData.teaLibrary = lib;

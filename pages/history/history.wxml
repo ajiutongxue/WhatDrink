@@ -44,19 +44,13 @@
               </view>
               <view class="history-tea-cat">
                 <text wx:if="{{item.teaBrand}}">{{item.teaBrand}} · </text>
+                <text wx:if="{{item.teaYear}}">{{item.teaYear}}年 · </text>
                 <text>{{item.teaCatName}}</text>
               </view>
             </view>
             <text class="history-notes-btn" bindtap="onToggleNotes" data-idx="{{item.idx}}">
               {{item.hasNotes ? '📝' : '✏️'}}
             </text>
-          </view>
-
-          <view class="history-preference-action" wx:if="{{item.canTemporarilyAvoid}}">
-            <text class="history-avoid-link {{item.temporarilyAvoided ? 'is-active' : ''}}" bindtap="onToggleTemporaryAvoid" data-tea-id="{{item.teaId}}">
-              {{item.temporarilyAvoided ? '恢复推荐' : '暂时不想喝'}}
-            </text>
-            <text class="history-avoid-hint" wx:if="{{item.temporarilyAvoided}}">30天后自动恢复</text>
           </view>
 
           <!-- Existing tasting notes display (show when not editing this entry) -->
@@ -91,6 +85,12 @@
             <view class="history-img-add" wx:if="{{editingImages.length < 6}}" bindtap="onChooseImage">
               <text class="history-img-add-icon">+</text>
               <text class="history-img-add-text">{{editingImages.length}}/6</text>
+            </view>
+            <view class="history-preference-action" wx:if="{{item.canTemporarilyAvoid}}">
+              <text class="history-avoid-link {{item.temporarilyAvoided ? 'is-active' : ''}}" bindtap="onToggleTemporaryAvoid" data-tea-id="{{item.teaId}}">
+                {{item.temporarilyAvoided ? '恢复推荐' : '暂时不想喝'}}
+              </text>
+              <text class="history-avoid-hint" wx:if="{{item.temporarilyAvoided}}">30天后自动恢复</text>
             </view>
             <view class="history-notes-actions">
               <text class="history-notes-count">{{editingText.length}}/500</text>

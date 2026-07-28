@@ -348,6 +348,25 @@
   color: var(--ink);
 }
 
+.tea-lib-avoid-field {
+  justify-content: space-between;
+}
+
+.tea-lib-avoid-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 6rpx;
+}
+
+.tea-lib-avoid-label {
+  width: auto;
+}
+
+.tea-lib-avoid-hint {
+  color: var(--ink4);
+  font-size: 22rpx;
+}
+
 .tea-lib-form-actions {
   display: flex;
   gap: 24rpx;
