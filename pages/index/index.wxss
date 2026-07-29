@@ -86,13 +86,16 @@
   animation: snow-fall 5s ease-in-out infinite;
 }
 
-/* Clouds: slow wide horizontal drift */
+/* Clouds: natural multi-point drift with subtle vertical bob */
 @keyframes cloud-drift {
-  0%, 100% { transform: translateX(0); }
-  50%      { transform: translateX(30rpx); }
+  0%   { transform: translateX(0) translateY(0); }
+  25%  { transform: translateX(16rpx) translateY(-4rpx); }
+  50%  { transform: translateX(36rpx) translateY(2rpx); }
+  75%  { transform: translateX(20rpx) translateY(-2rpx); }
+  100% { transform: translateX(0) translateY(0); }
 }
 .anim-clouds {
-  animation: cloud-drift 10s ease-in-out infinite;
+  animation: cloud-drift 14s ease-in-out infinite;
 }
 
 /* Stars: gentle opacity pulse (twinkle) */

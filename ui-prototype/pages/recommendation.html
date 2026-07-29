@@ -44,26 +44,67 @@
     <p class="muted" style="text-align:center">正在从你的茶库中挑选合适的一杯…</p>
   </section>
 
+  <!-- ===== Rule Result: Horizontal Scroll Cards ===== -->
   <section class="state-panel" data-state="rule-result" data-state-label="规则推荐" hidden>
     <header class="hero" data-section="weather"><div class="hero-date">七月廿六 · 成都</div><div class="hero-term">大暑</div><div class="weather"><b>29°</b><span>多云</span></div></header>
-    <article class="card recommendation-card" data-section="recommendation">
-      <span class="tag sage">本地算法推荐</span><h1 class="recommendation-name">蒙顶甘露</h1><div class="muted">川茶 · 2025</div>
-      <div class="row" style="margin-top:12px"><span class="tag">绿茶</span><span class="tag sage">凉</span><span class="tag">低咖啡因</span></div>
-      <p class="recommendation-reason">天气闷热，今天适合一杯清鲜、负担较轻的绿茶。</p>
-      <div class="brew">85℃ · 90秒 · 4克</div><div class="recommendation-actions"><button class="primary-button">喝这个</button><button class="ghost-button">近期不想喝</button></div>
-    </article>
-    <article class="card" data-section="alternate" style="margin-top:14px"><div class="tiny">换个方向</div><b>白牡丹</b><span class="muted"> · 福鼎白茶</span><div class="recommendation-actions"><button class="primary-button">喝这个</button><button class="ghost-button">近期不想喝</button></div></article>
+
+    <div class="rec-carousel" data-section="recommendation">
+      <div class="rec-track">
+        <!-- Slide 1: Primary -->
+        <article class="card recommendation-card rec-slide">
+          <span class="tag sage">本地算法推荐</span>
+          <h1 class="recommendation-name">蒙顶甘露</h1>
+          <div class="muted">川茶 · 2025</div>
+          <div class="row" style="margin-top:12px"><span class="tag">绿茶</span><span class="tag sage">凉</span><span class="tag">低咖啡因</span></div>
+          <p class="recommendation-reason">天气闷热，今天适合一杯清鲜、负担较轻的绿茶。</p>
+          <div class="brew">85℃ · 90秒 · 4克</div>
+          <div class="recommendation-actions"><button class="primary-button">喝这个</button><button class="ghost-button">近期不想喝</button></div>
+        </article>
+        <!-- Slide 2: Alternate -->
+        <article class="card recommendation-card rec-slide rec-slide-alt">
+          <span class="tag">备选 · 更柔和</span>
+          <h1 class="recommendation-name">白牡丹</h1>
+          <div class="muted">福鼎白茶 · 2024</div>
+          <div class="row" style="margin-top:12px"><span class="tag">白茶</span><span class="tag sage">凉</span></div>
+          <p class="recommendation-reason">甜润一些，适合慢慢喝。</p>
+          <div class="brew">90℃ · 120秒 · 5克</div>
+          <div class="recommendation-actions"><button class="primary-button">喝这个</button><button class="ghost-button">近期不想喝</button></div>
+        </article>
+      </div>
+      <div class="rec-dots"><span class="rec-dot active"></span><span class="rec-dot"></span></div>
+    </div>
+
     <div class="card custom-drink-prototype" data-section="custom-drink" style="margin-top:14px"><div class="card-title">我喝了别的</div><div class="custom-drink-prototype-row"><input class="field" placeholder="输入实际喝的茶"><button class="primary-button">喝这个</button></div></div>
   </section>
 
+  <!-- ===== AI Result: Horizontal Scroll Cards ===== -->
   <section class="state-panel" data-state="ai-result" data-state-label="AI 推荐" hidden>
     <header class="hero" data-section="weather"><div class="hero-date">七月廿六 · 成都</div><div class="hero-term">大暑</div></header>
-    <article class="card recommendation-card" data-section="recommendation">
-      <span class="tag coral">AI 推荐</span><h1 class="recommendation-name">蒙顶甘露</h1><div class="muted">川茶 · 春茶</div>
-      <p class="recommendation-reason">你昨晚休息偏晚，又想要清爽感。蒙顶甘露的嫩香与轻盈鲜甜，既回应盛夏天气，也不会让今天的味觉过于沉重。</p>
-      <div class="brew">水温 85℃ · 第一泡 60–90 秒</div><div class="recommendation-actions"><button class="primary-button">喝这个</button><button class="ghost-button">近期不想喝</button></div>
-    </article>
-    <article class="card" data-section="alternate" style="margin-top:14px"><div class="tiny">备选 · 更柔和</div><b>白牡丹</b><p class="muted">甜润一些，适合慢慢喝。</p><div class="recommendation-actions"><button class="primary-button">喝这个</button><button class="ghost-button">近期不想喝</button></div></article>
+
+    <div class="rec-carousel" data-section="recommendation">
+      <div class="rec-track">
+        <!-- Slide 1: Primary AI -->
+        <article class="card recommendation-card rec-slide">
+          <span class="tag coral">AI 推荐</span>
+          <h1 class="recommendation-name">蒙顶甘露</h1>
+          <div class="muted">川茶 · 春茶</div>
+          <p class="recommendation-reason">你昨晚休息偏晚，又想要清爽感。蒙顶甘露的嫩香与轻盈鲜甜，既回应盛夏天气，也不会让今天的味觉过于沉重。</p>
+          <div class="brew">水温 85℃ · 第一泡 60–90 秒</div>
+          <div class="recommendation-actions"><button class="primary-button">喝这个</button><button class="ghost-button">近期不想喝</button></div>
+        </article>
+        <!-- Slide 2: Alternate AI -->
+        <article class="card recommendation-card rec-slide rec-slide-alt">
+          <span class="tag">AI 备选 · 更柔和</span>
+          <h1 class="recommendation-name">白牡丹</h1>
+          <div class="muted">福鼎白茶 · 2024</div>
+          <p class="recommendation-reason">甜润一些，适合慢慢喝。白茶的低咖啡因也不会影响晚间休息。</p>
+          <div class="brew">90℃ · 120秒 · 5克</div>
+          <div class="recommendation-actions"><button class="primary-button">喝这个</button><button class="ghost-button">近期不想喝</button></div>
+        </article>
+      </div>
+      <div class="rec-dots"><span class="rec-dot active"></span><span class="rec-dot"></span></div>
+    </div>
+
     <div class="card custom-drink-prototype" data-section="custom-drink" style="margin-top:14px"><div class="card-title">我喝了别的</div><div class="custom-drink-prototype-row"><input class="field" placeholder="输入实际喝的茶"><button class="primary-button">喝这个</button></div></div>
   </section>
 

@@ -1,42 +1,72 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 750 1624" preserveAspectRatio="xMidYMid slice">
   <defs>
     <linearGradient id="duskSky" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#6B5B8A"/>
-      <stop offset="25%" stop-color="#9B6B8A"/>
-      <stop offset="48%" stop-color="#D4887A"/>
-      <stop offset="68%" stop-color="#F0A870"/>
-      <stop offset="85%" stop-color="#F8C488"/>
+      <stop offset="0%" stop-color="#5E4E80"/>
+      <stop offset="20%" stop-color="#8A5E82"/>
+      <stop offset="40%" stop-color="#C47872"/>
+      <stop offset="58%" stop-color="#E89468"/>
+      <stop offset="74%" stop-color="#F4B478"/>
+      <stop offset="88%" stop-color="#F8CC90"/>
       <stop offset="100%" stop-color="#FAE0B0"/>
     </linearGradient>
-    <radialGradient id="duskGlow" cx="35%" cy="68%" r="40%">
-      <stop offset="0%" stop-color="#FFD080" stop-opacity="0.6"/>
-      <stop offset="50%" stop-color="#F0A060" stop-opacity="0.25"/>
+    <radialGradient id="duskGlow" cx="32%" cy="64%" r="38%">
+      <stop offset="0%" stop-color="#FFD480" stop-opacity="0.65"/>
+      <stop offset="45%" stop-color="#F0A060" stop-opacity="0.3"/>
       <stop offset="100%" stop-color="#F0A060" stop-opacity="0"/>
     </radialGradient>
-    <linearGradient id="duskHillBack" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#8A6E72"/>
-      <stop offset="100%" stop-color="#A07E78"/>
+    <linearGradient id="duskHill1" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#9A7478"/>
+      <stop offset="100%" stop-color="#A88480"/>
     </linearGradient>
-    <linearGradient id="duskHillMid" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#6E7E68"/>
-      <stop offset="100%" stop-color="#849478"/>
+    <linearGradient id="duskHill2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#846468"/>
+      <stop offset="100%" stop-color="#947470"/>
     </linearGradient>
-    <linearGradient id="duskHillFront" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#54685A"/>
-      <stop offset="100%" stop-color="#687C66"/>
+    <linearGradient id="duskHill3" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#6E7E64"/>
+      <stop offset="100%" stop-color="#7E8E72"/>
+    </linearGradient>
+    <linearGradient id="duskHill4" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#566E58"/>
+      <stop offset="100%" stop-color="#667E64"/>
+    </linearGradient>
+    <linearGradient id="duskHill5" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#445C4A"/>
+      <stop offset="100%" stop-color="#546C56"/>
     </linearGradient>
   </defs>
 
-  <!-- Sky: purple top → orange → golden horizon -->
+  <!-- Sky: purple → orange → golden -->
   <rect width="750" height="1624" fill="url(#duskSky)"/>
-  <!-- Setting sun glow at horizon -->
-  <ellipse cx="260" cy="1080" rx="350" ry="280" fill="url(#duskGlow)"/>
+  <ellipse cx="240" cy="1040" rx="360" ry="300" fill="url(#duskGlow)"/>
 
-  <!-- Rolling hills (warm dark silhouettes) -->
-  <path d="M0 1180 Q180 1060 380 1150 T750 1120 L750 1624 L0 1624 Z" fill="url(#duskHillBack)"/>
-  <path d="M0 1320 Q220 1200 460 1300 T750 1280 L750 1624 L0 1624 Z" fill="url(#duskHillMid)"/>
-  <path d="M0 1460 Q200 1360 420 1450 T750 1430 L750 1624 L0 1624 Z" fill="url(#duskHillFront)"/>
+  <!-- Distant hills (warm silhouette) -->
+  <path d="M0 1080 Q120 1020 260 1060 Q400 1100 520 1050 Q640 1000 750 1040 L750 1624 L0 1624 Z" fill="url(#duskHill1)" opacity="0.6"/>
 
-  <!-- Warm haze at hill base -->
-  <ellipse cx="375" cy="1200" rx="460" ry="44" fill="#F0A870" opacity="0.15"/>
+  <!-- Mid-distant -->
+  <path d="M0 1160 Q160 1080 340 1140 Q500 1190 620 1130 Q700 1100 750 1120 L750 1624 L0 1624 Z" fill="url(#duskHill2)" opacity="0.75"/>
+
+  <!-- Warm haze -->
+  <ellipse cx="375" cy="1170" rx="500" ry="30" fill="#F4B478" opacity="0.18"/>
+
+  <!-- Mid hills -->
+  <path d="M0 1280 Q180 1180 380 1260 Q560 1330 680 1270 Q720 1250 750 1260 L750 1624 L0 1624 Z" fill="url(#duskHill3)"/>
+  <g stroke="#5E7458" stroke-width="1.2" fill="none" opacity="0.3">
+    <path d="M60 1320 Q200 1280 360 1310 Q500 1340 640 1300"/>
+    <path d="M40 1360 Q190 1320 370 1350 Q520 1380 680 1340"/>
+    <path d="M20 1400 Q180 1360 380 1390 Q540 1420 700 1380"/>
+  </g>
+
+  <!-- Near hills -->
+  <path d="M0 1420 Q200 1340 420 1410 Q600 1470 750 1430 L750 1624 L0 1624 Z" fill="url(#duskHill4)"/>
+  <g stroke="#4A6248" stroke-width="1.4" fill="none" opacity="0.25">
+    <path d="M30 1460 Q200 1420 400 1450 Q580 1480 720 1450"/>
+    <path d="M10 1500 Q190 1460 400 1490 Q590 1520 740 1490"/>
+  </g>
+
+  <!-- Foreground -->
+  <path d="M0 1530 Q180 1470 380 1520 Q560 1560 750 1530 L750 1624 L0 1624 Z" fill="url(#duskHill5)"/>
+
+  <!-- Warm atmospheric haze at base -->
+  <ellipse cx="375" cy="1200" rx="460" ry="36" fill="#E89468" opacity="0.12"/>
 </svg>

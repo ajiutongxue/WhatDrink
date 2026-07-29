@@ -1,43 +1,71 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 750 1624" preserveAspectRatio="xMidYMid slice">
   <defs>
     <linearGradient id="dawnSky" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#C8D8F0"/>
-      <stop offset="30%" stop-color="#E4D8EC"/>
-      <stop offset="55%" stop-color="#F5E2D8"/>
-      <stop offset="78%" stop-color="#FBE8D4"/>
-      <stop offset="100%" stop-color="#FDF0E0"/>
+      <stop offset="0%" stop-color="#C4D6EE"/>
+      <stop offset="22%" stop-color="#D8D4E8"/>
+      <stop offset="42%" stop-color="#ECD8DC"/>
+      <stop offset="62%" stop-color="#F8E4D4"/>
+      <stop offset="82%" stop-color="#FCECD8"/>
+      <stop offset="100%" stop-color="#FDF2E2"/>
     </linearGradient>
-    <radialGradient id="dawnGlow" cx="72%" cy="62%" r="45%">
-      <stop offset="0%" stop-color="#FFE4C4" stop-opacity="0.5"/>
-      <stop offset="100%" stop-color="#FFE4C4" stop-opacity="0"/>
+    <radialGradient id="dawnGlow" cx="68%" cy="58%" r="42%">
+      <stop offset="0%" stop-color="#FFE8C8" stop-opacity="0.55"/>
+      <stop offset="55%" stop-color="#FFDDB0" stop-opacity="0.2"/>
+      <stop offset="100%" stop-color="#FFDDB0" stop-opacity="0"/>
     </radialGradient>
-    <linearGradient id="dHillBack" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#D8C8C0"/>
-      <stop offset="100%" stop-color="#E4D6CC"/>
+    <linearGradient id="dHill1" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#D8C8C4"/>
+      <stop offset="100%" stop-color="#E4D8D0"/>
     </linearGradient>
-    <linearGradient id="dHillMid" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#B4C4AE"/>
-      <stop offset="100%" stop-color="#C6D4BE"/>
+    <linearGradient id="dHill2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#C8B8B4"/>
+      <stop offset="100%" stop-color="#D8CCC4"/>
     </linearGradient>
-    <linearGradient id="dHillFront" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#96B08E"/>
-      <stop offset="100%" stop-color="#ACC2A2"/>
+    <linearGradient id="dHill3" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#B0C4A8"/>
+      <stop offset="100%" stop-color="#C2D2B8"/>
+    </linearGradient>
+    <linearGradient id="dHill4" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#94B08C"/>
+      <stop offset="100%" stop-color="#A8C29E"/>
+    </linearGradient>
+    <linearGradient id="dHill5" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#82A27A"/>
+      <stop offset="100%" stop-color="#96B48C"/>
     </linearGradient>
   </defs>
 
-  <!-- Sky: cool blue top melting into warm peach at horizon -->
+  <!-- Sky: cool blue top melting into warm peach -->
   <rect width="750" height="1624" fill="url(#dawnSky)"/>
-  <!-- Soft sunrise glow near horizon -->
-  <ellipse cx="540" cy="1000" rx="400" ry="320" fill="url(#dawnGlow)"/>
+  <ellipse cx="510" cy="940" rx="420" ry="340" fill="url(#dawnGlow)"/>
 
-  <!-- Thin mist band at horizon -->
-  <ellipse cx="375" cy="1140" rx="500" ry="50" fill="#FDF0E0" opacity="0.4"/>
+  <!-- Distant hills -->
+  <path d="M0 1080 Q120 1020 260 1060 Q400 1100 520 1050 Q640 1000 750 1040 L750 1624 L0 1624 Z" fill="url(#dHill1)" opacity="0.55"/>
 
-  <!-- Rolling hills (same geometry as all scenes) -->
-  <path d="M0 1180 Q180 1060 380 1150 T750 1120 L750 1624 L0 1624 Z" fill="url(#dHillBack)"/>
-  <path d="M0 1320 Q220 1200 460 1300 T750 1280 L750 1624 L0 1624 Z" fill="url(#dHillMid)"/>
-  <path d="M0 1460 Q200 1360 420 1450 T750 1430 L750 1624 L0 1624 Z" fill="url(#dHillFront)"/>
+  <!-- Mid-distant hills -->
+  <path d="M0 1160 Q160 1080 340 1140 Q500 1190 620 1130 Q700 1100 750 1120 L750 1624 L0 1624 Z" fill="url(#dHill2)" opacity="0.7"/>
 
-  <!-- Gentle morning mist between hills -->
-  <ellipse cx="300" cy="1260" rx="380" ry="36" fill="#F5E8DC" opacity="0.3"/>
+  <!-- Morning mist band -->
+  <ellipse cx="375" cy="1170" rx="540" ry="38" fill="#FDF2E2" opacity="0.5"/>
+
+  <!-- Mid hills with terraces -->
+  <path d="M0 1280 Q180 1180 380 1260 Q560 1330 680 1270 Q720 1250 750 1260 L750 1624 L0 1624 Z" fill="url(#dHill3)"/>
+  <g stroke="#9CB894" stroke-width="1.2" fill="none" opacity="0.35">
+    <path d="M60 1320 Q200 1280 360 1310 Q500 1340 640 1300"/>
+    <path d="M40 1360 Q190 1320 370 1350 Q520 1380 680 1340"/>
+    <path d="M20 1400 Q180 1360 380 1390 Q540 1420 700 1380"/>
+  </g>
+
+  <!-- Near hills -->
+  <path d="M0 1420 Q200 1340 420 1410 Q600 1470 750 1430 L750 1624 L0 1624 Z" fill="url(#dHill4)"/>
+  <g stroke="#82A47A" stroke-width="1.4" fill="none" opacity="0.3">
+    <path d="M30 1460 Q200 1420 400 1450 Q580 1480 720 1450"/>
+    <path d="M10 1500 Q190 1460 400 1490 Q590 1520 740 1490"/>
+  </g>
+
+  <!-- Foreground -->
+  <path d="M0 1530 Q180 1470 380 1520 Q560 1560 750 1530 L750 1624 L0 1624 Z" fill="url(#dHill5)"/>
+
+  <!-- Gentle mist between near hills -->
+  <ellipse cx="300" cy="1440" rx="380" ry="26" fill="#F8E8DC" opacity="0.3"/>
 </svg>

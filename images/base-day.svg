@@ -1,36 +1,72 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 750 1624" preserveAspectRatio="xMidYMid slice">
   <defs>
     <linearGradient id="daySky" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#FBE0CC"/>
-      <stop offset="38%" stop-color="#FBF0E2"/>
-      <stop offset="72%" stop-color="#FAEADD"/>
-      <stop offset="100%" stop-color="#F6E7D6"/>
+      <stop offset="0%" stop-color="#FDE8D4"/>
+      <stop offset="28%" stop-color="#FBF0E2"/>
+      <stop offset="55%" stop-color="#FAEEDF"/>
+      <stop offset="80%" stop-color="#F8E9D8"/>
+      <stop offset="100%" stop-color="#F5E4D2"/>
     </linearGradient>
-    <radialGradient id="dayWarm" cx="65%" cy="35%" r="50%">
-      <stop offset="0%" stop-color="#FFF4E0" stop-opacity="0.4"/>
+    <radialGradient id="dayWarm" cx="62%" cy="28%" r="52%">
+      <stop offset="0%" stop-color="#FFF8EC" stop-opacity="0.55"/>
+      <stop offset="60%" stop-color="#FFF4E0" stop-opacity="0.2"/>
       <stop offset="100%" stop-color="#FFF4E0" stop-opacity="0"/>
     </radialGradient>
-    <linearGradient id="dayHillBack" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#E7D3C0"/>
-      <stop offset="100%" stop-color="#EFDCCB"/>
+    <linearGradient id="dayHill1" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#E8D6C6"/>
+      <stop offset="100%" stop-color="#EFE0D2"/>
     </linearGradient>
-    <linearGradient id="dayHillMid" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#B9CDAE"/>
-      <stop offset="100%" stop-color="#CBDCBF"/>
+    <linearGradient id="dayHill2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#D4C4B4"/>
+      <stop offset="100%" stop-color="#E2D4C6"/>
     </linearGradient>
-    <linearGradient id="dayHillFront" x1="0" y1="0" x2="0" y2="1">
+    <linearGradient id="dayHill3" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#B8CCAA"/>
+      <stop offset="100%" stop-color="#C8D8BC"/>
+    </linearGradient>
+    <linearGradient id="dayHill4" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0%" stop-color="#9DB88F"/>
-      <stop offset="100%" stop-color="#B4CBA6"/>
+      <stop offset="100%" stop-color="#B0C8A2"/>
+    </linearGradient>
+    <linearGradient id="dayHill5" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#88A87A"/>
+      <stop offset="100%" stop-color="#9CBC8E"/>
     </linearGradient>
   </defs>
 
-  <!-- Sky: warm peach-cream (signature 暖屿 daytime) -->
+  <!-- Sky -->
   <rect width="750" height="1624" fill="url(#daySky)"/>
-  <!-- Ambient warm light -->
-  <ellipse cx="490" cy="560" rx="420" ry="380" fill="url(#dayWarm)"/>
+  <ellipse cx="465" cy="460" rx="440" ry="400" fill="url(#dayWarm)"/>
 
-  <!-- Rolling hills -->
-  <path d="M0 1180 Q180 1060 380 1150 T750 1120 L750 1624 L0 1624 Z" fill="url(#dayHillBack)"/>
-  <path d="M0 1320 Q220 1200 460 1300 T750 1280 L750 1624 L0 1624 Z" fill="url(#dayHillMid)"/>
-  <path d="M0 1460 Q200 1360 420 1450 T750 1430 L750 1624 L0 1624 Z" fill="url(#dayHillFront)"/>
+  <!-- Distant hills (warm haze) -->
+  <path d="M0 1080 Q120 1020 260 1060 Q400 1100 520 1050 Q640 1000 750 1040 L750 1624 L0 1624 Z" fill="url(#dayHill1)" opacity="0.6"/>
+
+  <!-- Mid-distant hills -->
+  <path d="M0 1160 Q160 1080 340 1140 Q500 1190 620 1130 Q700 1100 750 1120 L750 1624 L0 1624 Z" fill="url(#dayHill2)" opacity="0.75"/>
+
+  <!-- Mist band between layers -->
+  <ellipse cx="375" cy="1180" rx="520" ry="32" fill="#FBF3E7" opacity="0.45"/>
+
+  <!-- Mid hills with tea terraces -->
+  <path d="M0 1280 Q180 1180 380 1260 Q560 1330 680 1270 Q720 1250 750 1260 L750 1624 L0 1624 Z" fill="url(#dayHill3)"/>
+  <!-- Terrace lines -->
+  <g stroke="#A8C098" stroke-width="1.2" fill="none" opacity="0.4">
+    <path d="M60 1320 Q200 1280 360 1310 Q500 1340 640 1300"/>
+    <path d="M40 1360 Q190 1320 370 1350 Q520 1380 680 1340"/>
+    <path d="M20 1400 Q180 1360 380 1390 Q540 1420 700 1380"/>
+  </g>
+
+  <!-- Near hills -->
+  <path d="M0 1420 Q200 1340 420 1410 Q600 1470 750 1430 L750 1624 L0 1624 Z" fill="url(#dayHill4)"/>
+  <!-- Terrace lines -->
+  <g stroke="#8AA87C" stroke-width="1.4" fill="none" opacity="0.35">
+    <path d="M30 1460 Q200 1420 400 1450 Q580 1480 720 1450"/>
+    <path d="M10 1500 Q190 1460 400 1490 Q590 1520 740 1490"/>
+  </g>
+
+  <!-- Foreground hill -->
+  <path d="M0 1530 Q180 1470 380 1520 Q560 1560 750 1530 L750 1624 L0 1624 Z" fill="url(#dayHill5)"/>
+
+  <!-- Subtle foreground mist -->
+  <ellipse cx="375" cy="1560" rx="480" ry="28" fill="#F5E4D2" opacity="0.2"/>
 </svg>

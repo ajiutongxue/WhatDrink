@@ -48,5 +48,18 @@
     pageSelect.addEventListener('change',function(){var page=manifest.pages.find(function(x){return x.id===pageSelect.value;});renderStates(page);var enabled=page.id==='recommendation';phaseSelect.disabled=!enabled;weatherSelect.disabled=!enabled;navigate();});stateSelect.addEventListener('change',navigate);phaseSelect.addEventListener('change',navigate);weatherSelect.addEventListener('change',navigate);
     viewportSelect.addEventListener('change',function(){var v=manifest.viewports.find(function(x){return x.id===viewportSelect.value;});device.style.width=v.width+'px';device.style.height=v.height+'px';});window.addEventListener('message',function(e){if(e.data&&e.data.type==='ui-prototype-state'&&e.data.page===pageSelect.value)stateSelect.value=e.data.state;});
   }
-  document.addEventListener('DOMContentLoaded',function(){setupPage();setupHub();});
+  function setupCarouselDots(){
+    document.querySelectorAll('.rec-track').forEach(function(track){
+      var dots=track.parentElement.querySelectorAll('.rec-dot');
+      if(!dots.length)return;
+      var slides=track.querySelectorAll('.rec-slide');
+      track.addEventListener('scroll',function(){
+        var scrollLeft=track.scrollLeft, trackWidth=track.offsetWidth;
+        var idx=Math.round(scrollLeft/(trackWidth*0.82+14));
+        idx=Math.max(0,Math.min(idx,slides.length-1));
+        dots.forEach(function(d,i){d.classList.toggle('active',i===idx);});
+      },{passive:true});
+    });
+  }
+  document.addEventListener('DOMContentLoaded',function(){setupPage();setupHub();setupCarouselDots();});
 }());

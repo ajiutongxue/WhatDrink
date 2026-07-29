@@ -130,13 +130,13 @@
 .scene-container.phase-night .scene-base { filter: brightness(.82) saturate(.65) hue-rotate(8deg); }
 @keyframes proto-rain { from{transform:translateY(-20px) translateX(3px)} to{transform:translateY(20px) translateX(-3px)} }
 @keyframes proto-snow { 0%{transform:translateY(-12px)} 50%{transform:translateY(12px) translateX(4px)} 100%{transform:translateY(24px)} }
-@keyframes proto-cloud { 0%,100%{transform:translateX(0)} 50%{transform:translateX(15px)} }
+@keyframes proto-cloud { 0%{transform:translateX(0) translateY(0)} 25%{transform:translateX(8px) translateY(-2px)} 50%{transform:translateX(18px) translateY(1px)} 75%{transform:translateX(10px) translateY(-1px)} 100%{transform:translateX(0) translateY(0)} }
 @keyframes proto-twinkle { 0%,100%{opacity:1} 50%{opacity:.5} }
 @keyframes proto-lightning { 0%,93%,100%{opacity:0} 94%,95.5%{opacity:1} 95%{opacity:.2} }
 @keyframes proto-fog { 0%,100%{transform:translateX(0)} 50%{transform:translateX(-20px)} }
 @keyframes proto-sun { 0%,100%{transform:scale(1);opacity:.88} 50%{transform:scale(1.04);opacity:1} }
 @keyframes proto-overcast { 0%,100%{opacity:.88} 50%{opacity:1} }
-.anim-rain{animation:proto-rain 1s linear infinite}.anim-snow{animation:proto-snow 5s ease-in-out infinite}.anim-clouds{animation:proto-cloud 10s ease-in-out infinite}.anim-twinkle{animation:proto-twinkle 3.5s ease-in-out infinite}.anim-lightning{animation:proto-lightning 8s linear infinite}.anim-fog{animation:proto-fog 14s ease-in-out infinite}.anim-sun{animation:proto-sun 6s ease-in-out infinite}.anim-overcast{animation:proto-overcast 8s ease-in-out infinite}
+.anim-rain{animation:proto-rain 1s linear infinite}.anim-snow{animation:proto-snow 5s ease-in-out infinite}.anim-clouds{animation:proto-cloud 14s ease-in-out infinite}.anim-twinkle{animation:proto-twinkle 3.5s ease-in-out infinite}.anim-lightning{animation:proto-lightning 8s linear infinite}.anim-fog{animation:proto-fog 14s ease-in-out infinite}.anim-sun{animation:proto-sun 6s ease-in-out infinite}.anim-overcast{animation:proto-overcast 8s ease-in-out infinite}
 .recommendation-page .hero { padding-top: 38px; padding-bottom: 20px; margin: 0; }
 .recommendation-page .hero-top { display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; }
 .recommendation-page .solar { display:flex; flex-direction:column; align-items:flex-start; gap:3px; }
@@ -212,3 +212,55 @@
 .recommendation-page.phase-night .recommendation-card .tag.coral { background: rgba(200, 184, 216, .22); color: #d5c5e2; }
 .recommendation-page.phase-night .secondary-button { background: rgba(80, 96, 76, .7); color: #c4d8bf; }
 .recommendation-page.phase-night .ghost-button { background: rgba(60, 64, 80, .64); color: rgba(232, 228, 240, .8); }
+
+/* ===== Horizontal Scroll Carousel for Recommendation Cards ===== */
+.rec-carousel {
+  position: relative;
+  margin: 0 -20px;
+  padding: 0 20px;
+}
+.rec-track {
+  display: flex;
+  gap: 14px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  padding: 4px 20px 12px;
+  margin: 0 -20px;
+  scrollbar-width: none;
+}
+.rec-track::-webkit-scrollbar { display: none; }
+.rec-slide {
+  flex: 0 0 82%;
+  min-width: 0;
+  scroll-snap-align: center;
+  transition: transform .3s ease, box-shadow .3s ease;
+}
+.rec-slide-alt {
+  background: rgba(255, 252, 246, .72);
+  border-color: rgba(143, 174, 135, .22);
+}
+.rec-dots {
+  display: flex;
+  justify-content: center;
+  gap: 7px;
+  padding: 10px 0 4px;
+}
+.rec-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--ink-4);
+  transition: background .3s ease, transform .3s ease;
+}
+.rec-dot.active {
+  background: var(--coral);
+  transform: scale(1.3);
+}
+/* Night: carousel adaptations */
+.recommendation-page.phase-night .rec-slide-alt {
+  background: rgba(40, 44, 60, .72);
+  border-color: rgba(200, 184, 216, .12);
+}
+.recommendation-page.phase-night .rec-dot { background: rgba(216, 212, 228, .35); }
+.recommendation-page.phase-night .rec-dot.active { background: #c8b8d8; }

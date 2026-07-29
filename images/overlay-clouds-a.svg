@@ -1,29 +1,45 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 750 1624" preserveAspectRatio="xMidYMid slice">
-  <!-- Clouds variant A: soft warm clouds -->
-  <g fill="#FBF6EE">
-    <!-- Upper-left cluster -->
-    <g opacity="0.88">
-      <ellipse cx="190" cy="280" rx="110" ry="54"/>
-      <ellipse cx="280" cy="262" rx="85" ry="58"/>
-      <ellipse cx="120" cy="298" rx="72" ry="44"/>
-      <ellipse cx="230" cy="300" rx="95" ry="40"/>
-    </g>
-    <!-- Lower-right cluster -->
-    <g opacity="0.72">
-      <ellipse cx="560" cy="440" rx="120" ry="56"/>
-      <ellipse cx="650" cy="424" rx="80" ry="50"/>
-      <ellipse cx="490" cy="458" rx="70" ry="42"/>
-      <ellipse cx="590" cy="462" rx="90" ry="38"/>
-    </g>
-    <!-- Small wispy cloud top-right -->
-    <g opacity="0.5">
-      <ellipse cx="620" cy="180" rx="65" ry="28"/>
-      <ellipse cx="670" cy="172" rx="48" ry="24"/>
-    </g>
+  <defs>
+    <linearGradient id="cloudBodyA" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="70%" stop-color="#FBF6EE"/>
+      <stop offset="100%" stop-color="#F2E8DC"/>
+    </linearGradient>
+    <linearGradient id="cloudBodyB" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FEFCF8"/>
+      <stop offset="100%" stop-color="#F5EDE2"/>
+    </linearGradient>
+    <filter id="cloudSoft" x="-8%" y="-8%" width="116%" height="116%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="2"/>
+    </filter>
+  </defs>
+
+  <!-- Far distant clouds (small, faint) -->
+  <g opacity="0.35" filter="url(#cloudSoft)">
+    <path d="M580 140 Q600 118 630 124 Q660 110 688 126 Q710 120 718 136 Q730 148 714 156 Q700 168 670 162 Q640 170 612 160 Q586 164 580 150 Z" fill="#FBF6EE"/>
+    <path d="M80 220 Q96 202 120 208 Q142 196 162 210 Q178 206 184 218 Q192 228 178 234 Q164 242 142 238 Q118 244 98 236 Q82 238 80 228 Z" fill="#FBF6EE"/>
   </g>
-  <!-- Soft shadow under clouds -->
-  <g fill="#E7D8CE" opacity="0.3">
-    <ellipse cx="210" cy="320" rx="110" ry="18"/>
-    <ellipse cx="575" cy="480" rx="115" ry="16"/>
+
+  <!-- Main cloud cluster — upper left (large, prominent) -->
+  <g opacity="0.92">
+    <path d="M60 300 Q72 258 120 262 Q148 232 196 244 Q230 222 272 240 Q310 228 336 252 Q364 244 378 268 Q398 280 388 302 Q396 322 372 334 Q356 352 320 346 Q290 360 252 350 Q218 362 184 352 Q148 360 118 348 Q84 354 68 336 Q48 326 56 308 Z" fill="url(#cloudBodyA)"/>
+    <!-- Cloud bottom shadow -->
+    <path d="M88 336 Q120 350 180 348 Q240 356 300 346 Q350 342 372 332 Q360 352 310 354 Q260 362 200 358 Q140 362 100 350 Q76 344 88 336 Z" fill="#E8D8CC" opacity="0.4"/>
+  </g>
+
+  <!-- Secondary cloud — right side (medium) -->
+  <g opacity="0.78">
+    <path d="M480 420 Q496 388 536 394 Q562 372 600 384 Q632 370 660 390 Q688 382 700 404 Q718 414 710 434 Q716 452 694 460 Q676 474 644 468 Q612 478 578 470 Q544 478 516 466 Q488 472 478 452 Q464 440 474 426 Z" fill="url(#cloudBodyB)"/>
+    <path d="M504 458 Q540 470 590 466 Q640 472 680 462 Q700 456 710 448 Q702 468 660 472 Q616 480 568 476 Q524 480 498 468 Q486 462 504 458 Z" fill="#E8D8CC" opacity="0.35"/>
+  </g>
+
+  <!-- Small wispy cloud — upper right -->
+  <g opacity="0.55">
+    <path d="M560 200 Q574 182 600 186 Q620 174 644 184 Q662 178 672 192 Q684 200 676 212 Q668 222 648 218 Q626 226 604 220 Q580 224 568 214 Q556 210 560 200 Z" fill="#FBF6EE"/>
+  </g>
+
+  <!-- Low floating cloud — center (adds depth) -->
+  <g opacity="0.45">
+    <path d="M280 560 Q296 538 326 542 Q350 528 378 540 Q400 534 412 550 Q424 560 414 572 Q406 582 384 578 Q358 586 332 580 Q306 584 292 574 Q278 570 280 560 Z" fill="#FBF6EE"/>
   </g>
 </svg>
