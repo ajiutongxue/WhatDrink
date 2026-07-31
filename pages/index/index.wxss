@@ -3,7 +3,7 @@
    柔和粉彩 + 印章点缀 + 手写体标题，像一张温暖的茶笺
    ============================================================ */
 
-/* ========== Dynamic Scene Background — 3-Layer Architecture ========== */
+/* ========== Dynamic Scene Background ========== */
 .scene-container {
   position: fixed;
   top: 0;
@@ -16,132 +16,171 @@
   transition: opacity 0.8s ease;
 }
 
-/* Fade in once scene data is ready */
-.scene-ready {
-  opacity: 1;
-}
+.scene-ready { opacity: 1; }
 
 .scene-base,
 .scene-overlay,
-.scene-tint {
+.scene-tint,
+.scene-fog-bands,
+.scene-precipitation,
+.scene-weather-tint,
+.scene-lightning {
   position: absolute;
   top: 0;
+  right: 0;
+  bottom: 0;
   left: 0;
   width: 100%;
   height: 100%;
+  pointer-events: none;
 }
 
-/* Smooth transitions when switching scenes */
 .scene-base {
+  z-index: 0;
   transition: opacity 1.2s ease, filter 1.8s ease;
 }
 
 .scene-overlay {
+  transform: scale(1.06);
+  transform-origin: center;
   transition: opacity 1.2s ease;
+  will-change: transform, opacity;
 }
 
-/* L3: Time-of-day color tint overlay */
-.scene-tint {
-  pointer-events: none;
-  transition: background 2s ease;
-}
+.scene-fog-bands { z-index: 1; }
+.scene-overlay-primary { z-index: 2; }
+.scene-overlay-secondary,
+.scene-precipitation { z-index: 3; }
+.scene-tint { z-index: 4; transition: background 2s ease; }
+.scene-weather-tint { z-index: 5; }
+.scene-lightning { z-index: 6; }
 
 .tint-dawn  { background: rgba(160, 180, 240, 0.06); }
 .tint-day   { background: transparent; }
 .tint-dusk  { background: rgba(255, 120, 40, 0.10); }
 .tint-night { background: rgba(15, 20, 60, 0.28); }
 
-/* Time-of-day filters on base layer */
-.phase-dawn .scene-base {
-  filter: brightness(0.96) saturate(0.88);
+.phase-dawn .scene-base { filter: brightness(0.96) saturate(0.88); }
+.phase-dusk .scene-base { filter: brightness(0.9) saturate(0.82) hue-rotate(-5deg); }
+.phase-night .scene-base { filter: brightness(0.82) saturate(0.65) hue-rotate(8deg); }
+
+/* Rain and thunder use CSS particles without a cloud image. */
+.scene-precipitation { overflow: hidden; }
+.rain-drop {
+  position: absolute;
+  top: -12vh;
+  border-radius: 999rpx;
+  background: #5C7480;
+  animation-name: home-rain-particle;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  will-change: transform;
+}
+.phase-dawn .rain-drop { background: #6C838C; }
+.phase-dusk .rain-drop { background: #82979D; }
+.phase-night .rain-drop { background: #CFE0E6; }
+
+@keyframes home-rain-particle {
+  from { transform: translate3d(0, -12vh, 0) rotate(12deg); }
+  to { transform: translate3d(-6vh, 112vh, 0) rotate(12deg); }
 }
 
-.phase-dusk .scene-base {
-  filter: brightness(0.9) saturate(0.82) hue-rotate(-5deg);
+@keyframes home-snow-far {
+  0% { transform: translate3d(0, -6.77%, 0) scale(1.08); }
+  50% { transform: translate3d(1.4%, 0, 0) scale(1.08); }
+  100% { transform: translate3d(0, 6.77%, 0) scale(1.08); }
 }
-
-.phase-night .scene-base {
-  filter: brightness(0.82) saturate(0.65) hue-rotate(8deg);
+@keyframes home-snow-near {
+  0% { transform: translate3d(0, -9.85%, 0) scale(1.08); }
+  50% { transform: translate3d(-1.8%, 0, 0) scale(1.08); }
+  100% { transform: translate3d(0, 9.85%, 0) scale(1.08); }
 }
-
-/* ===== Weather Overlay Animations ===== */
-
-/* Rain: steady diagonal fall */
-@keyframes rain-fall {
-  from { transform: translateY(-40rpx) translateX(6rpx); }
-  to   { transform: translateY(40rpx) translateX(-6rpx); }
+@keyframes home-lightning-flash {
+  0%, 91.9%, 92.9%, 93.5%, 94.4%, 100% { opacity: 0; }
+  92% { opacity: 0.52; }
+  93.6% { opacity: 0.34; }
 }
-.anim-rain {
-  animation: rain-fall 1s linear infinite;
+@keyframes home-fog {
+  0%, 100% { transform: translate3d(-1.5%, 0, 0) scale(1.08); }
+  50% { transform: translate3d(1.5%, -0.25%, 0) scale(1.08); }
 }
-
-/* Snow: slow drift with gentle sway */
-@keyframes snow-fall {
-  0%   { transform: translateY(-24rpx) translateX(0) rotate(0deg); }
-  33%  { transform: translateY(0) translateX(8rpx) rotate(2deg); }
-  66%  { transform: translateY(24rpx) translateX(-4rpx) rotate(-1deg); }
-  100% { transform: translateY(48rpx) translateX(0) rotate(0deg); }
+@keyframes home-overcast {
+  0%, 100% { transform: translate3d(-1%, 0, 0) scale(1.08); opacity: 0.76; }
+  50% { transform: translate3d(2%, 0, 0) scale(1.08); opacity: 0.96; }
 }
-.anim-snow {
-  animation: snow-fall 5s ease-in-out infinite;
+@keyframes home-clouds {
+  0%, 100% { transform: translate3d(-1%, 0, 0) scale(1.08); opacity: 0.78; }
+  50% { transform: translate3d(2%, -1%, 0) scale(1.08); opacity: 0.95; }
 }
-
-/* Clouds: natural multi-point drift with subtle vertical bob */
-@keyframes cloud-drift {
-  0%   { transform: translateX(0) translateY(0); }
-  25%  { transform: translateX(16rpx) translateY(-4rpx); }
-  50%  { transform: translateX(36rpx) translateY(2rpx); }
-  75%  { transform: translateX(20rpx) translateY(-2rpx); }
-  100% { transform: translateX(0) translateY(0); }
+@keyframes sun-breathe {
+  0%, 100% { transform: scale(1.06); opacity: 0.88; }
+  50% { transform: scale(1.1); opacity: 1; }
 }
-.anim-clouds {
-  animation: cloud-drift 14s ease-in-out infinite;
-}
-
-/* Stars: gentle opacity pulse (twinkle) */
 @keyframes twinkle {
   0%, 100% { opacity: 1; }
-  50%      { opacity: 0.5; }
-}
-.anim-twinkle {
-  animation: twinkle 3.5s ease-in-out infinite;
+  50% { opacity: 0.5; }
 }
 
-/* Lightning: rare intermittent flash */
-@keyframes lightning {
-  0%, 93%, 100% { opacity: 0; }
-  94%, 95.5%    { opacity: 1; }
-  95%           { opacity: 0.2; }
-}
-.anim-lightning {
-  animation: lightning 8s linear infinite;
+.anim-snow { animation: home-snow-far 11s linear -4.2s infinite; }
+.anim-snow-near { animation: home-snow-near 7.5s linear -2.7s infinite; }
+.phase-day .anim-snow,
+.phase-day .anim-snow-near { filter: brightness(0) invert(1); }
+.anim-fog { animation: home-fog 22s ease-in-out infinite; }
+.anim-overcast { transform-origin: center top; animation: home-overcast 17s ease-in-out infinite; }
+.anim-clouds { animation: home-clouds 20s ease-in-out infinite; }
+.anim-sun { animation: sun-breathe 6s ease-in-out infinite; }
+.anim-twinkle { animation: twinkle 3.5s ease-in-out infinite; }
+
+.weather-fog .scene-fog-bands {
+  opacity: 0.72;
+  background:
+    linear-gradient(180deg, transparent 0%, transparent 46%, rgba(226, 234, 231, 0.13) 50%, rgba(237, 241, 239, 0.3) 57%, transparent 66%),
+    linear-gradient(180deg, transparent 0%, transparent 64%, rgba(219, 228, 224, 0.16) 70%, rgba(239, 242, 240, 0.22) 76%, transparent 84%);
 }
 
-/* Fog: very slow lateral drift */
-@keyframes fog-drift {
-  0%, 100% { transform: translateX(0); }
-  50%      { transform: translateX(-40rpx); }
+.weather-rain .scene-weather-tint {
+  background: linear-gradient(180deg, rgba(91, 119, 128, 0.13) 0%, rgba(118, 143, 149, 0.08) 44%, rgba(192, 207, 205, 0.02) 100%);
 }
-.anim-fog {
-  animation: fog-drift 14s ease-in-out infinite;
+.weather-snow .scene-weather-tint {
+  background: linear-gradient(180deg, rgba(159, 181, 190, 0.11) 0%, rgba(188, 204, 209, 0.07) 46%, rgba(229, 236, 235, 0.03) 100%);
 }
-
-/* Sun: gentle breathing glow */
-@keyframes sun-breathe {
-  0%, 100% { transform: scale(1); opacity: 0.88; }
-  50%      { transform: scale(1.04); opacity: 1; }
+.weather-thunder .scene-weather-tint {
+  background: linear-gradient(180deg, rgba(49, 69, 82, 0.34) 0%, rgba(74, 94, 104, 0.2) 48%, rgba(139, 154, 156, 0.06) 100%);
 }
-.anim-sun {
-  animation: sun-breathe 6s ease-in-out infinite;
+.weather-overcast .scene-weather-tint {
+  background: linear-gradient(180deg, rgba(69, 80, 86, 0.13) 0%, rgba(90, 101, 104, 0.09) 50%, rgba(121, 128, 126, 0.04) 100%);
+}
+.weather-fog .scene-weather-tint {
+  background: linear-gradient(180deg, rgba(158, 181, 172, 0.16) 0%, rgba(184, 201, 194, 0.11) 44%, rgba(218, 225, 221, 0.04) 100%);
 }
 
-/* Overcast: subtle brightness variation */
-@keyframes overcast-pulse {
-  0%, 100% { opacity: 0.88; }
-  50%      { opacity: 1; }
+.phase-night.weather-rain .scene-weather-tint {
+  background: linear-gradient(180deg, rgba(78, 101, 119, 0.09) 0%, rgba(107, 127, 139, 0.06) 48%, rgba(163, 178, 181, 0.02) 100%);
 }
-.anim-overcast {
-  animation: overcast-pulse 8s ease-in-out infinite;
+.phase-night.weather-snow .scene-weather-tint {
+  background: linear-gradient(180deg, rgba(128, 151, 170, 0.08) 0%, rgba(153, 173, 183, 0.05) 48%, rgba(196, 207, 208, 0.02) 100%);
+}
+.phase-night.weather-thunder .scene-weather-tint {
+  background: linear-gradient(180deg, rgba(36, 51, 68, 0.22) 0%, rgba(60, 76, 89, 0.13) 48%, rgba(117, 133, 140, 0.04) 100%);
+}
+.phase-night.weather-overcast .scene-weather-tint {
+  background: linear-gradient(180deg, rgba(40, 51, 61, 0.08) 0%, rgba(66, 76, 82, 0.05) 52%, rgba(101, 108, 108, 0.02) 100%);
+}
+.phase-night.weather-fog .scene-weather-tint {
+  background: linear-gradient(180deg, rgba(117, 132, 149, 0.1) 0%, rgba(145, 157, 164, 0.07) 48%, rgba(180, 188, 188, 0.02) 100%);
+}
+
+.scene-lightning {
+  opacity: 0;
+  background: linear-gradient(180deg, rgba(225, 238, 240, 0.7), rgba(214, 229, 232, 0.34));
+}
+.scene-lightning-bolt {
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+.weather-thunder .scene-lightning {
+  animation: home-lightning-flash 9s steps(1, end) -4.5s infinite;
 }
 
 /* ========== Hero Header ========== */

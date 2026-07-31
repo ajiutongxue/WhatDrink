@@ -7,8 +7,9 @@
 var tracker = require('./tracker');
 
 /**
- * Fetch current weather for a city.
+ * Fetch current weather for a city or coordinates.
  * @param {string} city - City name (Chinese supported)
+ * @param {object} [options] - Optional: { latitude, longitude } for location-based weather
  * @returns {Promise<Object|null>} WeatherData or null on failure
  *
  * WeatherData: {
@@ -23,34 +24,39 @@ var tracker = require('./tracker');
  *   reporttime: string     // 数据发布时间
  * }
  */
-function fetchWeather(city) {
+function fetchWeather(city, options) {
   return new Promise(function(resolve) {
-    if (!city || typeof city !== 'string') {
+    var hasCoords = options && options.latitude && options.longitude;
+    if (!city && !hasCoords) {
       resolve(null);
       return;
     }
 
     var t0 = Date.now();
+    var callData = {};
+    if (hasCoords) {
+      callData.latitude = options.latitude;
+      callData.longitude = options.longitude;
+    }
+    if (city) {
+      callData.city = city;
+    }
 
-    // 走云函数代理：云函数运行在腾讯云、有完整外网出口，调用高德天气 API，
-    // 不受小程序「合法域名白名单」约束，真机无需开启调试模式。
-    // 高德返回规范中文天气，客户端无需任何翻译/校正。
-    // 云函数失败（未部署/配额耗尽/网络异常）时 resolve(null)，界面优雅地不显示天气。
     wx.cloud.callFunction({
       name: 'getWeather',
-      data: { city: city },
+      data: callData,
       success: function(res) {
         var result = res && res.result;
         if (result && result.success && result.data) {
-          tracker.track('weather', { ok: true, ms: Date.now() - t0, city: city, temp: result.data.temp, via: 'cloud' });
+          tracker.track('weather', { ok: true, ms: Date.now() - t0, city: result.data.city, temp: result.data.temp, via: hasCoords ? 'location' : 'city' });
           resolve(result.data);
         } else {
-          tracker.track('weather', { ok: false, ms: Date.now() - t0, city: city, errType: 'biz', err: String(result && result.error || 'unknown') });
+          tracker.track('weather', { ok: false, ms: Date.now() - t0, city: city || 'coords', errType: 'biz', err: String(result && result.error || 'unknown') });
           resolve(null);
         }
       },
       fail: function(err) {
-        tracker.track('weather', { ok: false, ms: Date.now() - t0, city: city, errType: 'cloud', err: String(err && err.errMsg || err) });
+        tracker.track('weather', { ok: false, ms: Date.now() - t0, city: city || 'coords', errType: 'cloud', err: String(err && err.errMsg || err) });
         resolve(null);
       }
     });

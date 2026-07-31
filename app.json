@@ -13,9 +13,9 @@
     "backgroundColor": "#FBF3E7"
   },
   "tabBar": {
-    "color": "#A08D83",
-    "selectedColor": "#C96B4C",
-    "backgroundColor": "#FFFDF8",
+    "color": "#7B8985",
+    "selectedColor": "#A94D36",
+    "backgroundColor": "#F8FAF7",
     "borderStyle": "white",
     "list": [
       {
@@ -45,5 +45,11 @@
     ]
   },
   "cloud": true,
+  "permission": {
+    "scope.userLocation": {
+      "desc": "用于获取你所在城市以展示当地天气"
+    }
+  },
+  "requiredPrivateInfos": ["getLocation"],
   "sitemapLocation": "sitemap.json"
 }

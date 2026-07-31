@@ -134,6 +134,32 @@ function getSolarTerm() {
   return result;
 }
 
+function seededSceneRandom(seed) {
+  return function () {
+    seed = (seed * 1664525 + 1013904223) >>> 0;
+    return seed / 4294967296;
+  };
+}
+
+function buildRainDrops(count, storm) {
+  var rnd = seededSceneRandom(storm ? 2777 : 1777);
+  var drops = [];
+  for (var i = 0; i < count; i += 1) {
+    drops.push({
+      id: i,
+      left: (rnd() * 100).toFixed(2),
+      duration: Math.round((0.55 + rnd() * 0.5) * 1000),
+      delay: -Math.round(rnd() * 2000),
+      height: (28 + rnd() * 52).toFixed(1),
+      opacity: ((storm ? 0.24 : 0.18) + rnd() * 0.34).toFixed(3),
+      width: (1.5 + rnd() * 1.2).toFixed(2)
+    });
+  }
+  return drops;
+}
+
+var RAIN_DROPS = buildRainDrops(64, false);
+var THUNDER_RAIN_DROPS = buildRainDrops(84, true);
 Page({
   data: {
     season: '',
@@ -150,6 +176,11 @@ Page({
     overlaySrc: 'overlay-sun.svg',
     overlayAnimClass: 'anim-sun',
     overlayOpacity: 1,
+    secondaryOverlaySrc: '',
+    secondaryOverlayAnimClass: '',
+    secondaryOverlayOpacity: 1,
+    weatherEffect: 'clear',
+    rainDrops: [],
     sceneReady: false,
     dailyQuote: presetQuote(),
     showInput: false,
@@ -228,11 +259,8 @@ Page({
     // Initialize scene immediately based on time-of-day (weather overlay updates async)
     this._updateScene();
     this._startSceneTimer();
-    if (this._weatherCity) {
-      this._fetchWeather(this._weatherCity);
-    } else {
-      this._tryGenerateDailyQuote();
-    }
+    // Try auto-location first, fall back to profile city
+    this._fetchWeatherByLocation();
   },
 
   onHide: function () {
@@ -709,11 +737,34 @@ Page({
     return (matched / (qLen * qLen)) * 100;
   },
 
-  _fetchWeather: function (city) {
+  // Auto-detect location → fetch weather; fall back to profile city
+  _fetchWeatherByLocation: function () {
     var self = this;
-    weather.fetchWeather(city).then(function (w) {
+    wx.getLocation({
+      type: 'gcj02',
+      success: function (res) {
+        self._fetchWeather(self._weatherCity, {
+          latitude: res.latitude,
+          longitude: res.longitude
+        });
+      },
+      fail: function () {
+        // Location denied or unavailable → use profile city
+        if (self._weatherCity) {
+          self._fetchWeather(self._weatherCity);
+        } else {
+          self._tryGenerateDailyQuote();
+        }
+      }
+    });
+  },
+
+  _fetchWeather: function (city, coords) {
+    var self = this;
+    weather.fetchWeather(city, coords).then(function (w) {
       if (w) {
         self._weatherData = w;
+        self._weatherCity = w.city || city;
         self.setData({ weather: w });
       }
       self._updateScene();
@@ -731,46 +782,55 @@ Page({
     return 'night';
   },
 
-  // Map weather description to overlay element
+  // Map weather description to visual scene layers
   _weatherToOverlay: function (desc, timePhase) {
     var d = (desc || '').toLowerCase();
 
-    // Thunder storm
     if (/雷|thunder|storm/.test(d)) {
-      return { src: 'overlay-thunder.svg', anim: 'anim-lightning', opacity: 1 };
+      return { effect: 'thunder', rainDrops: THUNDER_RAIN_DROPS };
     }
-    // Rain (intensity via opacity)
     if (/雨|rain|drizzle|shower|sleet/.test(d)) {
-      var opacity = 1;
-      if (/小雨|drizzle|细雨/.test(d)) opacity = 0.5;
-      else if (/中雨/.test(d)) opacity = 0.75;
-      return { src: 'overlay-rain.svg', anim: 'anim-rain', opacity: opacity };
+      return { effect: 'rain', rainDrops: RAIN_DROPS };
     }
-    // Snow
     if (/雪|snow/.test(d)) {
-      var snowOpacity = 0.8;
-      if (/小雪/.test(d)) snowOpacity = 0.6;
-      else if (/大雪|暴雪/.test(d)) snowOpacity = 1;
-      return { src: 'overlay-snow.svg', anim: 'anim-snow', opacity: snowOpacity };
+      return {
+        effect: 'snow',
+        src: 'overlay-snow.svg',
+        anim: 'anim-snow',
+        opacity: timePhase === 'day' ? 0.8 : (timePhase === 'night' ? 0.54 : 0.66),
+        secondarySrc: 'overlay-snow-near.svg',
+        secondaryAnim: 'anim-snow-near',
+        secondaryOpacity: timePhase === 'day' ? 0.94 : (timePhase === 'night' ? 0.64 : 0.76)
+      };
     }
-    // Fog / haze
     if (/雾|霾|fog|mist|haze|沙尘|扬沙|浮尘/.test(d)) {
-      return { src: 'overlay-fog.svg', anim: 'anim-fog', opacity: 0.8 };
+      var fogOpacity = timePhase === 'day' ? 0.75 : (timePhase === 'dawn' ? 0.65 : (timePhase === 'dusk' ? 0.53 : 0.37));
+      return { effect: 'fog', src: 'overlay-fog.svg', anim: 'anim-fog', opacity: fogOpacity };
     }
-    // Overcast
     if (/阴|overcast/.test(d)) {
-      return { src: 'overlay-overcast.svg', anim: 'anim-overcast', opacity: 1 };
+      return { effect: 'overcast', src: 'overlay-overcast.svg', anim: 'anim-overcast', opacity: 1 };
     }
-    // Cloudy (random variant)
     if (/云|cloud|多云/.test(d)) {
       var variant = Math.random() > 0.5 ? 'a' : 'b';
-      return { src: 'overlay-clouds-' + variant + '.svg', anim: 'anim-clouds', opacity: 1 };
+      return { effect: 'cloudy', src: 'overlay-clouds-' + variant + '.svg', anim: 'anim-clouds', opacity: 1 };
     }
-    // Clear / sunny — depends on time of day
     if (timePhase === 'night') {
-      return { src: 'overlay-moon.svg', anim: 'anim-twinkle', opacity: 1 };
+      return { effect: 'clear', src: 'overlay-moon.svg', anim: 'anim-twinkle', opacity: 1 };
     }
-    return { src: 'overlay-sun.svg', anim: 'anim-sun', opacity: 1 };
+    return { effect: 'clear', src: 'overlay-sun.svg', anim: 'anim-sun', opacity: 1 };
+  },
+
+  _sceneOverlayData: function (overlay) {
+    return {
+      overlaySrc: overlay.src || '',
+      overlayAnimClass: overlay.anim || '',
+      overlayOpacity: overlay.opacity == null ? 1 : overlay.opacity,
+      secondaryOverlaySrc: overlay.secondarySrc || '',
+      secondaryOverlayAnimClass: overlay.secondaryAnim || '',
+      secondaryOverlayOpacity: overlay.secondaryOpacity == null ? 1 : overlay.secondaryOpacity,
+      weatherEffect: overlay.effect || 'clear',
+      rainDrops: overlay.rainDrops || []
+    };
   },
 
   // Map timePhase to base landscape
@@ -794,14 +854,11 @@ Page({
     var overlay = this._weatherToOverlay(desc, timePhase);
     var baseSrc = this._phaseToBase(timePhase);
 
-    this.setData({
-      timePhase: timePhase,
-      baseSrc: baseSrc,
-      overlaySrc: overlay.src,
-      overlayAnimClass: overlay.anim,
-      overlayOpacity: overlay.opacity,
-      sceneReady: true
-    });
+    var sceneData = this._sceneOverlayData(overlay);
+    sceneData.timePhase = timePhase;
+    sceneData.baseSrc = baseSrc;
+    sceneData.sceneReady = true;
+    this.setData(sceneData);
   },
 
   // Periodic check: update scene if time phase boundary crossed
@@ -826,35 +883,52 @@ Page({
   },
 
   // ==== Debug Scene Pickers ====
+  _debugWeatherToOverlay: function (weatherId, timePhase) {
+    var overlayMap = {
+      sun: { effect: 'clear', src: 'overlay-sun.svg', anim: 'anim-sun', opacity: 1 },
+      moon: { effect: 'clear', src: 'overlay-moon.svg', anim: 'anim-twinkle', opacity: 1 },
+      clouds: { effect: 'cloudy', src: 'overlay-clouds-a.svg', anim: 'anim-clouds', opacity: 1 },
+      overcast: { effect: 'overcast', src: 'overlay-overcast.svg', anim: 'anim-overcast', opacity: 1 },
+      rain: { effect: 'rain', rainDrops: RAIN_DROPS },
+      thunder: { effect: 'thunder', rainDrops: THUNDER_RAIN_DROPS },
+      snow: {
+        effect: 'snow',
+        src: 'overlay-snow.svg',
+        anim: 'anim-snow',
+        opacity: timePhase === 'day' ? 0.8 : (timePhase === 'night' ? 0.54 : 0.66),
+        secondarySrc: 'overlay-snow-near.svg',
+        secondaryAnim: 'anim-snow-near',
+        secondaryOpacity: timePhase === 'day' ? 0.94 : (timePhase === 'night' ? 0.64 : 0.76)
+      },
+      fog: {
+        effect: 'fog',
+        src: 'overlay-fog.svg',
+        anim: 'anim-fog',
+        opacity: timePhase === 'day' ? 0.75 : (timePhase === 'dawn' ? 0.65 : (timePhase === 'dusk' ? 0.53 : 0.37))
+      }
+    };
+    return overlayMap[weatherId] || overlayMap.sun;
+  },
+
   onDebugPhase: function (e) {
     var idx = Number(e.detail.value);
     var phase = this.data.debugPhases[idx].value;
-    var baseSrc = this._phaseToBase(phase);
-    this.setData({ debugPhaseIdx: idx, timePhase: phase, baseSrc: baseSrc, sceneReady: true });
+    var weatherId = this.data.debugWeathers[this.data.debugWeatherIdx].value;
+    var sceneData = this._sceneOverlayData(this._debugWeatherToOverlay(weatherId, phase));
+    sceneData.debugPhaseIdx = idx;
+    sceneData.timePhase = phase;
+    sceneData.baseSrc = this._phaseToBase(phase);
+    sceneData.sceneReady = true;
+    this.setData(sceneData);
   },
 
   onDebugWeather: function (e) {
     var idx = Number(e.detail.value);
-    var w = this.data.debugWeathers[idx].value;
-    var timePhase = this.data.timePhase;
-    var overlayMap = {
-      sun: { src: 'overlay-sun.svg', anim: 'anim-sun', opacity: 1 },
-      moon: { src: 'overlay-moon.svg', anim: 'anim-twinkle', opacity: 1 },
-      clouds: { src: 'overlay-clouds-a.svg', anim: 'anim-clouds', opacity: 1 },
-      overcast: { src: 'overlay-overcast.svg', anim: 'anim-overcast', opacity: 1 },
-      rain: { src: 'overlay-rain.svg', anim: 'anim-rain', opacity: 0.8 },
-      thunder: { src: 'overlay-thunder.svg', anim: 'anim-lightning', opacity: 1 },
-      snow: { src: 'overlay-snow.svg', anim: 'anim-snow', opacity: 0.8 },
-      fog: { src: 'overlay-fog.svg', anim: 'anim-fog', opacity: 0.8 }
-    };
-    var overlay = overlayMap[w] || overlayMap.sun;
-    this.setData({
-      debugWeatherIdx: idx,
-      overlaySrc: overlay.src,
-      overlayAnimClass: overlay.anim,
-      overlayOpacity: overlay.opacity,
-      sceneReady: true
-    });
+    var weatherId = this.data.debugWeathers[idx].value;
+    var sceneData = this._sceneOverlayData(this._debugWeatherToOverlay(weatherId, this.data.timePhase));
+    sceneData.debugWeatherIdx = idx;
+    sceneData.sceneReady = true;
+    this.setData(sceneData);
   },
 
   // ==== Daily Quote（每日茶语）====

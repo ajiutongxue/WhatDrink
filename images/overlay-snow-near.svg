@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 750 1624" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <g id="flake" fill="#F7FAFA" stroke="#C3D2D7" stroke-width="1.15" stroke-linecap="round">
+      <circle r="2.2" stroke="none"/>
+      <path d="M0-6V6M-5.2-3 5.2 3M-5.2 3 5.2-3" fill="none"/>
+    </g>
+    <pattern id="snowNearPattern" width="300" height="320" patternUnits="userSpaceOnUse">
+      <use href="#flake" transform="translate(34 24) scale(.72)" opacity=".76"/>
+      <circle cx="118" cy="74" r="4.2" fill="#E6EFF1" opacity=".66"/>
+      <use href="#flake" transform="translate(251 43) scale(1.08)" opacity=".88"/>
+      <circle cx="62" cy="168" r="5.4" fill="#F5F8F8" opacity=".78"/>
+      <use href="#flake" transform="translate(188 194) scale(.9)" opacity=".82"/>
+      <circle cx="286" cy="154" r="3.5" fill="#D7E3E6" opacity=".62"/>
+      <use href="#flake" transform="translate(104 292) scale(1.16)" opacity=".86"/>
+      <circle cx="235" cy="278" r="5.8" fill="#EEF4F5" opacity=".8"/>
+    </pattern>
+  </defs>
+  <rect x="-300" y="-320" width="1350" height="2264" fill="url(#snowNearPattern)"/>
+</svg>

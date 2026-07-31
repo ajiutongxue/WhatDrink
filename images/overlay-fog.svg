@@ -1,22 +1,40 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 750 1624" preserveAspectRatio="xMidYMid slice">
-  <!-- Fog / haze overlay: layered horizontal mist bands -->
   <defs>
-    <linearGradient id="oFogBand" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0"/>
-      <stop offset="20%" stop-color="#FFFFFF" stop-opacity="0.3"/>
-      <stop offset="50%" stop-color="#FFFFFF" stop-opacity="0.4"/>
-      <stop offset="80%" stop-color="#FFFFFF" stop-opacity="0.3"/>
-      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0"/>
+    <linearGradient id="fogAir" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#AFC1BA" stop-opacity=".26"/>
+      <stop offset="42%" stop-color="#D4DEDA" stop-opacity=".2"/>
+      <stop offset="100%" stop-color="#F4F6F4" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="fogWisp" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#B5C6BF" stop-opacity="0"/>
+      <stop offset="18%" stop-color="#B7C8C1" stop-opacity=".34"/>
+      <stop offset="50%" stop-color="#E7ECE9" stop-opacity=".54"/>
+      <stop offset="82%" stop-color="#AFC2BA" stop-opacity=".3"/>
+      <stop offset="100%" stop-color="#B5C6BF" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="fogBand" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#A9BDB5" stop-opacity="0"/>
+      <stop offset="16%" stop-color="#B5C7C0" stop-opacity=".32"/>
+      <stop offset="48%" stop-color="#E9EEEB" stop-opacity=".48"/>
+      <stop offset="78%" stop-color="#AFC2BA" stop-opacity=".28"/>
+      <stop offset="100%" stop-color="#A9BDB5" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="fogNear" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#D3DED9" stop-opacity="0"/>
+      <stop offset="18%" stop-color="#CEDBD5" stop-opacity=".3"/>
+      <stop offset="48%" stop-color="#F4F6F4" stop-opacity=".46"/>
+      <stop offset="78%" stop-color="#C6D5CF" stop-opacity=".26"/>
+      <stop offset="100%" stop-color="#D3DED9" stop-opacity="0"/>
     </linearGradient>
   </defs>
-  <!-- Upper thin haze -->
-  <ellipse cx="375" cy="650" rx="520" ry="55" fill="url(#oFogBand)" opacity="0.4"/>
-  <!-- Main fog bands (mid to lower) -->
-  <ellipse cx="300" cy="800" rx="550" ry="75" fill="url(#oFogBand)" opacity="0.55"/>
-  <ellipse cx="450" cy="920" rx="520" ry="80" fill="url(#oFogBand)" opacity="0.5"/>
-  <ellipse cx="280" cy="1050" rx="560" ry="85" fill="url(#oFogBand)" opacity="0.45"/>
-  <ellipse cx="420" cy="1180" rx="540" ry="78" fill="url(#oFogBand)" opacity="0.4"/>
-  <!-- Lower thick fog near hills -->
-  <ellipse cx="375" cy="1300" rx="580" ry="90" fill="url(#oFogBand)" opacity="0.35"/>
-  <ellipse cx="350" cy="1420" rx="560" ry="80" fill="url(#oFogBand)" opacity="0.3"/>
+  <rect width="750" height="660" fill="url(#fogAir)"/>
+  <path d="M-90 126C62 92 162 148 295 119c146-31 254 18 545-18v94c-196 28-328-8-474 22-151 31-273-23-456 13Z" fill="url(#fogBand)" opacity=".5"/>
+  <path d="M-110 286c185-40 288 31 440-6 146-35 265 15 540-24v90c-181 27-339-5-476 28-160 38-290-24-504 20Z" fill="url(#fogBand)" opacity=".46"/>
+  <path d="M-80 454c171-34 289 24 431-5 153-31 276 20 497-18v84c-171 28-306-10-450 20-161 33-287-21-478 15Z" fill="url(#fogBand)" opacity=".4"/>
+  <ellipse cx="175" cy="205" rx="390" ry="112" fill="url(#fogWisp)" opacity=".56"/>
+  <ellipse cx="585" cy="350" rx="430" ry="132" fill="url(#fogWisp)" opacity=".46"/>
+  <ellipse cx="285" cy="515" rx="500" ry="118" fill="url(#fogWisp)" opacity=".42"/>
+  <ellipse cx="560" cy="810" rx="520" ry="92" fill="url(#fogNear)" opacity=".42"/>
+  <ellipse cx="210" cy="1080" rx="565" ry="118" fill="url(#fogNear)" opacity=".38"/>
+  <ellipse cx="510" cy="1375" rx="590" ry="128" fill="url(#fogNear)" opacity=".32"/>
 </svg>

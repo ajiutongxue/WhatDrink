@@ -1,11 +1,25 @@
-<!-- Dynamic Scene Background: 3-layer architecture -->
-<view class="scene-container phase-{{timePhase}} {{sceneReady ? 'scene-ready' : ''}}">
-  <!-- L1: Landscape base (changes with time of day) -->
+<!-- Dynamic Scene Background -->
+<view class="scene-container phase-{{timePhase}} weather-{{weatherEffect}} {{sceneReady ? 'scene-ready' : ''}}">
+  <!-- Landscape base -->
   <image class="scene-base" src="/images/{{baseSrc}}" mode="aspectFill" />
-  <!-- L2: Weather overlay element (transparent, animated) -->
-  <image class="scene-overlay {{overlayAnimClass}}" src="/images/{{overlaySrc}}" mode="aspectFill" style="opacity: {{overlayOpacity}}" />
-  <!-- L3: Time-of-day color tint (pure CSS, no image) -->
+  <view class="scene-fog-bands" wx:if="{{weatherEffect === 'fog'}}"></view>
+  <!-- Weather overlays -->
+  <image wx:if="{{overlaySrc}}" class="scene-overlay scene-overlay-primary {{overlayAnimClass}}" src="/images/{{overlaySrc}}" mode="aspectFill" style="opacity: {{overlayOpacity}}" />
+  <image wx:if="{{secondaryOverlaySrc}}" class="scene-overlay scene-overlay-secondary {{secondaryOverlayAnimClass}}" src="/images/{{secondaryOverlaySrc}}" mode="aspectFill" style="opacity: {{secondaryOverlayOpacity}}" />
+  <view class="scene-precipitation {{weatherEffect === 'thunder' ? 'thunder-rain-field' : ''}}" wx:if="{{rainDrops.length}}">
+    <view
+      class="rain-drop"
+      wx:for="{{rainDrops}}"
+      wx:key="id"
+      style="left: {{item.left}}%; width: {{item.width}}rpx; height: {{item.height}}rpx; opacity: {{item.opacity}}; animation-duration: {{item.duration}}ms; animation-delay: {{item.delay}}ms;"
+    ></view>
+  </view>
+  <!-- Time-of-day and weather light -->
   <view class="scene-tint tint-{{timePhase}}"></view>
+  <view class="scene-weather-tint"></view>
+  <view class="scene-lightning" wx:if="{{weatherEffect === 'thunder'}}">
+    <image class="scene-lightning-bolt" src="/images/overlay-thunder.svg" mode="aspectFill" />
+  </view>
 </view>
 
 <view class="page-container phase-{{timePhase}}" bindtap="onPageTap">

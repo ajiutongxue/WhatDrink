@@ -2,10 +2,38 @@
   'use strict';
   var PHASES = { dawn:{base:'base-dawn.svg'}, day:{base:'base-day.svg'}, dusk:{base:'base-dusk.svg'}, night:{base:'base-night.svg'} };
   var WEATHERS = {
-    sunny:{label:'晴',icon:'overlay-sun.svg',animation:'anim-sun',temp:'31'}, cloudy:{label:'多云',icon:'overlay-clouds-a.svg',animation:'anim-clouds',temp:'29'},
-    overcast:{label:'阴',icon:'overlay-overcast.svg',animation:'anim-overcast',temp:'27'}, rain:{label:'小雨',icon:'overlay-rain.svg',animation:'anim-rain',temp:'24'},
-    thunder:{label:'雷阵雨',icon:'overlay-thunder.svg',animation:'anim-lightning',temp:'25'}, snow:{label:'小雪',icon:'overlay-snow.svg',animation:'anim-snow',temp:'2'}, fog:{label:'雾',icon:'overlay-fog.svg',animation:'anim-fog',temp:'22'}
+    sunny:{label:'晴',icon:'overlay-sun.svg',animation:'anim-sun',temp:'31'},
+    cloudy:{label:'多云',icon:'overlay-clouds-a.svg',animation:'anim-clouds',temp:'29'},
+    overcast:{label:'阴',icon:'overlay-overcast.svg',animation:'anim-overcast',temp:'27'},
+    rain:{label:'小雨',icon:'overlay-rain.svg',particles:'rain',particleCount:64,temp:'24'},
+    thunder:{label:'雷阵雨',icon:'overlay-rain.svg',particles:'rain',particleCount:84,storm:true,temp:'25'},
+    snow:{label:'小雪',icon:'overlay-snow.svg',secondaryIcon:'overlay-snow-near.svg',animation:'anim-snow',secondaryAnimation:'anim-snow-near',temp:'2'},
+    fog:{label:'雾',icon:'overlay-fog.svg',animation:'anim-fog',temp:'22'}
   };
+  function seeded(seed) {
+    return function () {
+      seed=(seed*1664525+1013904223)>>>0;
+      return seed/4294967296;
+    };
+  }
+  function renderRain(layer,count,storm) {
+    var rnd=seeded(storm?2777:1777),fragment=document.createDocumentFragment();
+    layer.replaceChildren();
+    layer.className='scene-precipitation rain-field'+(storm?' thunder-rain-field':'');
+    for(var i=0;i<count;i+=1){
+      var drop=document.createElement('span');
+      drop.className='rain-drop';
+      drop.style.setProperty('--rain-x',(rnd()*100).toFixed(2)+'%');
+      drop.style.setProperty('--rain-duration',(.55+rnd()*.5).toFixed(3)+'s');
+      drop.style.setProperty('--rain-delay',(-rnd()*2).toFixed(3)+'s');
+      drop.style.setProperty('--rain-length',(14+rnd()*26).toFixed(1)+'px');
+      drop.style.setProperty('--rain-opacity',((storm ? .24 : .18)+rnd()*.34).toFixed(3));
+      drop.style.setProperty('--rain-width',(.75+rnd()*.6).toFixed(2)+'px');
+      drop.style.setProperty('--rain-static-y',(18+rnd()*102).toFixed(2)+'vh');
+      fragment.appendChild(drop);
+    }
+    layer.appendChild(fragment);
+  }
   function query(name) { return new URLSearchParams(window.location.search).get(name); }
   function heroMarkup() {
     return '<div class="hero-top"><div class="solar"><span class="solar-name">大暑</span><span class="solar-meaning">腐草为萤 · 土润溽暑</span><span class="solar-custom">荷风送香气，竹露滴清响</span></div><div class="hero-weather"><div class="hw-main"><span class="hw-temp">29℃</span><span class="hw-desc">多云</span></div><div class="hw-sub">成都 · 72% RH</div></div></div>' +
@@ -15,10 +43,23 @@
   function applyScene(root, phaseId, weatherId) {
     var phase=PHASES[phaseId]||PHASES.day, weather=WEATHERS[weatherId]||WEATHERS.cloudy, scene=root.querySelector('.scene-container');
     root.classList.remove('phase-dawn','phase-day','phase-dusk','phase-night'); root.classList.add('phase-'+phaseId);
-    scene.className='scene-container scene-ready phase-'+phaseId; scene.querySelector('.scene-base').src='/images/'+phase.base;
-    var overlay=scene.querySelector('.scene-overlay'), icon=weather.icon, animation=weather.animation;
+    scene.className='scene-container scene-ready phase-'+phaseId+' weather-'+weatherId; scene.querySelector('.scene-base').src='/images/'+phase.base;
+    var primary=scene.querySelector('.scene-overlay-primary'), secondary=scene.querySelector('.scene-overlay-secondary'), precipitation=scene.querySelector('.scene-precipitation'), icon=weather.icon, animation=weather.animation;
     if(weatherId==='sunny'&&phaseId==='night'){icon='overlay-moon.svg';animation='anim-twinkle';}
-    overlay.src='/images/'+icon; overlay.className='scene-overlay '+animation; scene.querySelector('.scene-tint').className='scene-tint tint-'+phaseId;
+    if(weather.particles==='rain'){
+      primary.hidden=true; primary.removeAttribute('src'); primary.className='scene-overlay scene-overlay-primary';
+      secondary.hidden=true; secondary.removeAttribute('src'); secondary.className='scene-overlay scene-overlay-secondary';
+      precipitation.hidden=false; renderRain(precipitation,weather.particleCount,weather.storm);
+    }else{
+      precipitation.hidden=true; precipitation.replaceChildren(); precipitation.className='scene-precipitation';
+      primary.hidden=false; primary.src='/images/'+icon; primary.className='scene-overlay scene-overlay-primary '+animation;
+      if(weather.secondaryIcon){
+        secondary.hidden=false; secondary.src='/images/'+weather.secondaryIcon; secondary.className='scene-overlay scene-overlay-secondary '+weather.secondaryAnimation;
+      }else{
+        secondary.hidden=true; secondary.removeAttribute('src'); secondary.className='scene-overlay scene-overlay-secondary';
+      }
+    }
+    scene.querySelector('.scene-tint').className='scene-tint tint-'+phaseId;
     root.querySelectorAll('.hw-desc').forEach(function(n){n.textContent=weather.label;}); root.querySelectorAll('.hw-temp').forEach(function(n){n.textContent=weather.temp+'℃';});
   }
   function addSceneControls(root,bar) {

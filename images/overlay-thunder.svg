@@ -1,41 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 750 1624" preserveAspectRatio="xMidYMid slice">
-  <!-- Thunder storm: heavy dark clouds + lightning + rain -->
   <defs>
-    <linearGradient id="oThunderCloud" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#5A6474"/>
-      <stop offset="100%" stop-color="#6E7888"/>
-    </linearGradient>
-    <linearGradient id="oBolt" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#FFF4C8"/>
-      <stop offset="100%" stop-color="#FFE070"/>
+    <linearGradient id="boltMain" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#F5F3D4"/>
+      <stop offset="1" stop-color="#D9E9E7"/>
     </linearGradient>
   </defs>
-  <!-- Heavy storm clouds -->
-  <g fill="url(#oThunderCloud)" opacity="0.75">
-    <ellipse cx="180" cy="120" rx="200" ry="82"/>
-    <ellipse cx="400" cy="100" rx="230" ry="92"/>
-    <ellipse cx="620" cy="130" rx="195" ry="78"/>
-    <ellipse cx="300" cy="160" rx="190" ry="68"/>
-    <ellipse cx="530" cy="170" rx="210" ry="70"/>
-    <ellipse cx="100" cy="180" rx="150" ry="60"/>
-    <ellipse cx="700" cy="190" rx="140" ry="58"/>
-  </g>
-  <!-- Lightning bolt (main) -->
-  <polygon points="390,200 355,330 382,330 338,490 365,490 320,620 430,440 398,440 435,310 405,310 440,200"
-           fill="url(#oBolt)" opacity="0.9"/>
-  <!-- Secondary small bolt -->
-  <polygon points="580,220 562,300 578,300 555,390 600,310 582,310 605,220"
-           fill="#FFE87C" opacity="0.5"/>
-  <!-- Rain streaks -->
-  <g stroke="#8A9AAA" stroke-width="2.5" stroke-linecap="round" opacity="0.45">
-    <line x1="100" y1="280" x2="78" y2="420"/>
-    <line x1="220" y1="300" x2="198" y2="440"/>
-    <line x1="480" y1="290" x2="458" y2="430"/>
-    <line x1="620" y1="310" x2="598" y2="450"/>
-    <line x1="720" y1="280" x2="698" y2="420"/>
-    <line x1="160" y1="500" x2="138" y2="640"/>
-    <line x1="350" y1="520" x2="328" y2="660"/>
-    <line x1="550" y1="500" x2="528" y2="640"/>
-    <line x1="680" y1="530" x2="658" y2="670"/>
-  </g>
+  <path d="M474 104 402 305h58l-69 211 169-257h-72l79-155Z" fill="url(#boltMain)" opacity=".88"/>
+  <path d="M612 183 574 300h34l-39 126 102-159h-42l47-84Z" fill="#E7EEE1" opacity=".58"/>
 </svg>

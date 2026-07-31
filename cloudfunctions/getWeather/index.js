@@ -2,18 +2,12 @@
  * getWeather cloud function
  * 服务端代理「高德地图」天气 API（国内权威数据源，直接返回中文天气）。
  *
- * 为什么用它：
- *   1) 小程序端 wx.request 受「合法域名白名单」限制，天气接口需服务端代理；
- *      云函数运行在腾讯云、有完整外网出口，客户端走 wx.cloud.callFunction 即可。
- *   2) 此前用的 wttr.in（境外聚合源）对中国城市天气描述不可靠（实测会把晴天
- *      误报成 "Smoky haze"，且 lang_zh 常返回英文）。高德返回权威中文天气，
- *      从根本上解决误报与英文问题。
- *
- * 流程：城市名 →(地理编码)→ adcode →(天气查询)→ 实况天气。
+ * 支持两种输入：
+ *   1) event.city - 城市名（如「成都」「郑州市」）→ 地理编码 → adcode → 天气
+ *   2) event.latitude + event.longitude - 经纬度 → 逆地理编码 → 城市+adcode → 天气
  *
  * 密钥：存放在同目录 config.json（已加入 .gitignore，不会提交到 git）。
  *
- * Input:  event.city - 城市名（支持中文，如「郑州」「郑州市」）
  * Output: { success: true, data: WeatherData } 或 { success: false, error }
  *
  * WeatherData: { temp, feelsLike, humidity, desc, wind, winddirection, windpower, city, reporttime }
@@ -30,14 +24,29 @@ var adcodeCache = {};
 
 exports.main = async function(event, context) {
   var city = event && event.city;
-  if (!city || typeof city !== 'string') {
-    return { success: false, error: 'No city provided' };
-  }
+  var latitude = event && event.latitude;
+  var longitude = event && event.longitude;
+
+  var adcode = null;
+  var resolvedCity = city || '';
 
   try {
-    var adcode = await getAdcode(city);
+    // Mode 1: coordinates → reverse geocode → city + adcode
+    if (latitude && longitude) {
+      var geo = await getCityByLocation(latitude, longitude);
+      if (geo) {
+        adcode = geo.adcode;
+        resolvedCity = geo.city;
+      }
+    }
+
+    // Mode 2 (or fallback): city name → geocode → adcode
+    if (!adcode && resolvedCity) {
+      adcode = await getAdcode(resolvedCity);
+    }
+
     if (!adcode) {
-      return { success: false, error: 'Geocode failed for city: ' + city };
+      return { success: false, error: 'Cannot resolve location' };
     }
 
     var live = await getLiveWeather(adcode);
@@ -49,16 +58,13 @@ exports.main = async function(event, context) {
       success: true,
       data: {
         temp: toNum(live.temperature),
-        // 高德无体感温度字段，用实际温度兜底
         feelsLike: toNum(live.temperature),
         humidity: toNum(live.humidity),
-        // 高德 weather 字段已是规范中文（晴/多云/阴/小雨/雾/霾…），无需再翻译
         desc: live.weather || '',
-        // 高德提供风向 + 风力等级（如「南」「≤3」），非 km/h；wind 保留数值位以兼容旧结构
         wind: 0,
         winddirection: live.winddirection || '',
         windpower: live.windpower || '',
-        city: city,
+        city: resolvedCity,
         reporttime: live.reporttime || ''
       }
     };
@@ -67,6 +73,29 @@ exports.main = async function(event, context) {
     return { success: false, error: err.message || 'Unknown error' };
   }
 };
+
+/**
+ * 逆地理编码：经纬度 → 城市名 + adcode。
+ * 高德 regeo 接口返回 addressComponent，从中提取城市和区级 adcode。
+ */
+function getCityByLocation(lat, lng) {
+  var location = lng + ',' + lat; // 高德格式：经度,纬度
+  var url = 'https://restapi.amap.com/v3/geocode/regeo?key=' + AMAP_KEY +
+            '&location=' + location + '&extensions=base';
+  return httpGet(url, REQUEST_TIMEOUT).then(function(raw) {
+    var data = JSON.parse(raw);
+    if (data.status === '1' && data.regeocode && data.regeocode.addressComponent) {
+      var comp = data.regeocode.addressComponent;
+      // 直辖市时 city 为空数组，用 province 兜底
+      var cityName = (comp.city && typeof comp.city === 'string') ? comp.city : (comp.province || '');
+      var adcode = comp.adcode || '';
+      if (cityName && adcode) {
+        return { city: cityName, adcode: adcode };
+      }
+    }
+    return null;
+  });
+}
 
 /**
  * 地理编码：城市名 → adcode（行政区划编码，天气查询所需）。

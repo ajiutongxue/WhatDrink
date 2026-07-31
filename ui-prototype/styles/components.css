@@ -79,21 +79,34 @@
   z-index: 30;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  padding: 7px 8px calc(7px + var(--safe-bottom));
+  padding: 7px 8px calc(8px + var(--safe-bottom));
   border-top: 1px solid rgba(201, 184, 173, 0.24);
   background: rgba(255, 253, 248, 0.96);
   font-family: var(--font-sans);
 }
 .tabbar a {
   display: grid;
+  grid-template-rows: 22px auto;
+  align-content: center;
   justify-items: center;
-  gap: 2px;
+  min-height: 48px;
+  gap: 3px;
   color: var(--ink-3);
-  font-size: 10px;
+  font-size: 10.5px;
+  font-weight: 550;
+  line-height: 1.15;
   text-decoration: none;
 }
 .tabbar a.active { color: var(--coral-deep); }
-.tabbar img { width: 22px; height: 22px; object-fit: contain; }
+.tabbar-icon {
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
 .modal-mask {
   position: fixed;
   inset: 0;

@@ -12,8 +12,11 @@
 <main class="prototype-page recommendation-page" data-page="recommendation">
   <div class="scene-container scene-ready phase-day" aria-hidden="true">
     <img class="scene-base" src="/images/base-day.svg" alt="">
-    <img class="scene-overlay anim-clouds" src="/images/overlay-clouds-a.svg" alt="">
+    <img class="scene-overlay scene-overlay-primary anim-clouds" src="/images/overlay-clouds-a.svg" alt="">
+    <img class="scene-overlay scene-overlay-secondary" alt="" hidden>
+    <div class="scene-precipitation" hidden></div>
     <div class="scene-tint tint-day"></div>
+    <div class="scene-lightning"></div>
   </div>
 
   <section class="state-panel" data-state="initial" data-state-label="初始">
@@ -21,8 +24,13 @@
       <div class="hero-date">七月廿六 · 成都</div><div class="hero-term">大暑</div>
       <div class="weather"><b>29°</b><span>多云</span><span>·</span><span>暑热正盛</span></div>
     </header>
-    <div class="input-zone" data-section="input" aria-label="点击输入今日状态"></div>
-    <div class="btn-rec-wrap" data-section="recommend-action"><button class="btn-rec">看看今天喝什么</button></div>
+    <div class="input-zone" data-section="input">
+      <button class="input-prompt" type="button" aria-label="点击输入今日状态">
+        <span class="input-prompt-title">今天想怎么喝？</span>
+        <span class="input-prompt-note">说说状态，推荐会更贴心</span>
+      </button>
+    </div>
+    <div class="btn-rec-wrap" data-section="recommend-action"><button class="btn-rec" type="button">看看今天喝什么</button></div>
   </section>
 
   <section class="state-panel" data-state="input" data-state-label="输入展开" hidden>
@@ -31,7 +39,7 @@
       <textarea class="field" aria-label="今日状态">昨晚睡得有点晚，今天想喝清爽一点的。</textarea>
       <div class="row" style="margin-top:9px"><span class="tag coral">有点困</span><span class="tag sage">想清爽</span><span class="tag">成都</span></div>
     </div>
-    <div class="btn-rec-wrap" data-section="recommend-action"><button class="btn-rec">生成今日推荐</button></div>
+    <div class="btn-rec-wrap" data-section="recommend-action"><button class="btn-rec" type="button">生成今日推荐</button></div>
   </section>
 
   <section class="state-panel" data-state="loading" data-state-label="加载中" hidden>
@@ -58,7 +66,7 @@
           <div class="row" style="margin-top:12px"><span class="tag">绿茶</span><span class="tag sage">凉</span><span class="tag">低咖啡因</span></div>
           <p class="recommendation-reason">天气闷热，今天适合一杯清鲜、负担较轻的绿茶。</p>
           <div class="brew">85℃ · 90秒 · 4克</div>
-          <div class="recommendation-actions"><button class="primary-button">喝这个</button><button class="ghost-button">近期不想喝</button></div>
+          <div class="recommendation-actions"><button class="primary-button" type="button">喝这个</button><button class="ghost-button" type="button">近期不想喝</button></div>
         </article>
         <!-- Slide 2: Alternate -->
         <article class="card recommendation-card rec-slide rec-slide-alt">
@@ -68,13 +76,13 @@
           <div class="row" style="margin-top:12px"><span class="tag">白茶</span><span class="tag sage">凉</span></div>
           <p class="recommendation-reason">甜润一些，适合慢慢喝。</p>
           <div class="brew">90℃ · 120秒 · 5克</div>
-          <div class="recommendation-actions"><button class="primary-button">喝这个</button><button class="ghost-button">近期不想喝</button></div>
+          <div class="recommendation-actions"><button class="primary-button" type="button">喝这个</button><button class="ghost-button" type="button">近期不想喝</button></div>
         </article>
       </div>
       <div class="rec-dots"><span class="rec-dot active"></span><span class="rec-dot"></span></div>
     </div>
 
-    <div class="card custom-drink-prototype" data-section="custom-drink" style="margin-top:14px"><div class="card-title">我喝了别的</div><div class="custom-drink-prototype-row"><input class="field" placeholder="输入实际喝的茶"><button class="primary-button">喝这个</button></div></div>
+    <div class="card custom-drink-prototype" data-section="custom-drink" style="margin-top:14px"><div class="card-title">我喝了别的</div><div class="custom-drink-prototype-row"><input class="field" placeholder="输入实际喝的茶"><button class="primary-button" type="button">喝这个</button></div></div>
   </section>
 
   <!-- ===== AI Result: Horizontal Scroll Cards ===== -->
@@ -89,8 +97,8 @@
           <h1 class="recommendation-name">蒙顶甘露</h1>
           <div class="muted">川茶 · 春茶</div>
           <p class="recommendation-reason">你昨晚休息偏晚，又想要清爽感。蒙顶甘露的嫩香与轻盈鲜甜，既回应盛夏天气，也不会让今天的味觉过于沉重。</p>
-          <div class="brew">水温 85℃ · 第一泡 60–90 秒</div>
-          <div class="recommendation-actions"><button class="primary-button">喝这个</button><button class="ghost-button">近期不想喝</button></div>
+          <div class="brew">水温 85℃ · 第一泡 60-90 秒</div>
+          <div class="recommendation-actions"><button class="primary-button" type="button">喝这个</button><button class="ghost-button" type="button">近期不想喝</button></div>
         </article>
         <!-- Slide 2: Alternate AI -->
         <article class="card recommendation-card rec-slide rec-slide-alt">
@@ -99,18 +107,18 @@
           <div class="muted">福鼎白茶 · 2024</div>
           <p class="recommendation-reason">甜润一些，适合慢慢喝。白茶的低咖啡因也不会影响晚间休息。</p>
           <div class="brew">90℃ · 120秒 · 5克</div>
-          <div class="recommendation-actions"><button class="primary-button">喝这个</button><button class="ghost-button">近期不想喝</button></div>
+          <div class="recommendation-actions"><button class="primary-button" type="button">喝这个</button><button class="ghost-button" type="button">近期不想喝</button></div>
         </article>
       </div>
       <div class="rec-dots"><span class="rec-dot active"></span><span class="rec-dot"></span></div>
     </div>
 
-    <div class="card custom-drink-prototype" data-section="custom-drink" style="margin-top:14px"><div class="card-title">我喝了别的</div><div class="custom-drink-prototype-row"><input class="field" placeholder="输入实际喝的茶"><button class="primary-button">喝这个</button></div></div>
+    <div class="card custom-drink-prototype" data-section="custom-drink" style="margin-top:14px"><div class="card-title">我喝了别的</div><div class="custom-drink-prototype-row"><input class="field" placeholder="输入实际喝的茶"><button class="primary-button" type="button">喝这个</button></div></div>
   </section>
 
   <section class="state-panel" data-state="no-result" data-state-label="无结果" hidden>
     <header class="hero" data-section="weather"><div class="hero-date">七月廿六 · 成都</div><div class="hero-term">大暑</div></header>
-    <article class="card empty" data-section="recommendation"><span class="empty-icon">🍃</span><b>今天没有合适的候选</b><p>可以放宽回避条件，或去茶库启用更多茶叶。</p><button class="secondary-button">重新输入</button></article>
+    <article class="card empty" data-section="recommendation"><span class="empty-kicker">先休息一下</span><b>今天没有合适的候选</b><p>可以放宽回避条件，或去茶库启用更多茶叶。</p><button class="secondary-button" type="button">重新输入</button></article>
   </section>
 
   <section class="state-panel" data-state="checked-in" data-state-label="已打卡" hidden>
@@ -128,10 +136,10 @@
   </section>
 
   <nav class="tabbar" data-section="tabbar">
-    <a class="active" href="/ui-prototype/pages/recommendation.html"><img src="/images/tab-rec-active.png" alt="">推荐</a>
-    <a href="/ui-prototype/pages/history.html"><img src="/images/tab-history.png" alt="">记录</a>
-    <a href="/ui-prototype/pages/tea-library.html"><img src="/images/tab-lib.png" alt="">茶库</a>
-    <a href="/ui-prototype/pages/settings.html"><img src="/images/tab-settings.png" alt="">设置</a>
+    <a class="active" href="/ui-prototype/pages/recommendation.html"><svg class="tabbar-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/><path d="M20 3v4"/><path d="M22 5h-4"/><path d="M4 17v2"/><path d="M5 18H3"/></svg><span>推荐</span></a>
+    <a href="/ui-prototype/pages/history.html"><svg class="tabbar-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/></svg><span>记录</span></a>
+    <a href="/ui-prototype/pages/tea-library.html"><svg class="tabbar-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6.94C9.17 13.03 12 12 16 12"/></svg><span>茶库</span></a>
+    <a href="/ui-prototype/pages/settings.html"><svg class="tabbar-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M20 7h-9"/><path d="M14 17H5"/><circle cx="17" cy="17" r="3"/><circle cx="7" cy="7" r="3"/></svg><span>设置</span></a>
   </nav>
 </main>
 <script src="/ui-prototype/scripts/fixtures.js"></script><script src="/ui-prototype/scripts/prototype.js"></script>
