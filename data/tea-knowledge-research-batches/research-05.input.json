@@ -1,0 +1,94 @@
+{
+  "schemaVersion": 2,
+  "purpose": "research_batch_input",
+  "generatedAt": 1785855870261,
+  "expectedTeaCount": 89,
+  "withheldTeaIds": [
+    0,
+    25,
+    68
+  ],
+  "batchId": "research-05",
+  "teaIds": [
+    83,
+    84,
+    85,
+    86,
+    87,
+    88
+  ],
+  "teas": [
+    {
+      "teaId": 83,
+      "currentIdentity": {
+        "displayName": "茉莉花茶·茉莉香",
+        "brand": "猴王",
+        "category": "flavored_jasmine",
+        "year": 2025
+      },
+      "confirmedClarifications": [],
+      "confirmedPackageLinks": []
+    },
+    {
+      "teaId": 84,
+      "currentIdentity": {
+        "displayName": "茉莉花茶·金猴王4号",
+        "brand": "猴王",
+        "category": "flavored_jasmine",
+        "year": 2025
+      },
+      "confirmedClarifications": [],
+      "confirmedPackageLinks": []
+    },
+    {
+      "teaId": 85,
+      "currentIdentity": {
+        "displayName": "茉莉花茶·碧潭飘雪静心特级",
+        "brand": "竹叶青",
+        "category": "flavored_jasmine",
+        "year": 2025
+      },
+      "confirmedClarifications": [],
+      "confirmedPackageLinks": []
+    },
+    {
+      "teaId": 86,
+      "currentIdentity": {
+        "displayName": "小青柑",
+        "brand": "虎标",
+        "category": "flavored_other",
+        "year": 2024
+      },
+      "confirmedClarifications": [],
+      "confirmedPackageLinks": []
+    },
+    {
+      "teaId": 87,
+      "currentIdentity": {
+        "displayName": "桂花红茶·桂花香",
+        "brand": "猴王",
+        "category": "flavored_other",
+        "year": 2025
+      },
+      "confirmedClarifications": [],
+      "confirmedPackageLinks": []
+    },
+    {
+      "teaId": 88,
+      "currentIdentity": {
+        "displayName": "八宝茶",
+        "brand": "自调",
+        "category": "flavored_other",
+        "year": null
+      },
+      "confirmedClarifications": [],
+      "confirmedPackageLinks": []
+    }
+  ],
+  "sharedFiles": [
+    "docs/tea-knowledge-batch-rules.md",
+    "data/tea-knowledge.contract.json",
+    "data/tea-knowledge.samples.json"
+  ],
+  "outputRequirement": "每个批次单独输出一个符合契约的 JSON 目录，不要输出 Markdown 代码围栏。"
+}

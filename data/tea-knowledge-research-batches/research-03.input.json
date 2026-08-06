@@ -1,0 +1,262 @@
+{
+  "schemaVersion": 2,
+  "purpose": "research_batch_input",
+  "generatedAt": 1785855870261,
+  "expectedTeaCount": 89,
+  "withheldTeaIds": [
+    0,
+    25,
+    68
+  ],
+  "batchId": "research-03",
+  "teaIds": [
+    42,
+    43,
+    44,
+    45,
+    46,
+    47,
+    48,
+    49,
+    50,
+    51,
+    52,
+    53,
+    54,
+    55,
+    56,
+    57,
+    58,
+    59,
+    60,
+    61
+  ],
+  "teas": [
+    {
+      "teaId": 42,
+      "currentIdentity": {
+        "displayName": "岩值肉桂（中足火）·一级",
+        "brand": "孝文家",
+        "category": "oolong_wuyi",
+        "year": 2023
+      },
+      "confirmedClarifications": [],
+      "confirmedPackageLinks": []
+    },
+    {
+      "teaId": 43,
+      "currentIdentity": {
+        "displayName": "携山肉桂（中火）·开运纳福2000",
+        "brand": "孝文家",
+        "category": "oolong_wuyi",
+        "year": 2025
+      },
+      "confirmedClarifications": [],
+      "confirmedPackageLinks": []
+    },
+    {
+      "teaId": 44,
+      "currentIdentity": {
+        "displayName": "携山水仙（中火）·富贵花1200",
+        "brand": "孝文家",
+        "category": "oolong_wuyi",
+        "year": 2023
+      },
+      "confirmedClarifications": [],
+      "confirmedPackageLinks": []
+    },
+    {
+      "teaId": 45,
+      "currentIdentity": {
+        "displayName": "携山大红袍（中火）·富贵花1200",
+        "brand": "孝文家",
+        "category": "oolong_wuyi",
+        "year": 2023
+      },
+      "confirmedClarifications": [],
+      "confirmedPackageLinks": []
+    },
+    {
+      "teaId": 46,
+      "currentIdentity": {
+        "displayName": "大红袍贡茶（中足火）·MT102",
+        "brand": "幔亭",
+        "category": "oolong_wuyi",
+        "year": 2023
+      },
+      "confirmedClarifications": [],
+      "confirmedPackageLinks": []
+    },
+    {
+      "teaId": 47,
+      "currentIdentity": {
+        "displayName": "果香肉桂（中轻火）",
+        "brand": "小厂茶",
+        "category": "oolong_wuyi",
+        "year": 2023
+      },
+      "confirmedClarifications": [],
+      "confirmedPackageLinks": []
+    },
+    {
+      "teaId": 48,
+      "currentIdentity": {
+        "displayName": "陈升一号·解散茶",
+        "brand": "陈升号",
+        "category": "puerh_raw",
+        "year": 2019
+      },
+      "confirmedClarifications": [],
+      "confirmedPackageLinks": []
+    },
+    {
+      "teaId": 49,
+      "currentIdentity": {
+        "displayName": "陈升一号·巧克力饼",
+        "brand": "陈升号",
+        "category": "puerh_raw",
+        "year": 2022
+      },
+      "confirmedClarifications": [],
+      "confirmedPackageLinks": []
+    },
+    {
+      "teaId": 50,
+      "currentIdentity": {
+        "displayName": "陈升一号·饼茶",
+        "brand": "陈升号",
+        "category": "puerh_raw",
+        "year": 2023
+      },
+      "confirmedClarifications": [],
+      "confirmedPackageLinks": []
+    },
+    {
+      "teaId": 51,
+      "currentIdentity": {
+        "displayName": "易武正山饼茶",
+        "brand": "八角亭",
+        "category": "puerh_raw",
+        "year": 2023
+      },
+      "confirmedClarifications": [],
+      "confirmedPackageLinks": []
+    },
+    {
+      "teaId": 52,
+      "currentIdentity": {
+        "displayName": "百花谷小饼茶",
+        "brand": "老同志",
+        "category": "puerh_raw",
+        "year": 2025
+      },
+      "confirmedClarifications": [],
+      "confirmedPackageLinks": []
+    },
+    {
+      "teaId": 53,
+      "currentIdentity": {
+        "displayName": "忙麓山饼茶",
+        "brand": "八角亭",
+        "category": "puerh_raw",
+        "year": 2024
+      },
+      "confirmedClarifications": [],
+      "confirmedPackageLinks": []
+    },
+    {
+      "teaId": 54,
+      "currentIdentity": {
+        "displayName": "志士·班盆古树茶砖",
+        "brand": "八角亭",
+        "category": "puerh_raw",
+        "year": 2018
+      },
+      "confirmedClarifications": [],
+      "confirmedPackageLinks": []
+    },
+    {
+      "teaId": 55,
+      "currentIdentity": {
+        "displayName": "胭脂特沱",
+        "brand": "下关",
+        "category": "puerh_raw",
+        "year": 2024
+      },
+      "confirmedClarifications": [],
+      "confirmedPackageLinks": []
+    },
+    {
+      "teaId": 56,
+      "currentIdentity": {
+        "displayName": "7510饼茶",
+        "brand": "八角亭",
+        "category": "puerh_raw",
+        "year": 2024
+      },
+      "confirmedClarifications": [],
+      "confirmedPackageLinks": []
+    },
+    {
+      "teaId": 57,
+      "currentIdentity": {
+        "displayName": "小乾坤迷你小饼",
+        "brand": "八角亭",
+        "category": "puerh_raw",
+        "year": 2018
+      },
+      "confirmedClarifications": [],
+      "confirmedPackageLinks": []
+    },
+    {
+      "teaId": 58,
+      "currentIdentity": {
+        "displayName": "如珪小饼茶",
+        "brand": "八角亭",
+        "category": "puerh_raw",
+        "year": 2023
+      },
+      "confirmedClarifications": [],
+      "confirmedPackageLinks": []
+    },
+    {
+      "teaId": 59,
+      "currentIdentity": {
+        "displayName": "如瑜小饼茶",
+        "brand": "八角亭",
+        "category": "puerh_raw",
+        "year": 2022
+      },
+      "confirmedClarifications": [],
+      "confirmedPackageLinks": []
+    },
+    {
+      "teaId": 60,
+      "currentIdentity": {
+        "displayName": "如璠小饼茶",
+        "brand": "八角亭",
+        "category": "puerh_raw",
+        "year": 2022
+      },
+      "confirmedClarifications": [],
+      "confirmedPackageLinks": []
+    },
+    {
+      "teaId": 61,
+      "currentIdentity": {
+        "displayName": "那卡茶砖",
+        "brand": "陈升号",
+        "category": "puerh_raw",
+        "year": 2023
+      },
+      "confirmedClarifications": [],
+      "confirmedPackageLinks": []
+    }
+  ],
+  "sharedFiles": [
+    "docs/tea-knowledge-batch-rules.md",
+    "data/tea-knowledge.contract.json",
+    "data/tea-knowledge.samples.json"
+  ],
+  "outputRequirement": "每个批次单独输出一个符合契约的 JSON 目录，不要输出 Markdown 代码围栏。"
+}

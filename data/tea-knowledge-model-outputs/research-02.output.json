@@ -1,0 +1,6559 @@
+{
+  "schemaVersion": 2,
+  "documentation": "docs/tea-knowledge-field-guide.md",
+  "purpose": "import",
+  "catalogVersion": "conservative-draft-v1-research-02",
+  "generatedAt": 1785772800000,
+  "expectedTeaCount": 89,
+  "withheldTeaIds": [
+    0,
+    25,
+    68
+  ],
+  "batches": [
+    {
+      "batchId": "research-02",
+      "model": "codex-conservative-draft-v1",
+      "teaIds": [
+        21,
+        22,
+        23,
+        24,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39,
+        40,
+        41
+      ]
+    }
+  ],
+  "teas": [
+    {
+      "teaId": 21,
+      "profileVersion": 1,
+      "lifecycle": "complete",
+      "research": {
+        "completeness": 0.8286,
+        "conflicts": [],
+        "notes": [
+          "这是未联网核验的保守初稿：仅使用茶库记录、名称显式信息和茶类默认值；商品级事实仍需外部资料或实物包装补充。"
+        ]
+      },
+      "identity": {
+        "displayName": {
+          "value": "紧压寿眉·金六条",
+          "status": "confirmed",
+          "sourceType": "user",
+          "confidence": 1,
+          "updatedAt": 1785772800000,
+          "evidence": "用户现有茶库名称。"
+        },
+        "brand": {
+          "value": "绿雪芽",
+          "status": "confirmed",
+          "sourceType": "user",
+          "confidence": 1,
+          "updatedAt": 1785772800000,
+          "evidence": "用户现有茶库品牌记录。"
+        },
+        "category": {
+          "value": "white",
+          "status": "confirmed",
+          "sourceType": "user",
+          "confidence": 1,
+          "updatedAt": 1785772800000,
+          "evidence": "用户现有茶库分类。"
+        },
+        "year": {
+          "value": 2019,
+          "status": "confirmed",
+          "sourceType": "user",
+          "confidence": 1,
+          "updatedAt": 1785772800000,
+          "evidence": "用户现有茶库年份记录。"
+        },
+        "productCode": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        },
+        "packagingVariant": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        },
+        "form": {
+          "value": "紧压茶",
+          "status": "researched",
+          "sourceType": "retailer",
+          "confidence": 0.9,
+          "updatedAt": 1785772800000,
+          "evidence": "可访问页面标题与关联的绿雪芽旗舰店信息明确写为“2019年寿眉金六条紧压茶”。",
+          "sourceRefs": [
+            "https://www.wepost.com.my/recommends/items/taobao-jBq4JBUdA9AXM9rCz.html"
+          ]
+        }
+      },
+      "origin": {
+        "region": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        },
+        "cultivar": {
+          "value": "寿眉",
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.88,
+          "updatedAt": 1785772800000,
+          "evidence": "名称直接包含品种或原料等级词，待包装或官方资料核验。"
+        },
+        "materialGrade": {
+          "value": "寿眉",
+          "status": "researched",
+          "sourceType": "retailer",
+          "confidence": 0.94,
+          "updatedAt": 1785772800000,
+          "evidence": "可访问页面标题明确标注“2019年寿眉金六条”。",
+          "sourceRefs": [
+            "https://www.wepost.com.my/recommends/items/taobao-jBq4JBUdA9AXM9rCz.html"
+          ]
+        },
+        "harvestSeason": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        }
+      },
+      "craft": {
+        "processTags": {
+          "value": [
+            "萎凋",
+            "干燥"
+          ],
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.45,
+          "updatedAt": 1785772800000,
+          "evidence": "茶类通用工艺初稿，并非该商品已查证的独有特征。"
+        },
+        "roastLevel": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        },
+        "compression": {
+          "value": "tight",
+          "status": "researched",
+          "sourceType": "retailer",
+          "confidence": 0.88,
+          "updatedAt": 1785772800000,
+          "evidence": "可访问页面标题明确标注“紧压茶”；未据此补充具体压制规格。",
+          "sourceRefs": [
+            "https://www.wepost.com.my/recommends/items/taobao-jBq4JBUdA9AXM9rCz.html"
+          ]
+        },
+        "agingState": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        }
+      },
+      "sensory": {
+        "aromaTags": {
+          "value": [
+            "毫香",
+            "甜香"
+          ],
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "flavorTags": {
+          "value": [
+            "清甜",
+            "柔和"
+          ],
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "aromaIntensity": {
+          "value": 2.5,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "sweetness": {
+          "value": 3.5,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "bitterness": {
+          "value": 1,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "astringency": {
+          "value": 1.5,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "body": {
+          "value": 2.5,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "smoothness": {
+          "value": 3.5,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "aftertaste": {
+          "value": 3,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "durability": {
+          "value": 3,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        }
+      },
+      "effects": {
+        "stimulation": {
+          "value": 2,
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.4,
+          "updatedAt": 1785772800000,
+          "evidence": "茶类通用体感倾向；不是医学结论，也需被个人记录覆盖。"
+        },
+        "emptyStomachFriendliness": {
+          "value": 3,
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.4,
+          "updatedAt": 1785772800000,
+          "evidence": "茶类通用体感倾向；不是医学结论，也需被个人记录覆盖。"
+        },
+        "sleepImpact": {
+          "value": 2,
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.4,
+          "updatedAt": 1785772800000,
+          "evidence": "茶类通用体感倾向；不是医学结论，也需被个人记录覆盖。"
+        }
+      },
+      "context": {
+        "bestSeasons": {
+          "value": [
+            "春",
+            "秋",
+            "冬"
+          ],
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.45,
+          "updatedAt": 1785772800000,
+          "evidence": "茶类通用饮用季节初稿。"
+        },
+        "bestTimes": {
+          "value": [
+            "上午",
+            "下午",
+            "饭后"
+          ],
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.45,
+          "updatedAt": 1785772800000,
+          "evidence": "茶类通用饮用时段初稿。"
+        }
+      },
+      "brew": {
+        "vessels": {
+          "value": [
+            "盖碗",
+            "煮茶壶"
+          ],
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.55,
+          "updatedAt": 1785772800000,
+          "evidence": "沿用茶库现有茶类冲泡指引，待实物试泡调整。"
+        },
+        "waterTempC": {
+          "value": {
+            "min": 90,
+            "max": 100
+          },
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.55,
+          "updatedAt": 1785772800000,
+          "evidence": "沿用茶库现有茶类冲泡指引，待实物试泡调整。"
+        },
+        "gramsPer100ml": {
+          "value": 3.5,
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.55,
+          "updatedAt": 1785772800000,
+          "evidence": "沿用茶库现有茶类冲泡指引，待实物试泡调整。"
+        },
+        "firstSteepSeconds": {
+          "value": {
+            "min": 30,
+            "max": 60
+          },
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.55,
+          "updatedAt": 1785772800000,
+          "evidence": "沿用茶库现有茶类冲泡指引，待实物试泡调整。"
+        },
+        "difficulty": {
+          "value": 2.5,
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.45,
+          "updatedAt": 1785772800000,
+          "evidence": "按茶类功夫泡容错度估计，待实物试泡调整。"
+        }
+      }
+    },
+    {
+      "teaId": 22,
+      "profileVersion": 1,
+      "lifecycle": "complete",
+      "research": {
+        "completeness": 0.8571,
+        "conflicts": [],
+        "notes": [
+          "这是未联网核验的保守初稿：仅使用茶库记录、名称显式信息和茶类默认值；商品级事实仍需外部资料或实物包装补充。",
+          "用户确认实际商品或包装；用户在第二批补充文档中确认货号 522。。包装事实留在库存层。"
+        ]
+      },
+      "identity": {
+        "displayName": {
+          "value": "寿眉散茶",
+          "status": "confirmed",
+          "sourceType": "user",
+          "confidence": 1,
+          "updatedAt": 1785855887674,
+          "evidence": "用户提供实际商品或购买记录，确认该链接对应当前茶款。"
+        },
+        "brand": {
+          "value": "六妙",
+          "status": "confirmed",
+          "sourceType": "user",
+          "confidence": 1,
+          "updatedAt": 1785772800000,
+          "evidence": "用户现有茶库品牌记录。"
+        },
+        "category": {
+          "value": "white",
+          "status": "confirmed",
+          "sourceType": "user",
+          "confidence": 1,
+          "updatedAt": 1785772800000,
+          "evidence": "用户现有茶库分类。"
+        },
+        "year": {
+          "value": 2022,
+          "status": "confirmed",
+          "sourceType": "user",
+          "confidence": 1,
+          "updatedAt": 1785772800000,
+          "evidence": "用户现有茶库年份记录。"
+        },
+        "productCode": {
+          "value": "522",
+          "status": "confirmed",
+          "sourceType": "user",
+          "confidence": 1,
+          "updatedAt": 1785855887674,
+          "evidence": "用户在第二批补充文档中确认该字段。"
+        },
+        "packagingVariant": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        },
+        "form": {
+          "value": "散茶",
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.88,
+          "updatedAt": 1785772800000,
+          "evidence": "名称直接包含成品形态词，仍待产品资料核验。"
+        }
+      },
+      "origin": {
+        "region": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        },
+        "cultivar": {
+          "value": "寿眉",
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.88,
+          "updatedAt": 1785772800000,
+          "evidence": "名称直接包含品种或原料等级词，待包装或官方资料核验。"
+        },
+        "materialGrade": {
+          "value": "寿眉",
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.82,
+          "updatedAt": 1785772800000,
+          "evidence": "名称直接包含等级或原料等级词，待产品资料核验。"
+        },
+        "harvestSeason": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        }
+      },
+      "craft": {
+        "processTags": {
+          "value": [
+            "萎凋",
+            "干燥"
+          ],
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.45,
+          "updatedAt": 1785772800000,
+          "evidence": "茶类通用工艺初稿，并非该商品已查证的独有特征。"
+        },
+        "roastLevel": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        },
+        "compression": {
+          "value": "loose",
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.78,
+          "updatedAt": 1785772800000,
+          "evidence": "由名称中的成品形态推测紧压程度，尚未实测。"
+        },
+        "agingState": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        }
+      },
+      "sensory": {
+        "aromaTags": {
+          "value": [
+            "毫香",
+            "甜香"
+          ],
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "flavorTags": {
+          "value": [
+            "清甜",
+            "柔和"
+          ],
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "aromaIntensity": {
+          "value": 2.5,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "sweetness": {
+          "value": 3.5,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "bitterness": {
+          "value": 1,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "astringency": {
+          "value": 1.5,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "body": {
+          "value": 2.5,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "smoothness": {
+          "value": 3.5,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "aftertaste": {
+          "value": 3,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "durability": {
+          "value": 3,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        }
+      },
+      "effects": {
+        "stimulation": {
+          "value": 2,
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.4,
+          "updatedAt": 1785772800000,
+          "evidence": "茶类通用体感倾向；不是医学结论，也需被个人记录覆盖。"
+        },
+        "emptyStomachFriendliness": {
+          "value": 3,
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.4,
+          "updatedAt": 1785772800000,
+          "evidence": "茶类通用体感倾向；不是医学结论，也需被个人记录覆盖。"
+        },
+        "sleepImpact": {
+          "value": 2,
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.4,
+          "updatedAt": 1785772800000,
+          "evidence": "茶类通用体感倾向；不是医学结论，也需被个人记录覆盖。"
+        }
+      },
+      "context": {
+        "bestSeasons": {
+          "value": [
+            "春",
+            "秋",
+            "冬"
+          ],
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.45,
+          "updatedAt": 1785772800000,
+          "evidence": "茶类通用饮用季节初稿。"
+        },
+        "bestTimes": {
+          "value": [
+            "上午",
+            "下午",
+            "饭后"
+          ],
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.45,
+          "updatedAt": 1785772800000,
+          "evidence": "茶类通用饮用时段初稿。"
+        }
+      },
+      "brew": {
+        "vessels": {
+          "value": [
+            "盖碗",
+            "煮茶壶"
+          ],
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.55,
+          "updatedAt": 1785772800000,
+          "evidence": "沿用茶库现有茶类冲泡指引，待实物试泡调整。"
+        },
+        "waterTempC": {
+          "value": {
+            "min": 90,
+            "max": 100
+          },
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.55,
+          "updatedAt": 1785772800000,
+          "evidence": "沿用茶库现有茶类冲泡指引，待实物试泡调整。"
+        },
+        "gramsPer100ml": {
+          "value": 3.5,
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.55,
+          "updatedAt": 1785772800000,
+          "evidence": "沿用茶库现有茶类冲泡指引，待实物试泡调整。"
+        },
+        "firstSteepSeconds": {
+          "value": {
+            "min": 30,
+            "max": 60
+          },
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.55,
+          "updatedAt": 1785772800000,
+          "evidence": "沿用茶库现有茶类冲泡指引，待实物试泡调整。"
+        },
+        "difficulty": {
+          "value": 2.5,
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.45,
+          "updatedAt": 1785772800000,
+          "evidence": "按茶类功夫泡容错度估计，待实物试泡调整。"
+        }
+      }
+    },
+    {
+      "teaId": 23,
+      "profileVersion": 1,
+      "lifecycle": "complete",
+      "research": {
+        "completeness": 0.7429,
+        "conflicts": [],
+        "notes": [
+          "这是未联网核验的保守初稿：仅使用茶库记录、名称显式信息和茶类默认值；商品级事实仍需外部资料或实物包装补充。"
+        ]
+      },
+      "identity": {
+        "displayName": {
+          "value": "鸭屎香",
+          "status": "confirmed",
+          "sourceType": "user",
+          "confidence": 1,
+          "updatedAt": 1785772800000,
+          "evidence": "用户现有茶库名称。"
+        },
+        "brand": {
+          "value": "南馥",
+          "status": "confirmed",
+          "sourceType": "user",
+          "confidence": 1,
+          "updatedAt": 1785772800000,
+          "evidence": "用户现有茶库品牌记录。"
+        },
+        "category": {
+          "value": "oolong_dancong",
+          "status": "confirmed",
+          "sourceType": "user",
+          "confidence": 1,
+          "updatedAt": 1785772800000,
+          "evidence": "用户现有茶库分类。"
+        },
+        "year": {
+          "value": 2025,
+          "status": "confirmed",
+          "sourceType": "user",
+          "confidence": 1,
+          "updatedAt": 1785772800000,
+          "evidence": "用户现有茶库年份记录。"
+        },
+        "productCode": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        },
+        "packagingVariant": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        },
+        "form": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        }
+      },
+      "origin": {
+        "region": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        },
+        "cultivar": {
+          "value": "鸭屎香",
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.88,
+          "updatedAt": 1785772800000,
+          "evidence": "名称直接包含品种或原料等级词，待包装或官方资料核验。"
+        },
+        "materialGrade": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        },
+        "harvestSeason": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        }
+      },
+      "craft": {
+        "processTags": {
+          "value": [
+            "萎凋",
+            "做青",
+            "烘焙"
+          ],
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.45,
+          "updatedAt": 1785772800000,
+          "evidence": "茶类通用工艺初稿，并非该商品已查证的独有特征。"
+        },
+        "roastLevel": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        },
+        "compression": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        },
+        "agingState": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        }
+      },
+      "sensory": {
+        "aromaTags": {
+          "value": [
+            "花香",
+            "蜜香"
+          ],
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "flavorTags": {
+          "value": [
+            "鲜爽",
+            "回甘"
+          ],
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "aromaIntensity": {
+          "value": 4,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "sweetness": {
+          "value": 3,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "bitterness": {
+          "value": 2,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "astringency": {
+          "value": 3,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "body": {
+          "value": 3,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "smoothness": {
+          "value": 2.5,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "aftertaste": {
+          "value": 3.5,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "durability": {
+          "value": 4,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        }
+      },
+      "effects": {
+        "stimulation": {
+          "value": 3.5,
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.4,
+          "updatedAt": 1785772800000,
+          "evidence": "茶类通用体感倾向；不是医学结论，也需被个人记录覆盖。"
+        },
+        "emptyStomachFriendliness": {
+          "value": 2,
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.4,
+          "updatedAt": 1785772800000,
+          "evidence": "茶类通用体感倾向；不是医学结论，也需被个人记录覆盖。"
+        },
+        "sleepImpact": {
+          "value": 3.5,
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.4,
+          "updatedAt": 1785772800000,
+          "evidence": "茶类通用体感倾向；不是医学结论，也需被个人记录覆盖。"
+        }
+      },
+      "context": {
+        "bestSeasons": {
+          "value": [
+            "春",
+            "秋"
+          ],
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.45,
+          "updatedAt": 1785772800000,
+          "evidence": "茶类通用饮用季节初稿。"
+        },
+        "bestTimes": {
+          "value": [
+            "上午",
+            "下午"
+          ],
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.45,
+          "updatedAt": 1785772800000,
+          "evidence": "茶类通用饮用时段初稿。"
+        }
+      },
+      "brew": {
+        "vessels": {
+          "value": [
+            "盖碗"
+          ],
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.55,
+          "updatedAt": 1785772800000,
+          "evidence": "沿用茶库现有茶类冲泡指引，待实物试泡调整。"
+        },
+        "waterTempC": {
+          "value": {
+            "min": 95,
+            "max": 100
+          },
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.55,
+          "updatedAt": 1785772800000,
+          "evidence": "沿用茶库现有茶类冲泡指引，待实物试泡调整。"
+        },
+        "gramsPer100ml": {
+          "value": 6.5,
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.55,
+          "updatedAt": 1785772800000,
+          "evidence": "沿用茶库现有茶类冲泡指引，待实物试泡调整。"
+        },
+        "firstSteepSeconds": {
+          "value": {
+            "min": 15,
+            "max": 20
+          },
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.55,
+          "updatedAt": 1785772800000,
+          "evidence": "沿用茶库现有茶类冲泡指引，待实物试泡调整。"
+        },
+        "difficulty": {
+          "value": 3.5,
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.45,
+          "updatedAt": 1785772800000,
+          "evidence": "按茶类功夫泡容错度估计，待实物试泡调整。"
+        }
+      }
+    },
+    {
+      "teaId": 24,
+      "profileVersion": 1,
+      "lifecycle": "complete",
+      "research": {
+        "completeness": 0.7429,
+        "conflicts": [],
+        "notes": [
+          "这是未联网核验的保守初稿：仅使用茶库记录、名称显式信息和茶类默认值；商品级事实仍需外部资料或实物包装补充。",
+          "用户确认实际商品或包装；用户在第二批补充文档中确认当前八马鸭屎香年份为 2023。。包装事实留在库存层。"
+        ]
+      },
+      "identity": {
+        "displayName": {
+          "value": "鸭屎香",
+          "status": "confirmed",
+          "sourceType": "user",
+          "confidence": 1,
+          "updatedAt": 1785855887674,
+          "evidence": "用户提供实际商品或购买记录，确认该链接对应当前茶款。",
+          "sourceRefs": [
+            "https://item.jd.com/100041815235.html"
+          ]
+        },
+        "brand": {
+          "value": "八马",
+          "status": "confirmed",
+          "sourceType": "user",
+          "confidence": 1,
+          "updatedAt": 1785772800000,
+          "evidence": "用户现有茶库品牌记录。"
+        },
+        "category": {
+          "value": "oolong_dancong",
+          "status": "confirmed",
+          "sourceType": "user",
+          "confidence": 1,
+          "updatedAt": 1785772800000,
+          "evidence": "用户现有茶库分类。"
+        },
+        "year": {
+          "value": 2023,
+          "status": "confirmed",
+          "sourceType": "user",
+          "confidence": 1,
+          "updatedAt": 1785855887674,
+          "evidence": "用户在第二批补充文档中确认该字段。"
+        },
+        "productCode": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        },
+        "packagingVariant": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        },
+        "form": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        }
+      },
+      "origin": {
+        "region": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        },
+        "cultivar": {
+          "value": "鸭屎香",
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.88,
+          "updatedAt": 1785772800000,
+          "evidence": "名称直接包含品种或原料等级词，待包装或官方资料核验。"
+        },
+        "materialGrade": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        },
+        "harvestSeason": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        }
+      },
+      "craft": {
+        "processTags": {
+          "value": [
+            "萎凋",
+            "做青",
+            "烘焙"
+          ],
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.45,
+          "updatedAt": 1785772800000,
+          "evidence": "茶类通用工艺初稿，并非该商品已查证的独有特征。"
+        },
+        "roastLevel": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        },
+        "compression": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        },
+        "agingState": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        }
+      },
+      "sensory": {
+        "aromaTags": {
+          "value": [
+            "花香",
+            "蜜香"
+          ],
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "flavorTags": {
+          "value": [
+            "鲜爽",
+            "回甘"
+          ],
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "aromaIntensity": {
+          "value": 4,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "sweetness": {
+          "value": 3,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "bitterness": {
+          "value": 2,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "astringency": {
+          "value": 3,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "body": {
+          "value": 3,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "smoothness": {
+          "value": 2.5,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "aftertaste": {
+          "value": 3.5,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "durability": {
+          "value": 4,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        }
+      },
+      "effects": {
+        "stimulation": {
+          "value": 3.5,
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.4,
+          "updatedAt": 1785772800000,
+          "evidence": "茶类通用体感倾向；不是医学结论，也需被个人记录覆盖。"
+        },
+        "emptyStomachFriendliness": {
+          "value": 2,
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.4,
+          "updatedAt": 1785772800000,
+          "evidence": "茶类通用体感倾向；不是医学结论，也需被个人记录覆盖。"
+        },
+        "sleepImpact": {
+          "value": 3.5,
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.4,
+          "updatedAt": 1785772800000,
+          "evidence": "茶类通用体感倾向；不是医学结论，也需被个人记录覆盖。"
+        }
+      },
+      "context": {
+        "bestSeasons": {
+          "value": [
+            "春",
+            "秋"
+          ],
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.45,
+          "updatedAt": 1785772800000,
+          "evidence": "茶类通用饮用季节初稿。"
+        },
+        "bestTimes": {
+          "value": [
+            "上午",
+            "下午"
+          ],
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.45,
+          "updatedAt": 1785772800000,
+          "evidence": "茶类通用饮用时段初稿。"
+        }
+      },
+      "brew": {
+        "vessels": {
+          "value": [
+            "盖碗"
+          ],
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.55,
+          "updatedAt": 1785772800000,
+          "evidence": "沿用茶库现有茶类冲泡指引，待实物试泡调整。"
+        },
+        "waterTempC": {
+          "value": {
+            "min": 95,
+            "max": 100
+          },
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.55,
+          "updatedAt": 1785772800000,
+          "evidence": "沿用茶库现有茶类冲泡指引，待实物试泡调整。"
+        },
+        "gramsPer100ml": {
+          "value": 6.5,
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.55,
+          "updatedAt": 1785772800000,
+          "evidence": "沿用茶库现有茶类冲泡指引，待实物试泡调整。"
+        },
+        "firstSteepSeconds": {
+          "value": {
+            "min": 15,
+            "max": 20
+          },
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.55,
+          "updatedAt": 1785772800000,
+          "evidence": "沿用茶库现有茶类冲泡指引，待实物试泡调整。"
+        },
+        "difficulty": {
+          "value": 3.5,
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.45,
+          "updatedAt": 1785772800000,
+          "evidence": "按茶类功夫泡容错度估计，待实物试泡调整。"
+        }
+      }
+    },
+    {
+      "teaId": 26,
+      "profileVersion": 1,
+      "lifecycle": "complete",
+      "research": {
+        "completeness": 0.7429,
+        "conflicts": [],
+        "notes": [
+          "这是未联网核验的保守初稿：仅使用茶库记录、名称显式信息和茶类默认值；商品级事实仍需外部资料或实物包装补充。",
+          "用户确认实际商品或包装；品鉴装；25g；用户确认手头规格是正装内的一盒品鉴装；“轻享版”属于这份包装，不是茶叶产品版本。。包装事实留在库存层。"
+        ]
+      },
+      "identity": {
+        "displayName": {
+          "value": "赛珍珠1000浓香铁观音",
+          "status": "confirmed",
+          "sourceType": "user",
+          "confidence": 1,
+          "updatedAt": 1785855887674,
+          "evidence": "用户根据实际购买记录确认商品名称为赛珍珠1000浓香铁观音。"
+        },
+        "brand": {
+          "value": "八马",
+          "status": "confirmed",
+          "sourceType": "user",
+          "confidence": 1,
+          "updatedAt": 1785772800000,
+          "evidence": "用户现有茶库品牌记录。"
+        },
+        "category": {
+          "value": "oolong_tieguanyin",
+          "status": "confirmed",
+          "sourceType": "user",
+          "confidence": 1,
+          "updatedAt": 1785772800000,
+          "evidence": "用户现有茶库分类。"
+        },
+        "year": {
+          "value": 2025,
+          "status": "confirmed",
+          "sourceType": "user",
+          "confidence": 1,
+          "updatedAt": 1785772800000,
+          "evidence": "用户现有茶库年份记录。"
+        },
+        "productCode": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        },
+        "packagingVariant": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        },
+        "form": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        }
+      },
+      "origin": {
+        "region": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        },
+        "cultivar": {
+          "value": "铁观音",
+          "status": "researched",
+          "sourceType": "official",
+          "confidence": 0.98,
+          "updatedAt": 1785772800000,
+          "evidence": "八马茶业微信公众号认证旗舰店的具体商品标题明确标注“铁观音”。",
+          "sourceRefs": [
+            "https://detail.youzan.com/show/goods?alias=1ydu7b5rh9mnysb&from_source=gbox_seo"
+          ]
+        },
+        "materialGrade": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        },
+        "harvestSeason": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        }
+      },
+      "craft": {
+        "processTags": {
+          "value": [
+            "萎凋",
+            "做青",
+            "包揉",
+            "烘焙"
+          ],
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.45,
+          "updatedAt": 1785772800000,
+          "evidence": "茶类通用工艺初稿，并非该商品已查证的独有特征。"
+        },
+        "roastLevel": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        },
+        "compression": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        },
+        "agingState": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        }
+      },
+      "sensory": {
+        "aromaTags": {
+          "value": [
+            "兰花香"
+          ],
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "flavorTags": {
+          "value": [
+            "鲜爽",
+            "回甘"
+          ],
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "aromaIntensity": {
+          "value": 3.5,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "sweetness": {
+          "value": 3,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "bitterness": {
+          "value": 2,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "astringency": {
+          "value": 2.5,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "body": {
+          "value": 3,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "smoothness": {
+          "value": 3,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "aftertaste": {
+          "value": 3.5,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "durability": {
+          "value": 4,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        }
+      },
+      "effects": {
+        "stimulation": {
+          "value": 3.5,
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.4,
+          "updatedAt": 1785772800000,
+          "evidence": "茶类通用体感倾向；不是医学结论，也需被个人记录覆盖。"
+        },
+        "emptyStomachFriendliness": {
+          "value": 2,
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.4,
+          "updatedAt": 1785772800000,
+          "evidence": "茶类通用体感倾向；不是医学结论，也需被个人记录覆盖。"
+        },
+        "sleepImpact": {
+          "value": 3.5,
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.4,
+          "updatedAt": 1785772800000,
+          "evidence": "茶类通用体感倾向；不是医学结论，也需被个人记录覆盖。"
+        }
+      },
+      "context": {
+        "bestSeasons": {
+          "value": [
+            "春",
+            "秋"
+          ],
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.45,
+          "updatedAt": 1785772800000,
+          "evidence": "茶类通用饮用季节初稿。"
+        },
+        "bestTimes": {
+          "value": [
+            "上午",
+            "下午"
+          ],
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.45,
+          "updatedAt": 1785772800000,
+          "evidence": "茶类通用饮用时段初稿。"
+        }
+      },
+      "brew": {
+        "vessels": {
+          "value": [
+            "盖碗",
+            "紫砂壶"
+          ],
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.55,
+          "updatedAt": 1785772800000,
+          "evidence": "沿用茶库现有茶类冲泡指引，待实物试泡调整。"
+        },
+        "waterTempC": {
+          "value": {
+            "min": 95,
+            "max": 100
+          },
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.55,
+          "updatedAt": 1785772800000,
+          "evidence": "沿用茶库现有茶类冲泡指引，待实物试泡调整。"
+        },
+        "gramsPer100ml": {
+          "value": 6.5,
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.55,
+          "updatedAt": 1785772800000,
+          "evidence": "沿用茶库现有茶类冲泡指引，待实物试泡调整。"
+        },
+        "firstSteepSeconds": {
+          "value": {
+            "min": 20,
+            "max": 30
+          },
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.55,
+          "updatedAt": 1785772800000,
+          "evidence": "沿用茶库现有茶类冲泡指引，待实物试泡调整。"
+        },
+        "difficulty": {
+          "value": 3,
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.45,
+          "updatedAt": 1785772800000,
+          "evidence": "按茶类功夫泡容错度估计，待实物试泡调整。"
+        }
+      }
+    },
+    {
+      "teaId": 27,
+      "profileVersion": 1,
+      "lifecycle": "complete",
+      "research": {
+        "completeness": 0.7429,
+        "conflicts": [],
+        "notes": [
+          "这是未联网核验的保守初稿：仅使用茶库记录、名称显式信息和茶类默认值；商品级事实仍需外部资料或实物包装补充。",
+          "用户确认实际商品或包装。包装事实留在库存层。"
+        ]
+      },
+      "identity": {
+        "displayName": {
+          "value": "清香铁观音·秋茶",
+          "status": "confirmed",
+          "sourceType": "user",
+          "confidence": 1,
+          "updatedAt": 1785855887674,
+          "evidence": "用户提供实际商品或购买记录，确认该链接对应当前茶款。",
+          "sourceRefs": [
+            "https://item.taobao.com/item.htm?id=563277476150"
+          ]
+        },
+        "brand": {
+          "value": "凤山",
+          "status": "confirmed",
+          "sourceType": "user",
+          "confidence": 1,
+          "updatedAt": 1785772800000,
+          "evidence": "用户现有茶库品牌记录。"
+        },
+        "category": {
+          "value": "oolong_tieguanyin",
+          "status": "confirmed",
+          "sourceType": "user",
+          "confidence": 1,
+          "updatedAt": 1785772800000,
+          "evidence": "用户现有茶库分类。"
+        },
+        "year": {
+          "value": 2024,
+          "status": "confirmed",
+          "sourceType": "user",
+          "confidence": 1,
+          "updatedAt": 1785772800000,
+          "evidence": "用户现有茶库年份记录。"
+        },
+        "productCode": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        },
+        "packagingVariant": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        },
+        "form": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        }
+      },
+      "origin": {
+        "region": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        },
+        "cultivar": {
+          "value": "铁观音",
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.88,
+          "updatedAt": 1785772800000,
+          "evidence": "名称直接包含品种或原料等级词，待包装或官方资料核验。"
+        },
+        "materialGrade": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        },
+        "harvestSeason": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        }
+      },
+      "craft": {
+        "processTags": {
+          "value": [
+            "萎凋",
+            "做青",
+            "包揉",
+            "烘焙"
+          ],
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.45,
+          "updatedAt": 1785772800000,
+          "evidence": "茶类通用工艺初稿，并非该商品已查证的独有特征。"
+        },
+        "roastLevel": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        },
+        "compression": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        },
+        "agingState": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        }
+      },
+      "sensory": {
+        "aromaTags": {
+          "value": [
+            "兰花香"
+          ],
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "flavorTags": {
+          "value": [
+            "鲜爽",
+            "回甘"
+          ],
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "aromaIntensity": {
+          "value": 3.5,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "sweetness": {
+          "value": 3,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "bitterness": {
+          "value": 2,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "astringency": {
+          "value": 2.5,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "body": {
+          "value": 3,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "smoothness": {
+          "value": 3,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "aftertaste": {
+          "value": 3.5,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "durability": {
+          "value": 4,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        }
+      },
+      "effects": {
+        "stimulation": {
+          "value": 3.5,
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.4,
+          "updatedAt": 1785772800000,
+          "evidence": "茶类通用体感倾向；不是医学结论，也需被个人记录覆盖。"
+        },
+        "emptyStomachFriendliness": {
+          "value": 2,
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.4,
+          "updatedAt": 1785772800000,
+          "evidence": "茶类通用体感倾向；不是医学结论，也需被个人记录覆盖。"
+        },
+        "sleepImpact": {
+          "value": 3.5,
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.4,
+          "updatedAt": 1785772800000,
+          "evidence": "茶类通用体感倾向；不是医学结论，也需被个人记录覆盖。"
+        }
+      },
+      "context": {
+        "bestSeasons": {
+          "value": [
+            "春",
+            "秋"
+          ],
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.45,
+          "updatedAt": 1785772800000,
+          "evidence": "茶类通用饮用季节初稿。"
+        },
+        "bestTimes": {
+          "value": [
+            "上午",
+            "下午"
+          ],
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.45,
+          "updatedAt": 1785772800000,
+          "evidence": "茶类通用饮用时段初稿。"
+        }
+      },
+      "brew": {
+        "vessels": {
+          "value": [
+            "盖碗",
+            "紫砂壶"
+          ],
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.55,
+          "updatedAt": 1785772800000,
+          "evidence": "沿用茶库现有茶类冲泡指引，待实物试泡调整。"
+        },
+        "waterTempC": {
+          "value": {
+            "min": 95,
+            "max": 100
+          },
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.55,
+          "updatedAt": 1785772800000,
+          "evidence": "沿用茶库现有茶类冲泡指引，待实物试泡调整。"
+        },
+        "gramsPer100ml": {
+          "value": 6.5,
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.55,
+          "updatedAt": 1785772800000,
+          "evidence": "沿用茶库现有茶类冲泡指引，待实物试泡调整。"
+        },
+        "firstSteepSeconds": {
+          "value": {
+            "min": 20,
+            "max": 30
+          },
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.55,
+          "updatedAt": 1785772800000,
+          "evidence": "沿用茶库现有茶类冲泡指引，待实物试泡调整。"
+        },
+        "difficulty": {
+          "value": 3,
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.45,
+          "updatedAt": 1785772800000,
+          "evidence": "按茶类功夫泡容错度估计，待实物试泡调整。"
+        }
+      }
+    },
+    {
+      "teaId": 28,
+      "profileVersion": 1,
+      "lifecycle": "complete",
+      "research": {
+        "completeness": 0.7714,
+        "conflicts": [],
+        "notes": [
+          "这是未联网核验的保守初稿：仅使用茶库记录、名称显式信息和茶类默认值；商品级事实仍需外部资料或实物包装补充。",
+          "用户确认实际商品或包装。包装事实留在库存层。"
+        ]
+      },
+      "identity": {
+        "displayName": {
+          "value": "肉桂（中火）",
+          "status": "confirmed",
+          "sourceType": "user",
+          "confidence": 1,
+          "updatedAt": 1785855887674,
+          "evidence": "用户提供实际商品或购买记录，确认该链接对应当前茶款。",
+          "sourceRefs": [
+            "https://detail.tmall.com/item.htm?id=652829709728"
+          ]
+        },
+        "brand": {
+          "value": "虎标",
+          "status": "confirmed",
+          "sourceType": "user",
+          "confidence": 1,
+          "updatedAt": 1785772800000,
+          "evidence": "用户现有茶库品牌记录。"
+        },
+        "category": {
+          "value": "oolong_wuyi",
+          "status": "confirmed",
+          "sourceType": "user",
+          "confidence": 1,
+          "updatedAt": 1785772800000,
+          "evidence": "用户现有茶库分类。"
+        },
+        "year": {
+          "value": 2023,
+          "status": "confirmed",
+          "sourceType": "user",
+          "confidence": 1,
+          "updatedAt": 1785772800000,
+          "evidence": "用户现有茶库年份记录。"
+        },
+        "productCode": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        },
+        "packagingVariant": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        },
+        "form": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        }
+      },
+      "origin": {
+        "region": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        },
+        "cultivar": {
+          "value": "肉桂",
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.88,
+          "updatedAt": 1785772800000,
+          "evidence": "名称直接包含品种或原料等级词，待包装或官方资料核验。"
+        },
+        "materialGrade": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        },
+        "harvestSeason": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        }
+      },
+      "craft": {
+        "processTags": {
+          "value": [
+            "烘焙"
+          ],
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.82,
+          "updatedAt": 1785772800000,
+          "evidence": "名称直接标注焙火，初稿仅记录一般烘焙工艺。"
+        },
+        "roastLevel": {
+          "value": "medium",
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.9,
+          "updatedAt": 1785772800000,
+          "evidence": "名称直接标注焙火程度，映射为标准化等级。"
+        },
+        "compression": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        },
+        "agingState": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        }
+      },
+      "sensory": {
+        "aromaTags": {
+          "value": [
+            "焙火香",
+            "花果香"
+          ],
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "flavorTags": {
+          "value": [
+            "醇厚",
+            "回甘"
+          ],
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "aromaIntensity": {
+          "value": 3.5,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "sweetness": {
+          "value": 3,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "bitterness": {
+          "value": 2,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "astringency": {
+          "value": 2.5,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "body": {
+          "value": 3.5,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "smoothness": {
+          "value": 3,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "aftertaste": {
+          "value": 3.5,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "durability": {
+          "value": 4,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        }
+      },
+      "effects": {
+        "stimulation": {
+          "value": 3.5,
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.4,
+          "updatedAt": 1785772800000,
+          "evidence": "茶类通用体感倾向；不是医学结论，也需被个人记录覆盖。"
+        },
+        "emptyStomachFriendliness": {
+          "value": 2,
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.4,
+          "updatedAt": 1785772800000,
+          "evidence": "茶类通用体感倾向；不是医学结论，也需被个人记录覆盖。"
+        },
+        "sleepImpact": {
+          "value": 3.5,
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.4,
+          "updatedAt": 1785772800000,
+          "evidence": "茶类通用体感倾向；不是医学结论，也需被个人记录覆盖。"
+        }
+      },
+      "context": {
+        "bestSeasons": {
+          "value": [
+            "秋",
+            "冬"
+          ],
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.45,
+          "updatedAt": 1785772800000,
+          "evidence": "茶类通用饮用季节初稿。"
+        },
+        "bestTimes": {
+          "value": [
+            "上午",
+            "下午",
+            "饭后"
+          ],
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.45,
+          "updatedAt": 1785772800000,
+          "evidence": "茶类通用饮用时段初稿。"
+        }
+      },
+      "brew": {
+        "vessels": {
+          "value": [
+            "盖碗",
+            "紫砂壶"
+          ],
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.55,
+          "updatedAt": 1785772800000,
+          "evidence": "沿用茶库现有茶类冲泡指引，待实物试泡调整。"
+        },
+        "waterTempC": {
+          "value": {
+            "min": 98,
+            "max": 100
+          },
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.55,
+          "updatedAt": 1785772800000,
+          "evidence": "沿用茶库现有茶类冲泡指引，待实物试泡调整。"
+        },
+        "gramsPer100ml": {
+          "value": 6.5,
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.55,
+          "updatedAt": 1785772800000,
+          "evidence": "沿用茶库现有茶类冲泡指引，待实物试泡调整。"
+        },
+        "firstSteepSeconds": {
+          "value": {
+            "min": 15,
+            "max": 25
+          },
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.55,
+          "updatedAt": 1785772800000,
+          "evidence": "沿用茶库现有茶类冲泡指引，待实物试泡调整。"
+        },
+        "difficulty": {
+          "value": 3.5,
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.45,
+          "updatedAt": 1785772800000,
+          "evidence": "按茶类功夫泡容错度估计，待实物试泡调整。"
+        }
+      }
+    },
+    {
+      "teaId": 29,
+      "profileVersion": 1,
+      "lifecycle": "complete",
+      "research": {
+        "completeness": 0.7429,
+        "conflicts": [],
+        "notes": [
+          "这是未联网核验的保守初稿：仅使用茶库记录、名称显式信息和茶类默认值；商品级事实仍需外部资料或实物包装补充。",
+          "用户确认实际商品或包装。包装事实留在库存层。"
+        ]
+      },
+      "identity": {
+        "displayName": {
+          "value": "大红袍（中火）",
+          "status": "confirmed",
+          "sourceType": "user",
+          "confidence": 1,
+          "updatedAt": 1785855887674,
+          "evidence": "用户提供实际商品或购买记录，确认该链接对应当前茶款。",
+          "sourceRefs": [
+            "https://detail.tmall.com/item.htm?id=733048763165"
+          ]
+        },
+        "brand": {
+          "value": "虎标",
+          "status": "confirmed",
+          "sourceType": "user",
+          "confidence": 1,
+          "updatedAt": 1785772800000,
+          "evidence": "用户现有茶库品牌记录。"
+        },
+        "category": {
+          "value": "oolong_wuyi",
+          "status": "confirmed",
+          "sourceType": "user",
+          "confidence": 1,
+          "updatedAt": 1785772800000,
+          "evidence": "用户现有茶库分类。"
+        },
+        "year": {
+          "value": 2022,
+          "status": "confirmed",
+          "sourceType": "user",
+          "confidence": 1,
+          "updatedAt": 1785772800000,
+          "evidence": "用户现有茶库年份记录。"
+        },
+        "productCode": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        },
+        "packagingVariant": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        },
+        "form": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        }
+      },
+      "origin": {
+        "region": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        },
+        "cultivar": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        },
+        "materialGrade": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        },
+        "harvestSeason": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        }
+      },
+      "craft": {
+        "processTags": {
+          "value": [
+            "烘焙"
+          ],
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.82,
+          "updatedAt": 1785772800000,
+          "evidence": "名称直接标注焙火，初稿仅记录一般烘焙工艺。"
+        },
+        "roastLevel": {
+          "value": "medium",
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.9,
+          "updatedAt": 1785772800000,
+          "evidence": "名称直接标注焙火程度，映射为标准化等级。"
+        },
+        "compression": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        },
+        "agingState": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        }
+      },
+      "sensory": {
+        "aromaTags": {
+          "value": [
+            "焙火香",
+            "花果香"
+          ],
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "flavorTags": {
+          "value": [
+            "醇厚",
+            "回甘"
+          ],
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "aromaIntensity": {
+          "value": 3.5,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "sweetness": {
+          "value": 3,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "bitterness": {
+          "value": 2,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "astringency": {
+          "value": 2.5,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "body": {
+          "value": 3.5,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "smoothness": {
+          "value": 3,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "aftertaste": {
+          "value": 3.5,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "durability": {
+          "value": 4,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        }
+      },
+      "effects": {
+        "stimulation": {
+          "value": 3.5,
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.4,
+          "updatedAt": 1785772800000,
+          "evidence": "茶类通用体感倾向；不是医学结论，也需被个人记录覆盖。"
+        },
+        "emptyStomachFriendliness": {
+          "value": 2,
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.4,
+          "updatedAt": 1785772800000,
+          "evidence": "茶类通用体感倾向；不是医学结论，也需被个人记录覆盖。"
+        },
+        "sleepImpact": {
+          "value": 3.5,
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.4,
+          "updatedAt": 1785772800000,
+          "evidence": "茶类通用体感倾向；不是医学结论，也需被个人记录覆盖。"
+        }
+      },
+      "context": {
+        "bestSeasons": {
+          "value": [
+            "秋",
+            "冬"
+          ],
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.45,
+          "updatedAt": 1785772800000,
+          "evidence": "茶类通用饮用季节初稿。"
+        },
+        "bestTimes": {
+          "value": [
+            "上午",
+            "下午",
+            "饭后"
+          ],
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.45,
+          "updatedAt": 1785772800000,
+          "evidence": "茶类通用饮用时段初稿。"
+        }
+      },
+      "brew": {
+        "vessels": {
+          "value": [
+            "盖碗",
+            "紫砂壶"
+          ],
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.55,
+          "updatedAt": 1785772800000,
+          "evidence": "沿用茶库现有茶类冲泡指引，待实物试泡调整。"
+        },
+        "waterTempC": {
+          "value": {
+            "min": 98,
+            "max": 100
+          },
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.55,
+          "updatedAt": 1785772800000,
+          "evidence": "沿用茶库现有茶类冲泡指引，待实物试泡调整。"
+        },
+        "gramsPer100ml": {
+          "value": 6.5,
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.55,
+          "updatedAt": 1785772800000,
+          "evidence": "沿用茶库现有茶类冲泡指引，待实物试泡调整。"
+        },
+        "firstSteepSeconds": {
+          "value": {
+            "min": 15,
+            "max": 25
+          },
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.55,
+          "updatedAt": 1785772800000,
+          "evidence": "沿用茶库现有茶类冲泡指引，待实物试泡调整。"
+        },
+        "difficulty": {
+          "value": 3.5,
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.45,
+          "updatedAt": 1785772800000,
+          "evidence": "按茶类功夫泡容错度估计，待实物试泡调整。"
+        }
+      }
+    },
+    {
+      "teaId": 30,
+      "profileVersion": 1,
+      "lifecycle": "complete",
+      "research": {
+        "completeness": 0.8,
+        "conflicts": [],
+        "notes": [
+          "这是未联网核验的保守初稿：仅使用茶库记录、名称显式信息和茶类默认值；商品级事实仍需外部资料或实物包装补充。"
+        ]
+      },
+      "identity": {
+        "displayName": {
+          "value": "黄条大红袍（足火）",
+          "status": "confirmed",
+          "sourceType": "user",
+          "confidence": 1,
+          "updatedAt": 1785772800000,
+          "evidence": "用户现有茶库名称。"
+        },
+        "brand": {
+          "value": "武夷星",
+          "status": "confirmed",
+          "sourceType": "user",
+          "confidence": 1,
+          "updatedAt": 1785772800000,
+          "evidence": "用户现有茶库品牌记录。"
+        },
+        "category": {
+          "value": "oolong_wuyi",
+          "status": "confirmed",
+          "sourceType": "user",
+          "confidence": 1,
+          "updatedAt": 1785772800000,
+          "evidence": "用户现有茶库分类。"
+        },
+        "year": {
+          "value": 2022,
+          "status": "confirmed",
+          "sourceType": "user",
+          "confidence": 1,
+          "updatedAt": 1785772800000,
+          "evidence": "用户现有茶库年份记录。"
+        },
+        "productCode": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        },
+        "packagingVariant": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        },
+        "form": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        }
+      },
+      "origin": {
+        "region": {
+          "value": "福建武夷山",
+          "status": "researched",
+          "sourceType": "community",
+          "confidence": 0.76,
+          "updatedAt": 1785772800000,
+          "evidence": "可访问的具体“武夷星黄条大红袍”商品页标注产自福建武夷山；未进一步推断山场。",
+          "sourceRefs": [
+            "https://www.smzdm.com/p/168246185/"
+          ]
+        },
+        "cultivar": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        },
+        "materialGrade": {
+          "value": "特级",
+          "status": "researched",
+          "sourceType": "community",
+          "confidence": 0.72,
+          "updatedAt": 1785772800000,
+          "evidence": "可访问的具体“武夷星黄条大红袍”商品页标注特级。",
+          "sourceRefs": [
+            "https://www.smzdm.com/p/168246185/"
+          ]
+        },
+        "harvestSeason": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        }
+      },
+      "craft": {
+        "processTags": {
+          "value": [
+            "烘焙"
+          ],
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.82,
+          "updatedAt": 1785772800000,
+          "evidence": "名称直接标注焙火，初稿仅记录一般烘焙工艺。"
+        },
+        "roastLevel": {
+          "value": "high",
+          "status": "researched",
+          "sourceType": "community",
+          "confidence": 0.76,
+          "updatedAt": 1785772800000,
+          "evidence": "可访问的具体“武夷星黄条大红袍”商品页标注足火烘焙；仅将该名称映射为高焙火。",
+          "sourceRefs": [
+            "https://www.smzdm.com/p/168246185/"
+          ]
+        },
+        "compression": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        },
+        "agingState": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        }
+      },
+      "sensory": {
+        "aromaTags": {
+          "value": [
+            "焙火香",
+            "花果香"
+          ],
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "flavorTags": {
+          "value": [
+            "醇厚",
+            "回甘"
+          ],
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "aromaIntensity": {
+          "value": 3.5,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "sweetness": {
+          "value": 3,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "bitterness": {
+          "value": 2,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "astringency": {
+          "value": 2.5,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "body": {
+          "value": 3.5,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "smoothness": {
+          "value": 3,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "aftertaste": {
+          "value": 3.5,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "durability": {
+          "value": 4,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        }
+      },
+      "effects": {
+        "stimulation": {
+          "value": 3.5,
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.4,
+          "updatedAt": 1785772800000,
+          "evidence": "茶类通用体感倾向；不是医学结论，也需被个人记录覆盖。"
+        },
+        "emptyStomachFriendliness": {
+          "value": 2,
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.4,
+          "updatedAt": 1785772800000,
+          "evidence": "茶类通用体感倾向；不是医学结论，也需被个人记录覆盖。"
+        },
+        "sleepImpact": {
+          "value": 3.5,
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.4,
+          "updatedAt": 1785772800000,
+          "evidence": "茶类通用体感倾向；不是医学结论，也需被个人记录覆盖。"
+        }
+      },
+      "context": {
+        "bestSeasons": {
+          "value": [
+            "秋",
+            "冬"
+          ],
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.45,
+          "updatedAt": 1785772800000,
+          "evidence": "茶类通用饮用季节初稿。"
+        },
+        "bestTimes": {
+          "value": [
+            "上午",
+            "下午",
+            "饭后"
+          ],
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.45,
+          "updatedAt": 1785772800000,
+          "evidence": "茶类通用饮用时段初稿。"
+        }
+      },
+      "brew": {
+        "vessels": {
+          "value": [
+            "盖碗",
+            "紫砂壶"
+          ],
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.55,
+          "updatedAt": 1785772800000,
+          "evidence": "沿用茶库现有茶类冲泡指引，待实物试泡调整。"
+        },
+        "waterTempC": {
+          "value": {
+            "min": 98,
+            "max": 100
+          },
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.55,
+          "updatedAt": 1785772800000,
+          "evidence": "沿用茶库现有茶类冲泡指引，待实物试泡调整。"
+        },
+        "gramsPer100ml": {
+          "value": 6.5,
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.55,
+          "updatedAt": 1785772800000,
+          "evidence": "沿用茶库现有茶类冲泡指引，待实物试泡调整。"
+        },
+        "firstSteepSeconds": {
+          "value": {
+            "min": 15,
+            "max": 25
+          },
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.55,
+          "updatedAt": 1785772800000,
+          "evidence": "沿用茶库现有茶类冲泡指引，待实物试泡调整。"
+        },
+        "difficulty": {
+          "value": 3.5,
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.45,
+          "updatedAt": 1785772800000,
+          "evidence": "按茶类功夫泡容错度估计，待实物试泡调整。"
+        }
+      }
+    },
+    {
+      "teaId": 31,
+      "profileVersion": 1,
+      "lifecycle": "complete",
+      "research": {
+        "completeness": 0.7714,
+        "conflicts": [],
+        "notes": [
+          "这是未联网核验的保守初稿：仅使用茶库记录、名称显式信息和茶类默认值；商品级事实仍需外部资料或实物包装补充。",
+          "用户确认实际商品或包装；用户在第二批补充文档中更正为山语系列铁罗汉（中火）。。包装事实留在库存层。"
+        ]
+      },
+      "identity": {
+        "displayName": {
+          "value": "山语系列·铁罗汉（中火）",
+          "status": "confirmed",
+          "sourceType": "user",
+          "confidence": 1,
+          "updatedAt": 1785855887674,
+          "evidence": "用户根据实际购买记录确认商品名称为山语系列·铁罗汉（中火）。",
+          "sourceRefs": [
+            "https://item.jd.com/10347921474.html"
+          ]
+        },
+        "brand": {
+          "value": "武夷星",
+          "status": "confirmed",
+          "sourceType": "user",
+          "confidence": 1,
+          "updatedAt": 1785772800000,
+          "evidence": "用户现有茶库品牌记录。"
+        },
+        "category": {
+          "value": "oolong_wuyi",
+          "status": "confirmed",
+          "sourceType": "user",
+          "confidence": 1,
+          "updatedAt": 1785772800000,
+          "evidence": "用户现有茶库分类。"
+        },
+        "year": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        },
+        "productCode": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        },
+        "packagingVariant": {
+          "value": "山语系列",
+          "status": "confirmed",
+          "sourceType": "user",
+          "confidence": 1,
+          "updatedAt": 1785855887674,
+          "evidence": "用户在第二批补充文档中确认该字段。"
+        },
+        "form": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        }
+      },
+      "origin": {
+        "region": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        },
+        "cultivar": {
+          "value": "铁罗汉",
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.88,
+          "updatedAt": 1785772800000,
+          "evidence": "名称直接包含品种或原料等级词，待包装或官方资料核验。"
+        },
+        "materialGrade": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        },
+        "harvestSeason": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        }
+      },
+      "craft": {
+        "processTags": {
+          "value": [
+            "烘焙"
+          ],
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.82,
+          "updatedAt": 1785772800000,
+          "evidence": "名称直接标注焙火，初稿仅记录一般烘焙工艺。"
+        },
+        "roastLevel": {
+          "value": "medium",
+          "status": "confirmed",
+          "sourceType": "user",
+          "confidence": 1,
+          "updatedAt": 1785855887674,
+          "evidence": "用户在第二批补充文档中确认该字段。"
+        },
+        "compression": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        },
+        "agingState": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        }
+      },
+      "sensory": {
+        "aromaTags": {
+          "value": [
+            "焙火香",
+            "花果香"
+          ],
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "flavorTags": {
+          "value": [
+            "醇厚",
+            "回甘"
+          ],
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "aromaIntensity": {
+          "value": 3.5,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "sweetness": {
+          "value": 3,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "bitterness": {
+          "value": 2,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "astringency": {
+          "value": 2.5,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "body": {
+          "value": 3.5,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "smoothness": {
+          "value": 3,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "aftertaste": {
+          "value": 3.5,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "durability": {
+          "value": 4,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        }
+      },
+      "effects": {
+        "stimulation": {
+          "value": 3.5,
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.4,
+          "updatedAt": 1785772800000,
+          "evidence": "茶类通用体感倾向；不是医学结论，也需被个人记录覆盖。"
+        },
+        "emptyStomachFriendliness": {
+          "value": 2,
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.4,
+          "updatedAt": 1785772800000,
+          "evidence": "茶类通用体感倾向；不是医学结论，也需被个人记录覆盖。"
+        },
+        "sleepImpact": {
+          "value": 3.5,
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.4,
+          "updatedAt": 1785772800000,
+          "evidence": "茶类通用体感倾向；不是医学结论，也需被个人记录覆盖。"
+        }
+      },
+      "context": {
+        "bestSeasons": {
+          "value": [
+            "秋",
+            "冬"
+          ],
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.45,
+          "updatedAt": 1785772800000,
+          "evidence": "茶类通用饮用季节初稿。"
+        },
+        "bestTimes": {
+          "value": [
+            "上午",
+            "下午",
+            "饭后"
+          ],
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.45,
+          "updatedAt": 1785772800000,
+          "evidence": "茶类通用饮用时段初稿。"
+        }
+      },
+      "brew": {
+        "vessels": {
+          "value": [
+            "盖碗",
+            "紫砂壶"
+          ],
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.55,
+          "updatedAt": 1785772800000,
+          "evidence": "沿用茶库现有茶类冲泡指引，待实物试泡调整。"
+        },
+        "waterTempC": {
+          "value": {
+            "min": 98,
+            "max": 100
+          },
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.55,
+          "updatedAt": 1785772800000,
+          "evidence": "沿用茶库现有茶类冲泡指引，待实物试泡调整。"
+        },
+        "gramsPer100ml": {
+          "value": 6.5,
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.55,
+          "updatedAt": 1785772800000,
+          "evidence": "沿用茶库现有茶类冲泡指引，待实物试泡调整。"
+        },
+        "firstSteepSeconds": {
+          "value": {
+            "min": 15,
+            "max": 25
+          },
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.55,
+          "updatedAt": 1785772800000,
+          "evidence": "沿用茶库现有茶类冲泡指引，待实物试泡调整。"
+        },
+        "difficulty": {
+          "value": 3.5,
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.45,
+          "updatedAt": 1785772800000,
+          "evidence": "按茶类功夫泡容错度估计，待实物试泡调整。"
+        }
+      }
+    },
+    {
+      "teaId": 32,
+      "profileVersion": 1,
+      "lifecycle": "complete",
+      "research": {
+        "completeness": 0.8,
+        "conflicts": [],
+        "notes": [
+          "这是未联网核验的保守初稿：仅使用茶库记录、名称显式信息和茶类默认值；商品级事实仍需外部资料或实物包装补充。",
+          "用户确认实际商品或包装；用户在第二批补充文档中确认货号 AT106。。包装事实留在库存层。"
+        ]
+      },
+      "identity": {
+        "displayName": {
+          "value": "铁罗汉（足火）",
+          "status": "confirmed",
+          "sourceType": "user",
+          "confidence": 1,
+          "updatedAt": 1785855887674,
+          "evidence": "用户提供实际商品或购买记录，确认该链接对应当前茶款。"
+        },
+        "brand": {
+          "value": "海堤",
+          "status": "confirmed",
+          "sourceType": "user",
+          "confidence": 1,
+          "updatedAt": 1785772800000,
+          "evidence": "用户现有茶库品牌记录。"
+        },
+        "category": {
+          "value": "oolong_wuyi",
+          "status": "confirmed",
+          "sourceType": "user",
+          "confidence": 1,
+          "updatedAt": 1785772800000,
+          "evidence": "用户现有茶库分类。"
+        },
+        "year": {
+          "value": 2022,
+          "status": "confirmed",
+          "sourceType": "user",
+          "confidence": 1,
+          "updatedAt": 1785772800000,
+          "evidence": "用户现有茶库年份记录。"
+        },
+        "productCode": {
+          "value": "AT106",
+          "status": "confirmed",
+          "sourceType": "user",
+          "confidence": 1,
+          "updatedAt": 1785855887674,
+          "evidence": "用户在第二批补充文档中确认该字段。"
+        },
+        "packagingVariant": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        },
+        "form": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        }
+      },
+      "origin": {
+        "region": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        },
+        "cultivar": {
+          "value": "铁罗汉",
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.88,
+          "updatedAt": 1785772800000,
+          "evidence": "名称直接包含品种或原料等级词，待包装或官方资料核验。"
+        },
+        "materialGrade": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        },
+        "harvestSeason": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        }
+      },
+      "craft": {
+        "processTags": {
+          "value": [
+            "烘焙"
+          ],
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.82,
+          "updatedAt": 1785772800000,
+          "evidence": "名称直接标注焙火，初稿仅记录一般烘焙工艺。"
+        },
+        "roastLevel": {
+          "value": "high",
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.9,
+          "updatedAt": 1785772800000,
+          "evidence": "名称直接标注焙火程度，映射为标准化等级。"
+        },
+        "compression": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        },
+        "agingState": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        }
+      },
+      "sensory": {
+        "aromaTags": {
+          "value": [
+            "焙火香",
+            "花果香"
+          ],
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "flavorTags": {
+          "value": [
+            "醇厚",
+            "回甘"
+          ],
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "aromaIntensity": {
+          "value": 3.5,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "sweetness": {
+          "value": 3,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "bitterness": {
+          "value": 2,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "astringency": {
+          "value": 2.5,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "body": {
+          "value": 3.5,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "smoothness": {
+          "value": 3,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "aftertaste": {
+          "value": 3.5,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "durability": {
+          "value": 4,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        }
+      },
+      "effects": {
+        "stimulation": {
+          "value": 3.5,
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.4,
+          "updatedAt": 1785772800000,
+          "evidence": "茶类通用体感倾向；不是医学结论，也需被个人记录覆盖。"
+        },
+        "emptyStomachFriendliness": {
+          "value": 2,
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.4,
+          "updatedAt": 1785772800000,
+          "evidence": "茶类通用体感倾向；不是医学结论，也需被个人记录覆盖。"
+        },
+        "sleepImpact": {
+          "value": 3.5,
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.4,
+          "updatedAt": 1785772800000,
+          "evidence": "茶类通用体感倾向；不是医学结论，也需被个人记录覆盖。"
+        }
+      },
+      "context": {
+        "bestSeasons": {
+          "value": [
+            "秋",
+            "冬"
+          ],
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.45,
+          "updatedAt": 1785772800000,
+          "evidence": "茶类通用饮用季节初稿。"
+        },
+        "bestTimes": {
+          "value": [
+            "上午",
+            "下午",
+            "饭后"
+          ],
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.45,
+          "updatedAt": 1785772800000,
+          "evidence": "茶类通用饮用时段初稿。"
+        }
+      },
+      "brew": {
+        "vessels": {
+          "value": [
+            "盖碗",
+            "紫砂壶"
+          ],
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.55,
+          "updatedAt": 1785772800000,
+          "evidence": "沿用茶库现有茶类冲泡指引，待实物试泡调整。"
+        },
+        "waterTempC": {
+          "value": {
+            "min": 98,
+            "max": 100
+          },
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.55,
+          "updatedAt": 1785772800000,
+          "evidence": "沿用茶库现有茶类冲泡指引，待实物试泡调整。"
+        },
+        "gramsPer100ml": {
+          "value": 6.5,
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.55,
+          "updatedAt": 1785772800000,
+          "evidence": "沿用茶库现有茶类冲泡指引，待实物试泡调整。"
+        },
+        "firstSteepSeconds": {
+          "value": {
+            "min": 15,
+            "max": 25
+          },
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.55,
+          "updatedAt": 1785772800000,
+          "evidence": "沿用茶库现有茶类冲泡指引，待实物试泡调整。"
+        },
+        "difficulty": {
+          "value": 3.5,
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.45,
+          "updatedAt": 1785772800000,
+          "evidence": "按茶类功夫泡容错度估计，待实物试泡调整。"
+        }
+      }
+    },
+    {
+      "teaId": 33,
+      "profileVersion": 1,
+      "lifecycle": "complete",
+      "research": {
+        "completeness": 0.8,
+        "conflicts": [],
+        "notes": [
+          "这是未联网核验的保守初稿：仅使用茶库记录、名称显式信息和茶类默认值；商品级事实仍需外部资料或实物包装补充。",
+          "用户确认实际商品或包装；用户在第二批补充文档中确认喜上眉梢系列与货号 AT665。。包装事实留在库存层。"
+        ]
+      },
+      "identity": {
+        "displayName": {
+          "value": "喜上眉梢·水晶龟（足火）",
+          "status": "confirmed",
+          "sourceType": "user",
+          "confidence": 1,
+          "updatedAt": 1785855887674,
+          "evidence": "用户根据实际购买记录确认商品名称为喜上眉梢·水晶龟（足火）。",
+          "sourceRefs": [
+            "https://item.jd.com/47303383698.html"
+          ]
+        },
+        "brand": {
+          "value": "海堤",
+          "status": "confirmed",
+          "sourceType": "user",
+          "confidence": 1,
+          "updatedAt": 1785772800000,
+          "evidence": "用户现有茶库品牌记录。"
+        },
+        "category": {
+          "value": "oolong_wuyi",
+          "status": "confirmed",
+          "sourceType": "user",
+          "confidence": 1,
+          "updatedAt": 1785772800000,
+          "evidence": "用户现有茶库分类。"
+        },
+        "year": {
+          "value": 2021,
+          "status": "confirmed",
+          "sourceType": "user",
+          "confidence": 1,
+          "updatedAt": 1785772800000,
+          "evidence": "用户现有茶库年份记录。"
+        },
+        "productCode": {
+          "value": "AT665",
+          "status": "confirmed",
+          "sourceType": "user",
+          "confidence": 1,
+          "updatedAt": 1785855887674,
+          "evidence": "用户在第二批补充文档中确认该字段。"
+        },
+        "packagingVariant": {
+          "value": "喜上眉梢",
+          "status": "confirmed",
+          "sourceType": "user",
+          "confidence": 1,
+          "updatedAt": 1785855887674,
+          "evidence": "用户在第二批补充文档中确认该字段。"
+        },
+        "form": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        }
+      },
+      "origin": {
+        "region": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        },
+        "cultivar": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        },
+        "materialGrade": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        },
+        "harvestSeason": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        }
+      },
+      "craft": {
+        "processTags": {
+          "value": [
+            "烘焙"
+          ],
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.82,
+          "updatedAt": 1785772800000,
+          "evidence": "名称直接标注焙火，初稿仅记录一般烘焙工艺。"
+        },
+        "roastLevel": {
+          "value": "high",
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.9,
+          "updatedAt": 1785772800000,
+          "evidence": "名称直接标注焙火程度，映射为标准化等级。"
+        },
+        "compression": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        },
+        "agingState": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        }
+      },
+      "sensory": {
+        "aromaTags": {
+          "value": [
+            "焙火香",
+            "花果香"
+          ],
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "flavorTags": {
+          "value": [
+            "醇厚",
+            "回甘"
+          ],
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "aromaIntensity": {
+          "value": 3.5,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "sweetness": {
+          "value": 3,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "bitterness": {
+          "value": 2,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "astringency": {
+          "value": 2.5,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "body": {
+          "value": 3.5,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "smoothness": {
+          "value": 3,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "aftertaste": {
+          "value": 3.5,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "durability": {
+          "value": 4,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        }
+      },
+      "effects": {
+        "stimulation": {
+          "value": 3.5,
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.4,
+          "updatedAt": 1785772800000,
+          "evidence": "茶类通用体感倾向；不是医学结论，也需被个人记录覆盖。"
+        },
+        "emptyStomachFriendliness": {
+          "value": 2,
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.4,
+          "updatedAt": 1785772800000,
+          "evidence": "茶类通用体感倾向；不是医学结论，也需被个人记录覆盖。"
+        },
+        "sleepImpact": {
+          "value": 3.5,
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.4,
+          "updatedAt": 1785772800000,
+          "evidence": "茶类通用体感倾向；不是医学结论，也需被个人记录覆盖。"
+        }
+      },
+      "context": {
+        "bestSeasons": {
+          "value": [
+            "秋",
+            "冬"
+          ],
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.45,
+          "updatedAt": 1785772800000,
+          "evidence": "茶类通用饮用季节初稿。"
+        },
+        "bestTimes": {
+          "value": [
+            "上午",
+            "下午",
+            "饭后"
+          ],
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.45,
+          "updatedAt": 1785772800000,
+          "evidence": "茶类通用饮用时段初稿。"
+        }
+      },
+      "brew": {
+        "vessels": {
+          "value": [
+            "盖碗",
+            "紫砂壶"
+          ],
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.55,
+          "updatedAt": 1785772800000,
+          "evidence": "沿用茶库现有茶类冲泡指引，待实物试泡调整。"
+        },
+        "waterTempC": {
+          "value": {
+            "min": 98,
+            "max": 100
+          },
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.55,
+          "updatedAt": 1785772800000,
+          "evidence": "沿用茶库现有茶类冲泡指引，待实物试泡调整。"
+        },
+        "gramsPer100ml": {
+          "value": 6.5,
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.55,
+          "updatedAt": 1785772800000,
+          "evidence": "沿用茶库现有茶类冲泡指引，待实物试泡调整。"
+        },
+        "firstSteepSeconds": {
+          "value": {
+            "min": 15,
+            "max": 25
+          },
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.55,
+          "updatedAt": 1785772800000,
+          "evidence": "沿用茶库现有茶类冲泡指引，待实物试泡调整。"
+        },
+        "difficulty": {
+          "value": 3.5,
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.45,
+          "updatedAt": 1785772800000,
+          "evidence": "按茶类功夫泡容错度估计，待实物试泡调整。"
+        }
+      }
+    },
+    {
+      "teaId": 34,
+      "profileVersion": 1,
+      "lifecycle": "complete",
+      "research": {
+        "completeness": 0.8286,
+        "conflicts": [],
+        "notes": [
+          "这是未联网核验的保守初稿：仅使用茶库记录、名称显式信息和茶类默认值；商品级事实仍需外部资料或实物包装补充。"
+        ]
+      },
+      "identity": {
+        "displayName": {
+          "value": "新黄罐老枞水仙（足火）",
+          "status": "confirmed",
+          "sourceType": "user",
+          "confidence": 1,
+          "updatedAt": 1785772800000,
+          "evidence": "用户现有茶库名称。"
+        },
+        "brand": {
+          "value": "海堤",
+          "status": "confirmed",
+          "sourceType": "user",
+          "confidence": 1,
+          "updatedAt": 1785772800000,
+          "evidence": "用户现有茶库品牌记录。"
+        },
+        "category": {
+          "value": "oolong_wuyi",
+          "status": "confirmed",
+          "sourceType": "user",
+          "confidence": 1,
+          "updatedAt": 1785772800000,
+          "evidence": "用户现有茶库分类。"
+        },
+        "year": {
+          "value": 2021,
+          "status": "confirmed",
+          "sourceType": "user",
+          "confidence": 1,
+          "updatedAt": 1785772800000,
+          "evidence": "用户现有茶库年份记录。"
+        },
+        "productCode": {
+          "value": "AT102A",
+          "status": "confirmed",
+          "sourceType": "user",
+          "confidence": 1,
+          "updatedAt": 1785772800000,
+          "evidence": "用户确认新黄罐老枞水仙对应 AT102A。"
+        },
+        "packagingVariant": {
+          "value": "新黄罐",
+          "status": "confirmed",
+          "sourceType": "user",
+          "confidence": 1,
+          "updatedAt": 1785772800000,
+          "evidence": "用户明确要求与另一黄罐水仙作为不同 teaId 区分。"
+        },
+        "form": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        }
+      },
+      "origin": {
+        "region": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        },
+        "cultivar": {
+          "value": "水仙",
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.88,
+          "updatedAt": 1785772800000,
+          "evidence": "名称直接包含品种或原料等级词，待包装或官方资料核验。"
+        },
+        "materialGrade": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        },
+        "harvestSeason": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        }
+      },
+      "craft": {
+        "processTags": {
+          "value": [
+            "烘焙"
+          ],
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.82,
+          "updatedAt": 1785772800000,
+          "evidence": "名称直接标注焙火，初稿仅记录一般烘焙工艺。"
+        },
+        "roastLevel": {
+          "value": "high",
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.9,
+          "updatedAt": 1785772800000,
+          "evidence": "名称直接标注焙火程度，映射为标准化等级。"
+        },
+        "compression": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        },
+        "agingState": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        }
+      },
+      "sensory": {
+        "aromaTags": {
+          "value": [
+            "焙火香",
+            "花果香"
+          ],
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "flavorTags": {
+          "value": [
+            "醇厚",
+            "回甘"
+          ],
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "aromaIntensity": {
+          "value": 3.5,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "sweetness": {
+          "value": 3,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "bitterness": {
+          "value": 2,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "astringency": {
+          "value": 2.5,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "body": {
+          "value": 3.5,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "smoothness": {
+          "value": 3,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "aftertaste": {
+          "value": 3.5,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "durability": {
+          "value": 4,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        }
+      },
+      "effects": {
+        "stimulation": {
+          "value": 3.5,
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.4,
+          "updatedAt": 1785772800000,
+          "evidence": "茶类通用体感倾向；不是医学结论，也需被个人记录覆盖。"
+        },
+        "emptyStomachFriendliness": {
+          "value": 2,
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.4,
+          "updatedAt": 1785772800000,
+          "evidence": "茶类通用体感倾向；不是医学结论，也需被个人记录覆盖。"
+        },
+        "sleepImpact": {
+          "value": 3.5,
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.4,
+          "updatedAt": 1785772800000,
+          "evidence": "茶类通用体感倾向；不是医学结论，也需被个人记录覆盖。"
+        }
+      },
+      "context": {
+        "bestSeasons": {
+          "value": [
+            "秋",
+            "冬"
+          ],
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.45,
+          "updatedAt": 1785772800000,
+          "evidence": "茶类通用饮用季节初稿。"
+        },
+        "bestTimes": {
+          "value": [
+            "上午",
+            "下午",
+            "饭后"
+          ],
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.45,
+          "updatedAt": 1785772800000,
+          "evidence": "茶类通用饮用时段初稿。"
+        }
+      },
+      "brew": {
+        "vessels": {
+          "value": [
+            "盖碗",
+            "紫砂壶"
+          ],
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.55,
+          "updatedAt": 1785772800000,
+          "evidence": "沿用茶库现有茶类冲泡指引，待实物试泡调整。"
+        },
+        "waterTempC": {
+          "value": {
+            "min": 98,
+            "max": 100
+          },
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.55,
+          "updatedAt": 1785772800000,
+          "evidence": "沿用茶库现有茶类冲泡指引，待实物试泡调整。"
+        },
+        "gramsPer100ml": {
+          "value": 6.5,
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.55,
+          "updatedAt": 1785772800000,
+          "evidence": "沿用茶库现有茶类冲泡指引，待实物试泡调整。"
+        },
+        "firstSteepSeconds": {
+          "value": {
+            "min": 15,
+            "max": 25
+          },
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.55,
+          "updatedAt": 1785772800000,
+          "evidence": "沿用茶库现有茶类冲泡指引，待实物试泡调整。"
+        },
+        "difficulty": {
+          "value": 3.5,
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.45,
+          "updatedAt": 1785772800000,
+          "evidence": "按茶类功夫泡容错度估计，待实物试泡调整。"
+        }
+      }
+    },
+    {
+      "teaId": 35,
+      "profileVersion": 1,
+      "lifecycle": "complete",
+      "research": {
+        "completeness": 0.8286,
+        "conflicts": [],
+        "notes": [
+          "这是未联网核验的保守初稿：仅使用茶库记录、名称显式信息和茶类默认值；商品级事实仍需外部资料或实物包装补充。"
+        ]
+      },
+      "identity": {
+        "displayName": {
+          "value": "黄罐老枞水仙（足火）",
+          "status": "confirmed",
+          "sourceType": "user",
+          "confidence": 1,
+          "updatedAt": 1785772800000,
+          "evidence": "用户现有茶库名称。"
+        },
+        "brand": {
+          "value": "海堤",
+          "status": "confirmed",
+          "sourceType": "user",
+          "confidence": 1,
+          "updatedAt": 1785772800000,
+          "evidence": "用户现有茶库品牌记录。"
+        },
+        "category": {
+          "value": "oolong_wuyi",
+          "status": "confirmed",
+          "sourceType": "user",
+          "confidence": 1,
+          "updatedAt": 1785772800000,
+          "evidence": "用户现有茶库分类。"
+        },
+        "year": {
+          "value": 2020,
+          "status": "confirmed",
+          "sourceType": "user",
+          "confidence": 1,
+          "updatedAt": 1785772800000,
+          "evidence": "用户现有茶库年份记录。"
+        },
+        "productCode": {
+          "value": "AT102",
+          "status": "confirmed",
+          "sourceType": "user",
+          "confidence": 1,
+          "updatedAt": 1785772800000,
+          "evidence": "用户确认黄罐老枞水仙对应 AT102。"
+        },
+        "packagingVariant": {
+          "value": "旧黄罐",
+          "status": "confirmed",
+          "sourceType": "user",
+          "confidence": 1,
+          "updatedAt": 1785772800000,
+          "evidence": "用户明确要求与另一黄罐水仙作为不同 teaId 区分。"
+        },
+        "form": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        }
+      },
+      "origin": {
+        "region": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        },
+        "cultivar": {
+          "value": "水仙",
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.88,
+          "updatedAt": 1785772800000,
+          "evidence": "名称直接包含品种或原料等级词，待包装或官方资料核验。"
+        },
+        "materialGrade": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        },
+        "harvestSeason": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        }
+      },
+      "craft": {
+        "processTags": {
+          "value": [
+            "烘焙"
+          ],
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.82,
+          "updatedAt": 1785772800000,
+          "evidence": "名称直接标注焙火，初稿仅记录一般烘焙工艺。"
+        },
+        "roastLevel": {
+          "value": "high",
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.9,
+          "updatedAt": 1785772800000,
+          "evidence": "名称直接标注焙火程度，映射为标准化等级。"
+        },
+        "compression": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        },
+        "agingState": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        }
+      },
+      "sensory": {
+        "aromaTags": {
+          "value": [
+            "焙火香",
+            "花果香"
+          ],
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "flavorTags": {
+          "value": [
+            "醇厚",
+            "回甘"
+          ],
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "aromaIntensity": {
+          "value": 3.5,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "sweetness": {
+          "value": 3,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "bitterness": {
+          "value": 2,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "astringency": {
+          "value": 2.5,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "body": {
+          "value": 3.5,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "smoothness": {
+          "value": 3,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "aftertaste": {
+          "value": 3.5,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "durability": {
+          "value": 4,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        }
+      },
+      "effects": {
+        "stimulation": {
+          "value": 3.5,
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.4,
+          "updatedAt": 1785772800000,
+          "evidence": "茶类通用体感倾向；不是医学结论，也需被个人记录覆盖。"
+        },
+        "emptyStomachFriendliness": {
+          "value": 2,
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.4,
+          "updatedAt": 1785772800000,
+          "evidence": "茶类通用体感倾向；不是医学结论，也需被个人记录覆盖。"
+        },
+        "sleepImpact": {
+          "value": 3.5,
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.4,
+          "updatedAt": 1785772800000,
+          "evidence": "茶类通用体感倾向；不是医学结论，也需被个人记录覆盖。"
+        }
+      },
+      "context": {
+        "bestSeasons": {
+          "value": [
+            "秋",
+            "冬"
+          ],
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.45,
+          "updatedAt": 1785772800000,
+          "evidence": "茶类通用饮用季节初稿。"
+        },
+        "bestTimes": {
+          "value": [
+            "上午",
+            "下午",
+            "饭后"
+          ],
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.45,
+          "updatedAt": 1785772800000,
+          "evidence": "茶类通用饮用时段初稿。"
+        }
+      },
+      "brew": {
+        "vessels": {
+          "value": [
+            "盖碗",
+            "紫砂壶"
+          ],
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.55,
+          "updatedAt": 1785772800000,
+          "evidence": "沿用茶库现有茶类冲泡指引，待实物试泡调整。"
+        },
+        "waterTempC": {
+          "value": {
+            "min": 98,
+            "max": 100
+          },
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.55,
+          "updatedAt": 1785772800000,
+          "evidence": "沿用茶库现有茶类冲泡指引，待实物试泡调整。"
+        },
+        "gramsPer100ml": {
+          "value": 6.5,
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.55,
+          "updatedAt": 1785772800000,
+          "evidence": "沿用茶库现有茶类冲泡指引，待实物试泡调整。"
+        },
+        "firstSteepSeconds": {
+          "value": {
+            "min": 15,
+            "max": 25
+          },
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.55,
+          "updatedAt": 1785772800000,
+          "evidence": "沿用茶库现有茶类冲泡指引，待实物试泡调整。"
+        },
+        "difficulty": {
+          "value": 3.5,
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.45,
+          "updatedAt": 1785772800000,
+          "evidence": "按茶类功夫泡容错度估计，待实物试泡调整。"
+        }
+      }
+    },
+    {
+      "teaId": 36,
+      "profileVersion": 1,
+      "lifecycle": "complete",
+      "research": {
+        "completeness": 0.7714,
+        "conflicts": [
+          "可访问的海堤红罐大红袍商品索引将当前款标为 AT103A、125g、足火浓香，但茶库只记录 2020 年红罐大红袍；在未取得该实物或购买链接前，不能确认其是否已使用 AT103A 型号。"
+        ],
+        "notes": [
+          "这是未联网核验的保守初稿：仅使用茶库记录、名称显式信息和茶类默认值；商品级事实仍需外部资料或实物包装补充。",
+          "用户确认实际商品或包装；用户在第二批补充文档中确认 2020 红罐大红袍货号为 AT103。。包装事实留在库存层。"
+        ]
+      },
+      "identity": {
+        "displayName": {
+          "value": "红罐大红袍（足火）",
+          "status": "confirmed",
+          "sourceType": "user",
+          "confidence": 1,
+          "updatedAt": 1785855887674,
+          "evidence": "用户提供实际商品或购买记录，确认该链接对应当前茶款。"
+        },
+        "brand": {
+          "value": "海堤",
+          "status": "confirmed",
+          "sourceType": "user",
+          "confidence": 1,
+          "updatedAt": 1785772800000,
+          "evidence": "用户现有茶库品牌记录。"
+        },
+        "category": {
+          "value": "oolong_wuyi",
+          "status": "confirmed",
+          "sourceType": "user",
+          "confidence": 1,
+          "updatedAt": 1785772800000,
+          "evidence": "用户现有茶库分类。"
+        },
+        "year": {
+          "value": 2020,
+          "status": "confirmed",
+          "sourceType": "user",
+          "confidence": 1,
+          "updatedAt": 1785772800000,
+          "evidence": "用户现有茶库年份记录。"
+        },
+        "productCode": {
+          "value": "AT103",
+          "status": "confirmed",
+          "sourceType": "user",
+          "confidence": 1,
+          "updatedAt": 1785855887674,
+          "evidence": "用户在第二批补充文档中确认该字段。"
+        },
+        "packagingVariant": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        },
+        "form": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        }
+      },
+      "origin": {
+        "region": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        },
+        "cultivar": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        },
+        "materialGrade": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        },
+        "harvestSeason": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        }
+      },
+      "craft": {
+        "processTags": {
+          "value": [
+            "烘焙"
+          ],
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.82,
+          "updatedAt": 1785772800000,
+          "evidence": "名称直接标注焙火，初稿仅记录一般烘焙工艺。"
+        },
+        "roastLevel": {
+          "value": "high",
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.9,
+          "updatedAt": 1785772800000,
+          "evidence": "名称直接标注焙火程度，映射为标准化等级。"
+        },
+        "compression": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        },
+        "agingState": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        }
+      },
+      "sensory": {
+        "aromaTags": {
+          "value": [
+            "焙火香",
+            "花果香"
+          ],
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "flavorTags": {
+          "value": [
+            "醇厚",
+            "回甘"
+          ],
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "aromaIntensity": {
+          "value": 3.5,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "sweetness": {
+          "value": 3,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "bitterness": {
+          "value": 2,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "astringency": {
+          "value": 2.5,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "body": {
+          "value": 3.5,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "smoothness": {
+          "value": 3,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "aftertaste": {
+          "value": 3.5,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "durability": {
+          "value": 4,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        }
+      },
+      "effects": {
+        "stimulation": {
+          "value": 3.5,
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.4,
+          "updatedAt": 1785772800000,
+          "evidence": "茶类通用体感倾向；不是医学结论，也需被个人记录覆盖。"
+        },
+        "emptyStomachFriendliness": {
+          "value": 2,
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.4,
+          "updatedAt": 1785772800000,
+          "evidence": "茶类通用体感倾向；不是医学结论，也需被个人记录覆盖。"
+        },
+        "sleepImpact": {
+          "value": 3.5,
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.4,
+          "updatedAt": 1785772800000,
+          "evidence": "茶类通用体感倾向；不是医学结论，也需被个人记录覆盖。"
+        }
+      },
+      "context": {
+        "bestSeasons": {
+          "value": [
+            "秋",
+            "冬"
+          ],
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.45,
+          "updatedAt": 1785772800000,
+          "evidence": "茶类通用饮用季节初稿。"
+        },
+        "bestTimes": {
+          "value": [
+            "上午",
+            "下午",
+            "饭后"
+          ],
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.45,
+          "updatedAt": 1785772800000,
+          "evidence": "茶类通用饮用时段初稿。"
+        }
+      },
+      "brew": {
+        "vessels": {
+          "value": [
+            "盖碗",
+            "紫砂壶"
+          ],
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.55,
+          "updatedAt": 1785772800000,
+          "evidence": "沿用茶库现有茶类冲泡指引，待实物试泡调整。"
+        },
+        "waterTempC": {
+          "value": {
+            "min": 98,
+            "max": 100
+          },
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.55,
+          "updatedAt": 1785772800000,
+          "evidence": "沿用茶库现有茶类冲泡指引，待实物试泡调整。"
+        },
+        "gramsPer100ml": {
+          "value": 6.5,
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.55,
+          "updatedAt": 1785772800000,
+          "evidence": "沿用茶库现有茶类冲泡指引，待实物试泡调整。"
+        },
+        "firstSteepSeconds": {
+          "value": {
+            "min": 15,
+            "max": 25
+          },
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.55,
+          "updatedAt": 1785772800000,
+          "evidence": "沿用茶库现有茶类冲泡指引，待实物试泡调整。"
+        },
+        "difficulty": {
+          "value": 3.5,
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.45,
+          "updatedAt": 1785772800000,
+          "evidence": "按茶类功夫泡容错度估计，待实物试泡调整。"
+        }
+      }
+    },
+    {
+      "teaId": 37,
+      "profileVersion": 1,
+      "lifecycle": "complete",
+      "research": {
+        "completeness": 0.7714,
+        "conflicts": [],
+        "notes": [
+          "这是未联网核验的保守初稿：仅使用茶库记录、名称显式信息和茶类默认值；商品级事实仍需外部资料或实物包装补充。"
+        ]
+      },
+      "identity": {
+        "displayName": {
+          "value": "小黄罐老枞水仙（中足火）",
+          "status": "confirmed",
+          "sourceType": "user",
+          "confidence": 1,
+          "updatedAt": 1785772800000,
+          "evidence": "用户现有茶库名称。"
+        },
+        "brand": {
+          "value": "海堤",
+          "status": "confirmed",
+          "sourceType": "user",
+          "confidence": 1,
+          "updatedAt": 1785772800000,
+          "evidence": "用户现有茶库品牌记录。"
+        },
+        "category": {
+          "value": "oolong_wuyi",
+          "status": "confirmed",
+          "sourceType": "user",
+          "confidence": 1,
+          "updatedAt": 1785772800000,
+          "evidence": "用户现有茶库分类。"
+        },
+        "year": {
+          "value": 2023,
+          "status": "confirmed",
+          "sourceType": "user",
+          "confidence": 1,
+          "updatedAt": 1785772800000,
+          "evidence": "用户现有茶库年份记录。"
+        },
+        "productCode": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        },
+        "packagingVariant": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        },
+        "form": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        }
+      },
+      "origin": {
+        "region": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        },
+        "cultivar": {
+          "value": "水仙",
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.88,
+          "updatedAt": 1785772800000,
+          "evidence": "名称直接包含品种或原料等级词，待包装或官方资料核验。"
+        },
+        "materialGrade": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        },
+        "harvestSeason": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        }
+      },
+      "craft": {
+        "processTags": {
+          "value": [
+            "烘焙"
+          ],
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.82,
+          "updatedAt": 1785772800000,
+          "evidence": "名称直接标注焙火，初稿仅记录一般烘焙工艺。"
+        },
+        "roastLevel": {
+          "value": "medium_high",
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.9,
+          "updatedAt": 1785772800000,
+          "evidence": "名称直接标注焙火程度，映射为标准化等级。"
+        },
+        "compression": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        },
+        "agingState": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        }
+      },
+      "sensory": {
+        "aromaTags": {
+          "value": [
+            "焙火香",
+            "花果香"
+          ],
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "flavorTags": {
+          "value": [
+            "醇厚",
+            "回甘"
+          ],
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "aromaIntensity": {
+          "value": 3.5,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "sweetness": {
+          "value": 3,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "bitterness": {
+          "value": 2,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "astringency": {
+          "value": 2.5,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "body": {
+          "value": 3.5,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "smoothness": {
+          "value": 3,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "aftertaste": {
+          "value": 3.5,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "durability": {
+          "value": 4,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        }
+      },
+      "effects": {
+        "stimulation": {
+          "value": 3.5,
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.4,
+          "updatedAt": 1785772800000,
+          "evidence": "茶类通用体感倾向；不是医学结论，也需被个人记录覆盖。"
+        },
+        "emptyStomachFriendliness": {
+          "value": 2,
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.4,
+          "updatedAt": 1785772800000,
+          "evidence": "茶类通用体感倾向；不是医学结论，也需被个人记录覆盖。"
+        },
+        "sleepImpact": {
+          "value": 3.5,
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.4,
+          "updatedAt": 1785772800000,
+          "evidence": "茶类通用体感倾向；不是医学结论，也需被个人记录覆盖。"
+        }
+      },
+      "context": {
+        "bestSeasons": {
+          "value": [
+            "秋",
+            "冬"
+          ],
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.45,
+          "updatedAt": 1785772800000,
+          "evidence": "茶类通用饮用季节初稿。"
+        },
+        "bestTimes": {
+          "value": [
+            "上午",
+            "下午",
+            "饭后"
+          ],
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.45,
+          "updatedAt": 1785772800000,
+          "evidence": "茶类通用饮用时段初稿。"
+        }
+      },
+      "brew": {
+        "vessels": {
+          "value": [
+            "盖碗",
+            "紫砂壶"
+          ],
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.55,
+          "updatedAt": 1785772800000,
+          "evidence": "沿用茶库现有茶类冲泡指引，待实物试泡调整。"
+        },
+        "waterTempC": {
+          "value": {
+            "min": 98,
+            "max": 100
+          },
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.55,
+          "updatedAt": 1785772800000,
+          "evidence": "沿用茶库现有茶类冲泡指引，待实物试泡调整。"
+        },
+        "gramsPer100ml": {
+          "value": 6.5,
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.55,
+          "updatedAt": 1785772800000,
+          "evidence": "沿用茶库现有茶类冲泡指引，待实物试泡调整。"
+        },
+        "firstSteepSeconds": {
+          "value": {
+            "min": 15,
+            "max": 25
+          },
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.55,
+          "updatedAt": 1785772800000,
+          "evidence": "沿用茶库现有茶类冲泡指引，待实物试泡调整。"
+        },
+        "difficulty": {
+          "value": 3.5,
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.45,
+          "updatedAt": 1785772800000,
+          "evidence": "按茶类功夫泡容错度估计，待实物试泡调整。"
+        }
+      }
+    },
+    {
+      "teaId": 38,
+      "profileVersion": 1,
+      "lifecycle": "complete",
+      "research": {
+        "completeness": 0.8286,
+        "conflicts": [],
+        "notes": [
+          "这是未联网核验的保守初稿：仅使用茶库记录、名称显式信息和茶类默认值；商品级事实仍需外部资料或实物包装补充。",
+          "用户确认实际商品或包装；用户在第二批补充文档中更正为乐享系列肉桂，货号 XT5131。。包装事实留在库存层。"
+        ]
+      },
+      "identity": {
+        "displayName": {
+          "value": "乐享肉桂（中火）",
+          "status": "confirmed",
+          "sourceType": "user",
+          "confidence": 1,
+          "updatedAt": 1785855887674,
+          "evidence": "用户根据实际购买记录确认商品名称为乐享肉桂（中火）。"
+        },
+        "brand": {
+          "value": "海堤",
+          "status": "confirmed",
+          "sourceType": "user",
+          "confidence": 1,
+          "updatedAt": 1785772800000,
+          "evidence": "用户现有茶库品牌记录。"
+        },
+        "category": {
+          "value": "oolong_wuyi",
+          "status": "confirmed",
+          "sourceType": "user",
+          "confidence": 1,
+          "updatedAt": 1785772800000,
+          "evidence": "用户现有茶库分类。"
+        },
+        "year": {
+          "value": 2022,
+          "status": "confirmed",
+          "sourceType": "user",
+          "confidence": 1,
+          "updatedAt": 1785772800000,
+          "evidence": "用户现有茶库年份记录。"
+        },
+        "productCode": {
+          "value": "XT5131",
+          "status": "confirmed",
+          "sourceType": "user",
+          "confidence": 1,
+          "updatedAt": 1785855887674,
+          "evidence": "用户在第二批补充文档中确认该字段。"
+        },
+        "packagingVariant": {
+          "value": "乐享系列",
+          "status": "confirmed",
+          "sourceType": "user",
+          "confidence": 1,
+          "updatedAt": 1785855887674,
+          "evidence": "用户在第二批补充文档中确认该字段。"
+        },
+        "form": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        }
+      },
+      "origin": {
+        "region": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        },
+        "cultivar": {
+          "value": "肉桂",
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.88,
+          "updatedAt": 1785772800000,
+          "evidence": "名称直接包含品种或原料等级词，待包装或官方资料核验。"
+        },
+        "materialGrade": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        },
+        "harvestSeason": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        }
+      },
+      "craft": {
+        "processTags": {
+          "value": [
+            "烘焙"
+          ],
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.82,
+          "updatedAt": 1785772800000,
+          "evidence": "名称直接标注焙火，初稿仅记录一般烘焙工艺。"
+        },
+        "roastLevel": {
+          "value": "medium",
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.9,
+          "updatedAt": 1785772800000,
+          "evidence": "名称直接标注焙火程度，映射为标准化等级。"
+        },
+        "compression": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        },
+        "agingState": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        }
+      },
+      "sensory": {
+        "aromaTags": {
+          "value": [
+            "焙火香",
+            "花果香"
+          ],
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "flavorTags": {
+          "value": [
+            "醇厚",
+            "回甘"
+          ],
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "aromaIntensity": {
+          "value": 3.5,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "sweetness": {
+          "value": 3,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "bitterness": {
+          "value": 2,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "astringency": {
+          "value": 2.5,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "body": {
+          "value": 3.5,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "smoothness": {
+          "value": 3,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "aftertaste": {
+          "value": 3.5,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "durability": {
+          "value": 4,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        }
+      },
+      "effects": {
+        "stimulation": {
+          "value": 3.5,
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.4,
+          "updatedAt": 1785772800000,
+          "evidence": "茶类通用体感倾向；不是医学结论，也需被个人记录覆盖。"
+        },
+        "emptyStomachFriendliness": {
+          "value": 2,
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.4,
+          "updatedAt": 1785772800000,
+          "evidence": "茶类通用体感倾向；不是医学结论，也需被个人记录覆盖。"
+        },
+        "sleepImpact": {
+          "value": 3.5,
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.4,
+          "updatedAt": 1785772800000,
+          "evidence": "茶类通用体感倾向；不是医学结论，也需被个人记录覆盖。"
+        }
+      },
+      "context": {
+        "bestSeasons": {
+          "value": [
+            "秋",
+            "冬"
+          ],
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.45,
+          "updatedAt": 1785772800000,
+          "evidence": "茶类通用饮用季节初稿。"
+        },
+        "bestTimes": {
+          "value": [
+            "上午",
+            "下午",
+            "饭后"
+          ],
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.45,
+          "updatedAt": 1785772800000,
+          "evidence": "茶类通用饮用时段初稿。"
+        }
+      },
+      "brew": {
+        "vessels": {
+          "value": [
+            "盖碗",
+            "紫砂壶"
+          ],
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.55,
+          "updatedAt": 1785772800000,
+          "evidence": "沿用茶库现有茶类冲泡指引，待实物试泡调整。"
+        },
+        "waterTempC": {
+          "value": {
+            "min": 98,
+            "max": 100
+          },
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.55,
+          "updatedAt": 1785772800000,
+          "evidence": "沿用茶库现有茶类冲泡指引，待实物试泡调整。"
+        },
+        "gramsPer100ml": {
+          "value": 6.5,
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.55,
+          "updatedAt": 1785772800000,
+          "evidence": "沿用茶库现有茶类冲泡指引，待实物试泡调整。"
+        },
+        "firstSteepSeconds": {
+          "value": {
+            "min": 15,
+            "max": 25
+          },
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.55,
+          "updatedAt": 1785772800000,
+          "evidence": "沿用茶库现有茶类冲泡指引，待实物试泡调整。"
+        },
+        "difficulty": {
+          "value": 3.5,
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.45,
+          "updatedAt": 1785772800000,
+          "evidence": "按茶类功夫泡容错度估计，待实物试泡调整。"
+        }
+      }
+    },
+    {
+      "teaId": 39,
+      "profileVersion": 1,
+      "lifecycle": "complete",
+      "research": {
+        "completeness": 0.7714,
+        "conflicts": [],
+        "notes": [
+          "这是未联网核验的保守初稿：仅使用茶库记录、名称显式信息和茶类默认值；商品级事实仍需外部资料或实物包装补充。"
+        ]
+      },
+      "identity": {
+        "displayName": {
+          "value": "单枞奇种（足火）",
+          "status": "confirmed",
+          "sourceType": "user",
+          "confidence": 1,
+          "updatedAt": 1785772800000,
+          "evidence": "用户现有茶库名称。"
+        },
+        "brand": {
+          "value": "海堤",
+          "status": "confirmed",
+          "sourceType": "user",
+          "confidence": 1,
+          "updatedAt": 1785772800000,
+          "evidence": "用户现有茶库品牌记录。"
+        },
+        "category": {
+          "value": "oolong_wuyi",
+          "status": "confirmed",
+          "sourceType": "user",
+          "confidence": 1,
+          "updatedAt": 1785772800000,
+          "evidence": "用户现有茶库分类。"
+        },
+        "year": {
+          "value": 2021,
+          "status": "confirmed",
+          "sourceType": "user",
+          "confidence": 1,
+          "updatedAt": 1785772800000,
+          "evidence": "用户现有茶库年份记录。"
+        },
+        "productCode": {
+          "value": "AT101",
+          "status": "researched",
+          "sourceType": "retailer",
+          "confidence": 0.9,
+          "updatedAt": 1785772800000,
+          "evidence": "可访问的具体商品页标题明确为“Sea Dyke Brand AT101”，正文同时标注“海堤牌武夷单枞奇种”。",
+          "sourceRefs": [
+            "https://www.makmur.com.my/chinese-tea/sea-dyke-brand-at101-tan-chung-chi-chong-125g.html"
+          ]
+        },
+        "packagingVariant": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        },
+        "form": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        }
+      },
+      "origin": {
+        "region": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        },
+        "cultivar": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        },
+        "materialGrade": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        },
+        "harvestSeason": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        }
+      },
+      "craft": {
+        "processTags": {
+          "value": [
+            "烘焙"
+          ],
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.82,
+          "updatedAt": 1785772800000,
+          "evidence": "名称直接标注焙火，初稿仅记录一般烘焙工艺。"
+        },
+        "roastLevel": {
+          "value": "high",
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.9,
+          "updatedAt": 1785772800000,
+          "evidence": "名称直接标注焙火程度，映射为标准化等级。"
+        },
+        "compression": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        },
+        "agingState": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        }
+      },
+      "sensory": {
+        "aromaTags": {
+          "value": [
+            "焙火香",
+            "花果香"
+          ],
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "flavorTags": {
+          "value": [
+            "醇厚",
+            "回甘"
+          ],
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "aromaIntensity": {
+          "value": 3.5,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "sweetness": {
+          "value": 3,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "bitterness": {
+          "value": 2,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "astringency": {
+          "value": 2.5,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "body": {
+          "value": 3.5,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "smoothness": {
+          "value": 3,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "aftertaste": {
+          "value": 3.5,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "durability": {
+          "value": 4,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        }
+      },
+      "effects": {
+        "stimulation": {
+          "value": 3.5,
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.4,
+          "updatedAt": 1785772800000,
+          "evidence": "茶类通用体感倾向；不是医学结论，也需被个人记录覆盖。"
+        },
+        "emptyStomachFriendliness": {
+          "value": 2,
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.4,
+          "updatedAt": 1785772800000,
+          "evidence": "茶类通用体感倾向；不是医学结论，也需被个人记录覆盖。"
+        },
+        "sleepImpact": {
+          "value": 3.5,
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.4,
+          "updatedAt": 1785772800000,
+          "evidence": "茶类通用体感倾向；不是医学结论，也需被个人记录覆盖。"
+        }
+      },
+      "context": {
+        "bestSeasons": {
+          "value": [
+            "秋",
+            "冬"
+          ],
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.45,
+          "updatedAt": 1785772800000,
+          "evidence": "茶类通用饮用季节初稿。"
+        },
+        "bestTimes": {
+          "value": [
+            "上午",
+            "下午",
+            "饭后"
+          ],
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.45,
+          "updatedAt": 1785772800000,
+          "evidence": "茶类通用饮用时段初稿。"
+        }
+      },
+      "brew": {
+        "vessels": {
+          "value": [
+            "盖碗",
+            "紫砂壶"
+          ],
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.55,
+          "updatedAt": 1785772800000,
+          "evidence": "沿用茶库现有茶类冲泡指引，待实物试泡调整。"
+        },
+        "waterTempC": {
+          "value": {
+            "min": 98,
+            "max": 100
+          },
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.55,
+          "updatedAt": 1785772800000,
+          "evidence": "沿用茶库现有茶类冲泡指引，待实物试泡调整。"
+        },
+        "gramsPer100ml": {
+          "value": 6.5,
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.55,
+          "updatedAt": 1785772800000,
+          "evidence": "沿用茶库现有茶类冲泡指引，待实物试泡调整。"
+        },
+        "firstSteepSeconds": {
+          "value": {
+            "min": 15,
+            "max": 25
+          },
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.55,
+          "updatedAt": 1785772800000,
+          "evidence": "沿用茶库现有茶类冲泡指引，待实物试泡调整。"
+        },
+        "difficulty": {
+          "value": 3.5,
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.45,
+          "updatedAt": 1785772800000,
+          "evidence": "按茶类功夫泡容错度估计，待实物试泡调整。"
+        }
+      }
+    },
+    {
+      "teaId": 40,
+      "profileVersion": 1,
+      "lifecycle": "complete",
+      "research": {
+        "completeness": 0.8,
+        "conflicts": [],
+        "notes": [
+          "这是未联网核验的保守初稿：仅使用茶库记录、名称显式信息和茶类默认值；商品级事实仍需外部资料或实物包装补充。",
+          "用户确认实际商品或包装。包装事实留在库存层。"
+        ]
+      },
+      "identity": {
+        "displayName": {
+          "value": "岩值水仙（中足火）·岩值3000特级",
+          "status": "confirmed",
+          "sourceType": "user",
+          "confidence": 1,
+          "updatedAt": 1785855887674,
+          "evidence": "用户提供实际商品或购买记录，确认该链接对应当前茶款。",
+          "sourceRefs": [
+            "https://item.jd.com/10217699548803.html"
+          ]
+        },
+        "brand": {
+          "value": "孝文家",
+          "status": "confirmed",
+          "sourceType": "user",
+          "confidence": 1,
+          "updatedAt": 1785772800000,
+          "evidence": "用户现有茶库品牌记录。"
+        },
+        "category": {
+          "value": "oolong_wuyi",
+          "status": "confirmed",
+          "sourceType": "user",
+          "confidence": 1,
+          "updatedAt": 1785772800000,
+          "evidence": "用户现有茶库分类。"
+        },
+        "year": {
+          "value": 2026,
+          "status": "confirmed",
+          "sourceType": "user",
+          "confidence": 1,
+          "updatedAt": 1785772800000,
+          "evidence": "用户现有茶库年份记录。"
+        },
+        "productCode": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        },
+        "packagingVariant": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        },
+        "form": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        }
+      },
+      "origin": {
+        "region": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        },
+        "cultivar": {
+          "value": "水仙",
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.88,
+          "updatedAt": 1785772800000,
+          "evidence": "名称直接包含品种或原料等级词，待包装或官方资料核验。"
+        },
+        "materialGrade": {
+          "value": "特级",
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.82,
+          "updatedAt": 1785772800000,
+          "evidence": "名称直接包含等级或原料等级词，待产品资料核验。"
+        },
+        "harvestSeason": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        }
+      },
+      "craft": {
+        "processTags": {
+          "value": [
+            "烘焙"
+          ],
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.82,
+          "updatedAt": 1785772800000,
+          "evidence": "名称直接标注焙火，初稿仅记录一般烘焙工艺。"
+        },
+        "roastLevel": {
+          "value": "medium_high",
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.9,
+          "updatedAt": 1785772800000,
+          "evidence": "名称直接标注焙火程度，映射为标准化等级。"
+        },
+        "compression": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        },
+        "agingState": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        }
+      },
+      "sensory": {
+        "aromaTags": {
+          "value": [
+            "焙火香",
+            "花果香"
+          ],
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "flavorTags": {
+          "value": [
+            "醇厚",
+            "回甘"
+          ],
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "aromaIntensity": {
+          "value": 3.5,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "sweetness": {
+          "value": 3,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "bitterness": {
+          "value": 2,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "astringency": {
+          "value": 2.5,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "body": {
+          "value": 3.5,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "smoothness": {
+          "value": 3,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "aftertaste": {
+          "value": 3.5,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "durability": {
+          "value": 4,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        }
+      },
+      "effects": {
+        "stimulation": {
+          "value": 3.5,
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.4,
+          "updatedAt": 1785772800000,
+          "evidence": "茶类通用体感倾向；不是医学结论，也需被个人记录覆盖。"
+        },
+        "emptyStomachFriendliness": {
+          "value": 2,
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.4,
+          "updatedAt": 1785772800000,
+          "evidence": "茶类通用体感倾向；不是医学结论，也需被个人记录覆盖。"
+        },
+        "sleepImpact": {
+          "value": 3.5,
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.4,
+          "updatedAt": 1785772800000,
+          "evidence": "茶类通用体感倾向；不是医学结论，也需被个人记录覆盖。"
+        }
+      },
+      "context": {
+        "bestSeasons": {
+          "value": [
+            "秋",
+            "冬"
+          ],
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.45,
+          "updatedAt": 1785772800000,
+          "evidence": "茶类通用饮用季节初稿。"
+        },
+        "bestTimes": {
+          "value": [
+            "上午",
+            "下午",
+            "饭后"
+          ],
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.45,
+          "updatedAt": 1785772800000,
+          "evidence": "茶类通用饮用时段初稿。"
+        }
+      },
+      "brew": {
+        "vessels": {
+          "value": [
+            "盖碗",
+            "紫砂壶"
+          ],
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.55,
+          "updatedAt": 1785772800000,
+          "evidence": "沿用茶库现有茶类冲泡指引，待实物试泡调整。"
+        },
+        "waterTempC": {
+          "value": {
+            "min": 98,
+            "max": 100
+          },
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.55,
+          "updatedAt": 1785772800000,
+          "evidence": "沿用茶库现有茶类冲泡指引，待实物试泡调整。"
+        },
+        "gramsPer100ml": {
+          "value": 6.5,
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.55,
+          "updatedAt": 1785772800000,
+          "evidence": "沿用茶库现有茶类冲泡指引，待实物试泡调整。"
+        },
+        "firstSteepSeconds": {
+          "value": {
+            "min": 15,
+            "max": 25
+          },
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.55,
+          "updatedAt": 1785772800000,
+          "evidence": "沿用茶库现有茶类冲泡指引，待实物试泡调整。"
+        },
+        "difficulty": {
+          "value": 3.5,
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.45,
+          "updatedAt": 1785772800000,
+          "evidence": "按茶类功夫泡容错度估计，待实物试泡调整。"
+        }
+      }
+    },
+    {
+      "teaId": 41,
+      "profileVersion": 1,
+      "lifecycle": "complete",
+      "research": {
+        "completeness": 0.8,
+        "conflicts": [],
+        "notes": [
+          "这是未联网核验的保守初稿：仅使用茶库记录、名称显式信息和茶类默认值；商品级事实仍需外部资料或实物包装补充。"
+        ]
+      },
+      "identity": {
+        "displayName": {
+          "value": "岩值肉桂（中足火）·岩值2000一级",
+          "status": "confirmed",
+          "sourceType": "user",
+          "confidence": 1,
+          "updatedAt": 1785772800000,
+          "evidence": "用户现有茶库名称。"
+        },
+        "brand": {
+          "value": "孝文家",
+          "status": "confirmed",
+          "sourceType": "user",
+          "confidence": 1,
+          "updatedAt": 1785772800000,
+          "evidence": "用户现有茶库品牌记录。"
+        },
+        "category": {
+          "value": "oolong_wuyi",
+          "status": "confirmed",
+          "sourceType": "user",
+          "confidence": 1,
+          "updatedAt": 1785772800000,
+          "evidence": "用户现有茶库分类。"
+        },
+        "year": {
+          "value": 2025,
+          "status": "confirmed",
+          "sourceType": "user",
+          "confidence": 1,
+          "updatedAt": 1785772800000,
+          "evidence": "用户现有茶库年份记录。"
+        },
+        "productCode": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        },
+        "packagingVariant": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        },
+        "form": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        }
+      },
+      "origin": {
+        "region": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        },
+        "cultivar": {
+          "value": "肉桂",
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.88,
+          "updatedAt": 1785772800000,
+          "evidence": "名称直接包含品种或原料等级词，待包装或官方资料核验。"
+        },
+        "materialGrade": {
+          "value": "一级",
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.82,
+          "updatedAt": 1785772800000,
+          "evidence": "名称直接包含等级或原料等级词，待产品资料核验。"
+        },
+        "harvestSeason": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        }
+      },
+      "craft": {
+        "processTags": {
+          "value": [
+            "烘焙"
+          ],
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.82,
+          "updatedAt": 1785772800000,
+          "evidence": "名称直接标注焙火，初稿仅记录一般烘焙工艺。"
+        },
+        "roastLevel": {
+          "value": "medium_high",
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.9,
+          "updatedAt": 1785772800000,
+          "evidence": "名称直接标注焙火程度，映射为标准化等级。"
+        },
+        "compression": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        },
+        "agingState": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785772800000
+        }
+      },
+      "sensory": {
+        "aromaTags": {
+          "value": [
+            "焙火香",
+            "花果香"
+          ],
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "flavorTags": {
+          "value": [
+            "醇厚",
+            "回甘"
+          ],
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "aromaIntensity": {
+          "value": 3.5,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "sweetness": {
+          "value": 3,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "bitterness": {
+          "value": 2,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "astringency": {
+          "value": 2.5,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "body": {
+          "value": 3.5,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "smoothness": {
+          "value": 3,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "aftertaste": {
+          "value": 3.5,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        },
+        "durability": {
+          "value": 4,
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.35,
+          "updatedAt": 1785772800000,
+          "evidence": "低置信度 LLM 茶类感官初稿，不代表该具体批次。"
+        }
+      },
+      "effects": {
+        "stimulation": {
+          "value": 3.5,
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.4,
+          "updatedAt": 1785772800000,
+          "evidence": "茶类通用体感倾向；不是医学结论，也需被个人记录覆盖。"
+        },
+        "emptyStomachFriendliness": {
+          "value": 2,
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.4,
+          "updatedAt": 1785772800000,
+          "evidence": "茶类通用体感倾向；不是医学结论，也需被个人记录覆盖。"
+        },
+        "sleepImpact": {
+          "value": 3.5,
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.4,
+          "updatedAt": 1785772800000,
+          "evidence": "茶类通用体感倾向；不是医学结论，也需被个人记录覆盖。"
+        }
+      },
+      "context": {
+        "bestSeasons": {
+          "value": [
+            "秋",
+            "冬"
+          ],
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.45,
+          "updatedAt": 1785772800000,
+          "evidence": "茶类通用饮用季节初稿。"
+        },
+        "bestTimes": {
+          "value": [
+            "上午",
+            "下午",
+            "饭后"
+          ],
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.45,
+          "updatedAt": 1785772800000,
+          "evidence": "茶类通用饮用时段初稿。"
+        }
+      },
+      "brew": {
+        "vessels": {
+          "value": [
+            "盖碗",
+            "紫砂壶"
+          ],
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.55,
+          "updatedAt": 1785772800000,
+          "evidence": "沿用茶库现有茶类冲泡指引，待实物试泡调整。"
+        },
+        "waterTempC": {
+          "value": {
+            "min": 98,
+            "max": 100
+          },
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.55,
+          "updatedAt": 1785772800000,
+          "evidence": "沿用茶库现有茶类冲泡指引，待实物试泡调整。"
+        },
+        "gramsPer100ml": {
+          "value": 6.5,
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.55,
+          "updatedAt": 1785772800000,
+          "evidence": "沿用茶库现有茶类冲泡指引，待实物试泡调整。"
+        },
+        "firstSteepSeconds": {
+          "value": {
+            "min": 15,
+            "max": 25
+          },
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.55,
+          "updatedAt": 1785772800000,
+          "evidence": "沿用茶库现有茶类冲泡指引，待实物试泡调整。"
+        },
+        "difficulty": {
+          "value": 3.5,
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.45,
+          "updatedAt": 1785772800000,
+          "evidence": "按茶类功夫泡容错度估计，待实物试泡调整。"
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": 1785855870261,
+  "expectedTeaCount": 89,
+  "researchTeaCount": 86,
+  "withheldTeaIds": [
+    0,
+    25,
+    68
+  ],
+  "batchFiles": [
+    "research-01.input.json",
+    "research-02.input.json",
+    "research-03.input.json",
+    "research-04.input.json",
+    "research-05.input.json"
+  ]
+}

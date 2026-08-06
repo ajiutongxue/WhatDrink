@@ -162,6 +162,11 @@
         wx:if="{{recEnabled}}"
       />
       <view class="setting-model-hint" wx:if="{{recEnabled}}">深度模型，用于生成推荐和茶知识解读</view>
+      <view class="setting-toggle-row" wx:if="{{recEnabled}}">
+        <text class="setting-toggle-label">两阶段推荐（实验）</text>
+        <switch checked="{{twoStageRecommendationEnabled}}" color="#C4793B" bindchange="onTwoStageRecommendationToggle" />
+      </view>
+      <view class="setting-model-hint" wx:if="{{recEnabled && twoStageRecommendationEnabled}}">先用全部合格茶做摘要初选，再用详细画像精选；会调用模型两次。</view>
     </view>
 
     <view class="save-btn-row">
@@ -216,7 +221,7 @@
     <!-- Data actions -->
     <view class="data-btn-row">
       <button class="setting-btn" bindtap="onExport">导出数据</button>
-      <button class="setting-btn" bindtap="onImport">导入数据</button>
+      <button class="setting-btn" bindtap="onImport">导入数据 / 知识包</button>
       <button class="setting-btn danger" bindtap="onReset">重置所有</button>
     </view>
   </view>

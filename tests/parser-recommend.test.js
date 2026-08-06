@@ -28,6 +28,11 @@ function today() {
 }
 
 async function run() {
+  var strongPreference = await parser.parseInput('今天只喝绿茶', {});
+  assert.deepStrictEqual(strongPreference.strongPreferCats, ['green'], 'explicit only-drink wording should mark a strong category preference');
+  var softPreference = await parser.parseInput('今天想喝绿茶', {});
+  assert.deepStrictEqual(softPreference.strongPreferCats, [], 'ordinary preference wording should keep the diversity cap');
+
   assert.strictEqual(teaData.TEAS.length, 89, 'bundled tea count must stay explicit');
   var ids = {};
   teaData.TEAS.forEach(function(tea) {
@@ -61,6 +66,14 @@ async function run() {
     [{ date: today(), teaId: 3, type: 'primary' }]
   );
   assert.deepStrictEqual(eligible.map(function(tea) { return tea.id; }), [1], 'hard filters must exclude disabled/today/quality/avoided teas');
+  var rerollEligible = recommend.filterEligible(library, {}, [], 5, {}, [1]);
+  assert.ok(rerollEligible.every(function(tea) { return tea.id !== 1; }), 'the previous recommendation must be excluded from the current reroll candidate pool');
+  var rerollRuleResult = recommend.recommend([
+    { id: 21, name: '上一轮主推', cat: 'green', nature: '平', baseNature: '平', caffeine: '中' },
+    { id: 22, name: '上一轮备选', cat: 'white', nature: '平', baseNature: '平', caffeine: '中' },
+    { id: 23, name: '新候选', cat: 'black', nature: '平', baseNature: '平', caffeine: '中' }
+  ], {}, null, [], 5, null, {}, true, [21, 22]);
+  assert.strictEqual(rerollRuleResult.primary.tea.id, 23, 'rule fallback must honor the same one-shot reroll exclusions');
   var firstFourDrinkingDays = [1, 2, 3, 4].map(function(days, idx) {
     return { date: dateDaysAgo(days), teaId: 1, type: idx % 2 ? 'alt' : 'primary' };
   });
@@ -124,6 +137,21 @@ async function run() {
   assert.strictEqual(recommend.adjustNature('white', 2010, '凉'), '温');
   assert.strictEqual(recommend.adjustNature('puerh_raw', 2010, '寒'), '平');
 
+  var poolEligible = [];
+  ['green', 'white', 'black'].forEach(function(cat, catIndex) {
+    for (var n = 0; n < 10; n++) poolEligible.push({ id: catIndex * 10 + n + 100, name: cat + n, cat: cat });
+  });
+  var coarseRows = poolEligible.slice(0, 20).map(function(tea, index) {
+    return { tea: tea, teaId: tea.id, score: 1 - index / 100, group: 'current_fit' };
+  });
+  coarseRows.unshift({ tea: { id: 9999, cat: 'green' }, teaId: 9999, score: 1, group: 'current_fit' });
+  var twoStagePool = recommend.buildTwoStageCandidatePool(poolEligible, coarseRows, poolEligible.slice(20), {});
+  assert.strictEqual(twoStagePool.length, 18, 'fine pool should contain 18 teas when enough eligible teas exist');
+  assert.ok(twoStagePool.every(function(tea) { return poolEligible.indexOf(tea) >= 0; }), 'fine pool must remain a subset of local eligible teas');
+  var categoryCounts = {};
+  twoStagePool.forEach(function(tea) { categoryCounts[tea.cat] = (categoryCounts[tea.cat] || 0) + 1; });
+  assert.ok(Object.keys(categoryCounts).every(function(cat) { return categoryCounts[cat] <= 7; }), 'no category should exceed the 40 percent cap when diversity is available');
+  assert.deepStrictEqual(recommend.buildTwoStageCandidatePool(poolEligible.slice(0, 8), [], [], {}).map(function(tea) { return tea.id; }), poolEligible.slice(0, 8).map(function(tea) { return tea.id; }), 'when fewer than 12 teas are eligible the fine pool should keep all of them');
   console.log('parser/recommend tests passed');
 }
 

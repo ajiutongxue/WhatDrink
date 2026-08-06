@@ -1,0 +1,426 @@
+{
+  "schemaVersion": 2,
+  "purpose": "research_batch_input",
+  "generatedAt": 1785855870261,
+  "expectedTeaCount": 89,
+  "withheldTeaIds": [
+    0,
+    25,
+    68
+  ],
+  "batchId": "research-01",
+  "teaIds": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20
+  ],
+  "teas": [
+    {
+      "teaId": 1,
+      "currentIdentity": {
+        "displayName": "峨眉山甘露",
+        "brand": "竹叶青",
+        "category": "green",
+        "year": 2025
+      },
+      "confirmedClarifications": [],
+      "confirmedPackageLinks": [
+        {
+          "sku": "10202268306875",
+          "url": "https://item.jd.com/10202268306875.html",
+          "packageType": "unknown",
+          "status": "opened",
+          "confirmedBy": "user"
+        }
+      ]
+    },
+    {
+      "teaId": 2,
+      "currentIdentity": {
+        "displayName": "竹叶青",
+        "brand": "竹叶青",
+        "category": "green",
+        "year": 2023
+      },
+      "confirmedClarifications": [],
+      "confirmedPackageLinks": [
+        {
+          "sku": "42194246639",
+          "url": "https://item.jd.com/42194246639.html",
+          "packageType": "unknown",
+          "status": "opened",
+          "confirmedBy": "user"
+        }
+      ]
+    },
+    {
+      "teaId": 3,
+      "currentIdentity": {
+        "displayName": "龙井",
+        "brand": "狮峰",
+        "category": "green",
+        "year": 2025
+      },
+      "confirmedClarifications": [],
+      "confirmedPackageLinks": [
+        {
+          "sku": "100033334821",
+          "url": "https://item.jd.com/100033334821.html",
+          "packageType": "sample",
+          "status": "unknown",
+          "confirmedBy": "user"
+        }
+      ]
+    },
+    {
+      "teaId": 4,
+      "currentIdentity": {
+        "displayName": "滇红金芽",
+        "brand": "小厂茶",
+        "category": "black",
+        "year": 2024
+      },
+      "confirmedClarifications": [],
+      "confirmedPackageLinks": []
+    },
+    {
+      "teaId": 5,
+      "currentIdentity": {
+        "displayName": "祁门红茶·1985",
+        "brand": "天之红",
+        "category": "black",
+        "year": 2025
+      },
+      "confirmedClarifications": [],
+      "confirmedPackageLinks": [
+        {
+          "url": "https://mobile.yangkeduo.com/goods1.html?ps=tIBEtvADzV",
+          "packageType": "retail",
+          "status": "opened",
+          "productNameOverride": "祁门红茶·1985",
+          "confirmedBy": "user"
+        }
+      ]
+    },
+    {
+      "teaId": 6,
+      "currentIdentity": {
+        "displayName": "正山小种金妃眉",
+        "brand": "山尔堂",
+        "category": "black",
+        "year": 2025
+      },
+      "confirmedClarifications": [],
+      "confirmedPackageLinks": [
+        {
+          "sku": "100101275669",
+          "url": "https://item.jd.com/100101275669.html",
+          "packageType": "retail",
+          "status": "sealed",
+          "netWeightPerUnit": 50,
+          "confirmedBy": "user"
+        }
+      ]
+    },
+    {
+      "teaId": 7,
+      "currentIdentity": {
+        "displayName": "银骏眉",
+        "brand": "山尔堂",
+        "category": "black",
+        "year": 2025
+      },
+      "confirmedClarifications": [],
+      "confirmedPackageLinks": [
+        {
+          "sku": "31249152778",
+          "url": "https://item.jd.com/31249152778.html",
+          "packageType": "sample",
+          "status": "unknown",
+          "confirmedBy": "user"
+        }
+      ]
+    },
+    {
+      "teaId": 8,
+      "currentIdentity": {
+        "displayName": "金骏眉·岁藏",
+        "brand": "山尔堂",
+        "category": "black",
+        "year": 2025
+      },
+      "confirmedClarifications": [],
+      "confirmedPackageLinks": [
+        {
+          "sku": "10170266090042",
+          "url": "https://item.jd.com/10170266090042.html",
+          "packageType": "sample",
+          "status": "unknown",
+          "confirmedBy": "user"
+        }
+      ]
+    },
+    {
+      "teaId": 9,
+      "currentIdentity": {
+        "displayName": "金骏眉·静享",
+        "brand": "山尔堂",
+        "category": "black",
+        "year": 2025
+      },
+      "confirmedClarifications": [],
+      "confirmedPackageLinks": [
+        {
+          "packageType": "sample",
+          "status": "unknown",
+          "note": "用户确认是品鉴装，当前网上已找不到商品链接",
+          "confirmedBy": "user"
+        }
+      ]
+    },
+    {
+      "teaId": 10,
+      "currentIdentity": {
+        "displayName": "银骏眉·七彩祥云",
+        "brand": "山尔堂",
+        "category": "black",
+        "year": 2025
+      },
+      "confirmedClarifications": [],
+      "confirmedPackageLinks": [
+        {
+          "packageType": "sample",
+          "status": "unknown",
+          "note": "用户确认是品鉴装，当前网上已找不到商品链接",
+          "confirmedBy": "user"
+        }
+      ]
+    },
+    {
+      "teaId": 11,
+      "currentIdentity": {
+        "displayName": "紧压寿眉·晒白金",
+        "brand": "品品香",
+        "category": "white",
+        "year": 2020
+      },
+      "confirmedClarifications": [],
+      "confirmedPackageLinks": [
+        {
+          "sku": "10107529366433",
+          "url": "https://item.jd.com/10107529366433.html",
+          "packageType": "sample",
+          "status": "unknown",
+          "quantity": 4,
+          "netWeightPerUnit": 20,
+          "confirmedBy": "user"
+        }
+      ]
+    },
+    {
+      "teaId": 12,
+      "currentIdentity": {
+        "displayName": "紧压寿眉·晒白金",
+        "brand": "品品香",
+        "category": "white",
+        "year": 2022
+      },
+      "confirmedClarifications": [],
+      "confirmedPackageLinks": [
+        {
+          "sku": "10221654279529",
+          "url": "https://item.jd.com/10221654279529.html",
+          "packageType": "sample",
+          "status": "unknown",
+          "quantityNote": "20+盒",
+          "netWeightPerUnit": 20,
+          "confirmedBy": "user"
+        }
+      ]
+    },
+    {
+      "teaId": 13,
+      "currentIdentity": {
+        "displayName": "紧压寿眉·晒白金",
+        "brand": "品品香",
+        "category": "white",
+        "year": 2023
+      },
+      "confirmedClarifications": [],
+      "confirmedPackageLinks": [
+        {
+          "sku": "652059313019",
+          "url": "https://detail.tmall.com/item.htm?id=652059313019",
+          "packageType": "sample",
+          "status": "unknown",
+          "quantityNote": "10+盒",
+          "confirmedBy": "user"
+        }
+      ]
+    },
+    {
+      "teaId": 14,
+      "currentIdentity": {
+        "displayName": "紧压寿眉·马饼",
+        "brand": "品品香",
+        "category": "white",
+        "year": 2024
+      },
+      "confirmedClarifications": [
+        "原料等级已由用户确认为寿眉，不是白牡丹。",
+        "规范名称为紧压寿眉·马饼。"
+      ],
+      "confirmedPackageLinks": [
+        {
+          "sku": "742835726489",
+          "url": "https://detail.tmall.com/item.htm?id=742835726489",
+          "packageType": "unknown",
+          "status": "opened",
+          "confirmedBy": "user"
+        }
+      ]
+    },
+    {
+      "teaId": 15,
+      "currentIdentity": {
+        "displayName": "寿眉散茶·诗经风雅颂",
+        "brand": "绿雪芽",
+        "category": "white",
+        "year": 2025
+      },
+      "confirmedClarifications": [],
+      "confirmedPackageLinks": [
+        {
+          "sku": "100327546502",
+          "url": "https://item.jd.com/100327546502.html",
+          "packageType": "sample",
+          "status": "unknown",
+          "netWeightPerUnit": 5,
+          "confirmedBy": "user"
+        }
+      ]
+    },
+    {
+      "teaId": 16,
+      "currentIdentity": {
+        "displayName": "白牡丹散茶·诗经风雅颂",
+        "brand": "绿雪芽",
+        "category": "white",
+        "year": 2025
+      },
+      "confirmedClarifications": [],
+      "confirmedPackageLinks": [
+        {
+          "sku": "100327585866",
+          "url": "https://item.jd.com/100327585866.html",
+          "packageType": "sample",
+          "status": "unknown",
+          "confirmedBy": "user"
+        }
+      ]
+    },
+    {
+      "teaId": 17,
+      "currentIdentity": {
+        "displayName": "紧压寿眉小圆片·369",
+        "brand": "绿雪芽",
+        "category": "white",
+        "year": null
+      },
+      "confirmedClarifications": [],
+      "confirmedPackageLinks": [
+        {
+          "sku": "100233959739",
+          "url": "https://item.jd.com/100233959739.html",
+          "packageType": "unknown",
+          "status": "unknown",
+          "confirmedBy": "user"
+        }
+      ]
+    },
+    {
+      "teaId": 18,
+      "currentIdentity": {
+        "displayName": "白牡丹散茶",
+        "brand": "虎标",
+        "category": "white",
+        "year": 2024
+      },
+      "confirmedClarifications": [],
+      "confirmedPackageLinks": [
+        {
+          "sku": "1070897446954",
+          "url": "https://item.taobao.com/item.htm?id=1070897446954",
+          "packageType": "unknown",
+          "status": "opened",
+          "note": "用户确认这是已停产的虎标 2024 白牡丹散茶，目前仅能在三方店看到",
+          "confirmedBy": "user"
+        }
+      ]
+    },
+    {
+      "teaId": 19,
+      "currentIdentity": {
+        "displayName": "寿眉饼茶",
+        "brand": "虎标",
+        "category": "white",
+        "year": 2018
+      },
+      "confirmedClarifications": [],
+      "confirmedPackageLinks": [
+        {
+          "sku": "10034133776579",
+          "url": "https://item.jd.com/10034133776579.html",
+          "packageType": "unknown",
+          "status": "opened",
+          "confirmedBy": "user"
+        }
+      ]
+    },
+    {
+      "teaId": 20,
+      "currentIdentity": {
+        "displayName": "陈韵寿眉",
+        "brand": "虎标",
+        "category": "white",
+        "year": 2018
+      },
+      "confirmedClarifications": [],
+      "confirmedPackageLinks": [
+        {
+          "sku": "663676941882",
+          "url": "https://detail.tmall.com/item.htm?id=663676941882",
+          "packageType": "retail",
+          "status": "opened",
+          "netWeightPerUnit": 120,
+          "productNameOverride": "陈韵寿眉",
+          "note": "商品页和包装图确认是太姥山老寿眉、枣香紧压白茶、120g 铁盒装，内含 5g×24",
+          "confirmedBy": "user"
+        }
+      ]
+    }
+  ],
+  "sharedFiles": [
+    "docs/tea-knowledge-batch-rules.md",
+    "data/tea-knowledge.contract.json",
+    "data/tea-knowledge.samples.json"
+  ],
+  "outputRequirement": "每个批次单独输出一个符合契约的 JSON 目录，不要输出 Markdown 代码围栏。"
+}

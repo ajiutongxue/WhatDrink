@@ -156,6 +156,7 @@ function parseWithLLM(input, config) {
             }
 
             var parsed = _parseJSON(content);
+
             if (!parsed) {
               _setError('AI 返回格式异常', 'parse');
               tracker.track('llm_parse', { ok: false, ms: Date.now() - t0, attempts: attempt + 1, errType: 'parse' });
@@ -247,7 +248,9 @@ function callLLM(eligibleTeas, context, config) {
     for (var i = 0; i < eligibleTeas.length; i++) {
       var t = eligibleTeas[i];
       if (!t) continue;
-      candidateList.push((i + 1) + '. ' + _candidateTeaText(t));
+      var candidateText = (i + 1) + '. [id:' + t.id + '] ' + _candidateTeaText(t);
+      if (context && context.fine && t._knowledgeDetail) candidateText += '\n  完整画像:' + JSON.stringify(t._knowledgeDetail);
+      candidateList.push(candidateText);
     }
 
     var ctx = context || {};
@@ -326,11 +329,12 @@ function callLLM(eligibleTeas, context, config) {
       (moodDesc ? '【口味】' + moodDesc + '\n' : '') +
       '【近期偏好】' + preferenceDesc + '（由近期饮用和明确态度汇总，不含原始笔记）\n' +
       '\n【候选茶叶】（已过滤今日已喝和不想喝的）：\n' + candidateList.join('\n') + '\n\n' +
-      '请综合时段、天气、身体状况、今日已饮茶（注意茶性平衡），选出主推和备选各一款。主推应贴近近期偏好；备选应在仍适合当下的前提下探索相邻口味，不要只是重复主推。' +
+      '请综合时段、天气、身体状况、今日已饮茶（注意茶性平衡），选出主推和备选各一款。主推应贴近近期偏好；备选应在仍适合当下的前提下探索相邻口味，不要只是重复主推。库存状态只作说明，不因开封或未开封本身提高适配分。' +
       '理由需包含时段分析和今日已饮茶的平衡考量。\n\n' +
       '请严格按JSON返回：\n' +
       '{\n' +
       '  "primary": {\n' +
+      '    "teaId": "候选行中的数字 ID",\n' +
       '    "name": "只复制候选行中破折号前的茶名（品牌），不要包含序号、破折号及后续属性",\n' +
       '    "tagline": "一句话标签，比如「午后温中和胃之选」",\n' +
       '    "narrative": "把今天的天气、时段、身体状况和选这款茶的理由，编织成一段连贯温暖的话，像写给朋友的便签，自然流畅、有画面感，2-3句，60-100字，不要分点、不要加引号",\n' +
@@ -341,6 +345,7 @@ function callLLM(eligibleTeas, context, config) {
       '    "pairing": "可选，搭配建议，比如「配点坚果不错」"\n' +
       '  },\n' +
       '  "alternative": {\n' +
+      '    "teaId": "备选候选行中的数字 ID",\n' +
       '    "name": "只复制备选候选行中破折号前的茶名（品牌）",\n' +
       '    "why_different": "和主推的区别，比如「想喝清爽点的选这个」",\n' +
       '    "reasons": ["理由1", "理由2"],\n' +
@@ -349,6 +354,11 @@ function callLLM(eligibleTeas, context, config) {
       '  "today_avoid_note": "一句话说说为什么今天不推荐某类茶，比如「今天就别喝绿茶了，脾胃寒加上下雨容易不舒服」"\n' +
       '}';
 
+    if (ctx.coarse) {
+      userPrompt = '从以下候选中粗选 12 到 18 个适合进一步比较的茶，不要给最终主推。' +
+        '只返回 JSON：{"candidates":[{"teaId":数字,"score":0到1,"group":"current_fit|preference|exploration"}]}。' +
+        '不得返回候选范围外 ID。库存状态只作说明，不因开封或未开封本身提高适配分。\n【候选摘要】\n' + candidateList.join('\n');
+    }
     var url = _buildUrl(config.endpoint, '/chat/completions');
 
     var attempt = 0;
@@ -397,7 +407,24 @@ function callLLM(eligibleTeas, context, config) {
             }
 
             var parsed = _parseJSON(content);
-            if (!parsed || !parsed.primary || !parsed.primary.name) {
+            if (ctx.coarse) {
+              var rows = parsed && Array.isArray(parsed.candidates) ? parsed.candidates : [];
+              var selected = []; var seenIds = {};
+              rows.forEach(function(row) {
+                var numericId = Number(row && row.teaId);
+                for (var ci = 0; ci < eligibleTeas.length; ci++) {
+                  if (eligibleTeas[ci] && eligibleTeas[ci].id === numericId && !seenIds[numericId]) {
+                    selected.push({ tea: eligibleTeas[ci], teaId: numericId, score: Math.max(0, Math.min(1, Number(row.score) || 0)), group: ['current_fit','preference','exploration'].indexOf(row.group) >= 0 ? row.group : 'current_fit' });
+                    seenIds[numericId] = true;
+                  }
+                }
+              });
+              if (!selected.length) { _setError('AI 粗选未返回有效候选', 'parse'); resolve(null); return; }
+              tracker.track('llm_coarse', { ok: true, ms: Date.now() - t0, count: selected.length, model: config.recModel });
+              resolve({ candidates: selected }); return;
+            }
+
+            if (!parsed || !parsed.primary || (!Number.isInteger(Number(parsed.primary.teaId)) && !parsed.primary.name)) {
               _setError('AI 返回格式异常', 'parse');
               tracker.track('llm_rec', { ok: false, ms: Date.now() - t0, attempts: attempt + 1, model: config.recModel, errType: 'parse' });
               resolve(null);
@@ -427,7 +454,8 @@ function callLLM(eligibleTeas, context, config) {
             // 模型常把候选原样抄成「序号. name (brand)」，也可能混用
             // 全/半角括号。只在本次 eligibleTeas 内归一化匹配，既容忍这些
             // 展示差异，又不会把真正的茶库外名称放进来。
-            var primaryTea = _resolveEligibleTea(result.primary.name, eligibleTeas);
+            var primaryTea = _findEligibleTeaById(parsed.primary.teaId, eligibleTeas) ||
+              _resolveEligibleTea(result.primary.name, eligibleTeas);
             if (!primaryTea) {
               console.warn('[llm] primary name not in eligible:', result.primary.name);
               _setError('AI 返回了候选范围外的茶，已切换规则推荐', 'eligible');
@@ -438,8 +466,9 @@ function callLLM(eligibleTeas, context, config) {
             result.primary.name = primaryTea.name;
             result.primary._teaId = primaryTea.id;
 
-            if (result.alternative.name) {
-              var alternativeTea = _resolveEligibleTea(result.alternative.name, eligibleTeas);
+            if (result.alternative.name || (parsed.alternative && Number.isInteger(Number(parsed.alternative.teaId)))) {
+              var alternativeTea = _findEligibleTeaById(parsed.alternative && parsed.alternative.teaId, eligibleTeas) ||
+                _resolveEligibleTea(result.alternative.name, eligibleTeas);
               if (!alternativeTea) {
                 console.warn('[llm] alternative name not in eligible, dropped:', result.alternative.name);
                 result.alternative = {
@@ -678,6 +707,15 @@ function generateDailyQuote(context, config) {
  * Matching remains pool-bound. Formatting noise is ignored, but fuzzy semantic
  * matching is deliberately not used here.
  */
+function _findEligibleTeaById(value, eligibleTeas) {
+  if (value === '' || value === null || value === undefined) return null;
+  var id = Number(value);
+  if (!Number.isInteger(id)) return null;
+  for (var i = 0; i < (eligibleTeas || []).length; i++) {
+    if (eligibleTeas[i] && eligibleTeas[i].id === id) return eligibleTeas[i];
+  }
+  return null;
+}
 function _resolveEligibleTea(value, eligibleTeas) {
   var normalized = _normalizeEligibleName(value);
   if (!normalized) return null;
@@ -695,12 +733,18 @@ function _resolveEligibleTea(value, eligibleTeas) {
 }
 
 function _candidateTeaText(tea) {
+  var summary = tea._knowledgeSummary || {};
+  var extra = [];
+  if (Array.isArray(summary.aromaTags) && summary.aromaTags.length) extra.push('香气:' + summary.aromaTags.join('/'));
+  if (typeof summary.completeness === 'number') extra.push('画像:' + Math.round(summary.completeness * 100) + '%');
+  if (summary.opened) extra.push('已有开封包装');
   return tea.name +
     '（' + (tea.brand || '') + '）' +
     ' - ' + _catName(tea.cat) +
     ', 茶性:' + (tea.nature || tea.baseNature || '平') +
     ', 咖啡因:' + (tea.caffeine || '中') +
-    (tea.year ? ', ' + tea.year + '年' : '');
+    (tea.year ? ', ' + tea.year + '年' : '') +
+    (extra.length ? ', ' + extra.join('，') : '');
 }
 
 function _normalizeEligibleName(value) {
@@ -912,6 +956,7 @@ function _catName(key) {
 module.exports = {
   parseWithLLM: parseWithLLM,
   callLLM: callLLM,
+  callLLMCoarse: function(eligibleTeas, context, config) { var ctx = {}; Object.keys(context || {}).forEach(function(k) { ctx[k] = context[k]; }); ctx.coarse = true; return callLLM(eligibleTeas, ctx, config); },
   generateDailyQuote: generateDailyQuote,
   analyzeTastingNote: analyzeTastingNote,
   normalizeNoteAnalysis: _normalizeNoteAnalysis,

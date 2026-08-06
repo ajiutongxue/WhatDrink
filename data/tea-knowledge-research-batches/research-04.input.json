@@ -1,0 +1,262 @@
+{
+  "schemaVersion": 2,
+  "purpose": "research_batch_input",
+  "generatedAt": 1785855870261,
+  "expectedTeaCount": 89,
+  "withheldTeaIds": [
+    0,
+    25,
+    68
+  ],
+  "batchId": "research-04",
+  "teaIds": [
+    62,
+    63,
+    64,
+    65,
+    66,
+    67,
+    69,
+    70,
+    71,
+    72,
+    73,
+    74,
+    75,
+    76,
+    77,
+    78,
+    79,
+    80,
+    81,
+    82
+  ],
+  "teas": [
+    {
+      "teaId": 62,
+      "currentIdentity": {
+        "displayName": "冰岛解散茶·冠千山",
+        "brand": "八角亭",
+        "category": "puerh_raw",
+        "year": 2024
+      },
+      "confirmedClarifications": [],
+      "confirmedPackageLinks": []
+    },
+    {
+      "teaId": 63,
+      "currentIdentity": {
+        "displayName": "大班章饼茶",
+        "brand": "八角亭",
+        "category": "puerh_raw",
+        "year": 2023
+      },
+      "confirmedClarifications": [],
+      "confirmedPackageLinks": []
+    },
+    {
+      "teaId": 64,
+      "currentIdentity": {
+        "displayName": "大雪山试饮",
+        "brand": "吉普号",
+        "category": "puerh_raw",
+        "year": 2025
+      },
+      "confirmedClarifications": [],
+      "confirmedPackageLinks": []
+    },
+    {
+      "teaId": 65,
+      "currentIdentity": {
+        "displayName": "007紧压小饼",
+        "brand": "澜沧古茶",
+        "category": "puerh_raw",
+        "year": 2023
+      },
+      "confirmedClarifications": [],
+      "confirmedPackageLinks": []
+    },
+    {
+      "teaId": 66,
+      "currentIdentity": {
+        "displayName": "景迈之春散茶",
+        "brand": "澜沧古茶",
+        "category": "puerh_raw",
+        "year": 2025
+      },
+      "confirmedClarifications": [],
+      "confirmedPackageLinks": []
+    },
+    {
+      "teaId": 67,
+      "currentIdentity": {
+        "displayName": "昔归饼茶",
+        "brand": "虎标",
+        "category": "puerh_raw",
+        "year": 2023
+      },
+      "confirmedClarifications": [],
+      "confirmedPackageLinks": []
+    },
+    {
+      "teaId": 69,
+      "currentIdentity": {
+        "displayName": "7572小饼茶",
+        "brand": "大益",
+        "category": "puerh_ripe",
+        "year": 2021
+      },
+      "confirmedClarifications": [],
+      "confirmedPackageLinks": []
+    },
+    {
+      "teaId": 70,
+      "currentIdentity": {
+        "displayName": "白莲金针茶砖",
+        "brand": "大益",
+        "category": "puerh_ripe",
+        "year": 2023
+      },
+      "confirmedClarifications": [],
+      "confirmedPackageLinks": []
+    },
+    {
+      "teaId": 71,
+      "currentIdentity": {
+        "displayName": "凤凰格格小饼茶·鸡年生肖",
+        "brand": "大益",
+        "category": "puerh_ripe",
+        "year": 2017
+      },
+      "confirmedClarifications": [],
+      "confirmedPackageLinks": []
+    },
+    {
+      "teaId": 72,
+      "currentIdentity": {
+        "displayName": "旺夫小饼茶·狗年生肖",
+        "brand": "大益",
+        "category": "puerh_ripe",
+        "year": 2018
+      },
+      "confirmedClarifications": [],
+      "confirmedPackageLinks": []
+    },
+    {
+      "teaId": 73,
+      "currentIdentity": {
+        "displayName": "悟空小饼茶·猴年生肖",
+        "brand": "大益",
+        "category": "puerh_ripe",
+        "year": 2022
+      },
+      "confirmedClarifications": [],
+      "confirmedPackageLinks": []
+    },
+    {
+      "teaId": 74,
+      "currentIdentity": {
+        "displayName": "颂手撕薄饼·风雅颂",
+        "brand": "八角亭",
+        "category": "puerh_ripe",
+        "year": 2020
+      },
+      "confirmedClarifications": [],
+      "confirmedPackageLinks": []
+    },
+    {
+      "teaId": 75,
+      "currentIdentity": {
+        "displayName": "0085小茶砖",
+        "brand": "澜沧古茶",
+        "category": "puerh_ripe",
+        "year": 2026
+      },
+      "confirmedClarifications": [],
+      "confirmedPackageLinks": []
+    },
+    {
+      "teaId": 76,
+      "currentIdentity": {
+        "displayName": "班章龙珠",
+        "brand": "八角亭",
+        "category": "puerh_ripe",
+        "year": 2019
+      },
+      "confirmedClarifications": [],
+      "confirmedPackageLinks": []
+    },
+    {
+      "teaId": 77,
+      "currentIdentity": {
+        "displayName": "魔方小方片",
+        "brand": "老同志",
+        "category": "puerh_ripe",
+        "year": 2023
+      },
+      "confirmedClarifications": [],
+      "confirmedPackageLinks": []
+    },
+    {
+      "teaId": 78,
+      "currentIdentity": {
+        "displayName": "霸相班章古树饼茶",
+        "brand": "八角亭",
+        "category": "puerh_ripe",
+        "year": 2021
+      },
+      "confirmedClarifications": [],
+      "confirmedPackageLinks": []
+    },
+    {
+      "teaId": 79,
+      "currentIdentity": {
+        "displayName": "冰岛地界·715",
+        "brand": "吉普号",
+        "category": "puerh_ripe",
+        "year": 2025
+      },
+      "confirmedClarifications": [],
+      "confirmedPackageLinks": []
+    },
+    {
+      "teaId": 80,
+      "currentIdentity": {
+        "displayName": "大雪山·317",
+        "brand": "吉普号",
+        "category": "puerh_ripe",
+        "year": 2025
+      },
+      "confirmedClarifications": [],
+      "confirmedPackageLinks": []
+    },
+    {
+      "teaId": 81,
+      "currentIdentity": {
+        "displayName": "茉莉花茶·碧潭飘雪品味一级",
+        "brand": "竹叶青",
+        "category": "flavored_jasmine",
+        "year": 2025
+      },
+      "confirmedClarifications": [],
+      "confirmedPackageLinks": []
+    },
+    {
+      "teaId": 82,
+      "currentIdentity": {
+        "displayName": "茉莉花茶·碧潭飘雪品味特级",
+        "brand": "竹叶青",
+        "category": "flavored_jasmine",
+        "year": 2025
+      },
+      "confirmedClarifications": [],
+      "confirmedPackageLinks": []
+    }
+  ],
+  "sharedFiles": [
+    "docs/tea-knowledge-batch-rules.md",
+    "data/tea-knowledge.contract.json",
+    "data/tea-knowledge.samples.json"
+  ],
+  "outputRequirement": "每个批次单独输出一个符合契约的 JSON 目录，不要输出 Markdown 代码围栏。"
+}

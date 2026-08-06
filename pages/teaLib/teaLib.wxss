@@ -391,3 +391,59 @@
   background: var(--coral);
   color: #FFFFFF;
 }
+
+.tea-lib-knowledge, .tea-lib-inventory { font-size: 19rpx; color: var(--ink4); }
+.tea-lib-knowledge { color: #6F8B69; }
+.tea-lib-knowledge.missing { color: #B07A54; }
+.tea-lib-inventory { color: #8A6B58; }
+/* Complete knowledge profile editor */
+.knowledge-sheet {
+  max-height: 92vh;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+.knowledge-base-state {
+  margin: -8rpx 0 18rpx;
+  padding: 16rpx 20rpx;
+  border-radius: var(--r-sm);
+  background: rgba(111, 139, 105, 0.12);
+  color: #5F795B;
+  font-size: 22rpx;
+  line-height: 1.55;
+}
+.knowledge-base-state.missing { background: rgba(176, 122, 84, 0.12); color: #9B6541; }
+.knowledge-scroll { height: 72vh; }
+.knowledge-section-title {
+  margin: 24rpx 0 10rpx;
+  color: var(--cocoa);
+  font-size: 27rpx;
+  font-weight: 600;
+  letter-spacing: 1rpx;
+}
+.knowledge-field-card {
+  padding: 18rpx 20rpx;
+  margin-bottom: 12rpx;
+  border-radius: var(--r-sm);
+  background: rgba(255, 255, 255, 0.48);
+  border: 1rpx solid rgba(201, 184, 173, 0.32);
+}
+.knowledge-field-head { display: flex; align-items: center; justify-content: space-between; gap: 16rpx; }
+.knowledge-field-label { color: var(--ink2); font-size: 25rpx; font-weight: 600; }
+.knowledge-field-badges { display: flex; gap: 8rpx; }
+.knowledge-badge { padding: 3rpx 10rpx; border-radius: 999rpx; font-size: 18rpx; }
+.knowledge-badge.personal { color: #A65743; background: rgba(194, 91, 69, 0.12); }
+.knowledge-badge.locked { color: #5F795B; background: rgba(111, 139, 105, 0.14); }
+.knowledge-field-value { margin-top: 10rpx; color: var(--ink); font-size: 27rpx; line-height: 1.45; word-break: break-all; }
+.knowledge-field-value.missing { color: var(--ink4); }
+.knowledge-field-meta, .knowledge-field-evidence, .knowledge-field-source { margin-top: 8rpx; color: var(--ink4); font-size: 20rpx; line-height: 1.45; word-break: break-all; }
+.knowledge-field-evidence { color: var(--ink3); }
+.knowledge-inventory-summary { color: var(--ink3); font-size: 24rpx; padding: 12rpx 0; }
+.knowledge-inventory-row { display: flex; justify-content: space-between; gap: 20rpx; padding: 16rpx 0; border-bottom: 1rpx solid rgba(201, 184, 173, 0.3); color: var(--ink2); font-size: 24rpx; }
+.knowledge-add-package { margin-top: 20rpx; }
+.knowledge-edit-path { color: var(--cocoa); font-size: 30rpx; font-weight: 600; }
+.knowledge-edit-description { margin-top: 12rpx; color: var(--ink3); font-size: 23rpx; line-height: 1.55; }
+.knowledge-edit-input { box-sizing: border-box; width: 100%; min-height: 110rpx; margin-top: 24rpx; padding: 20rpx; border-radius: var(--r-sm); background: rgba(255,255,255,.56); color: var(--ink); font-size: 27rpx; }
+.knowledge-edit-hint { margin-top: 10rpx; color: var(--ink4); font-size: 21rpx; }
+.knowledge-edit-actions { display: flex; flex-wrap: wrap; gap: 16rpx; margin-top: 28rpx; }
+.knowledge-edit-actions .tea-lib-form-btn { min-width: 42%; padding-left: 16rpx; padding-right: 16rpx; }

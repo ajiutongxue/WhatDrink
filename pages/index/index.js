@@ -160,6 +160,71 @@ function buildRainDrops(count, storm) {
 
 var RAIN_DROPS = buildRainDrops(64, false);
 var THUNDER_RAIN_DROPS = buildRainDrops(84, true);
+function _cloneForLLM(value) {
+  return value === undefined ? undefined : JSON.parse(JSON.stringify(value));
+}
+
+function _applyKnowledgePatch(profile, patch) {
+  Object.keys(patch || {}).forEach(function(path) {
+    var parts = path.split('.');
+    var target = profile;
+    for (var i = 0; i < parts.length - 1; i++) {
+      if (!target || typeof target !== 'object') return;
+      target = target[parts[i]];
+    }
+    if (target && typeof target === 'object') target[parts[parts.length - 1]] = _cloneForLLM(patch[path]);
+  });
+}
+
+function _stripPrivateKnowledge(value) {
+  if (Array.isArray(value)) return value.map(_stripPrivateKnowledge);
+  if (!value || typeof value !== 'object') return value;
+  var result = {};
+  Object.keys(value).forEach(function(key) {
+    if (['sourceRefs', 'evidence', 'updatedAt', 'notes', 'conflicts'].indexOf(key) >= 0) return;
+    result[key] = _stripPrivateKnowledge(value[key]);
+  });
+  return result;
+}
+
+function _knowledgeDetailForLLM(profile, override, inventory, history, teaId) {
+  var merged = profile ? _cloneForLLM(profile) : null;
+  if (merged) _applyKnowledgePatch(merged, override && override.patch);
+  return {
+    profile: merged ? _stripPrivateKnowledge(merged) : null,
+    personalFields: _stripPrivateKnowledge((override && override.patch) || {}),
+    lockedPaths: override && Array.isArray(override.lockedPaths) ? override.lockedPaths.slice() : [],
+    personalConclusions: (history || []).filter(function(entry) {
+      return entry && entry.teaId === teaId && entry.noteAnalysis;
+    }).slice(-5).map(function(entry) {
+      var note = entry.noteAnalysis || {};
+      return {
+        date: entry.date || '',
+        explicitSentiment: note.explicitSentiment || 'unknown',
+        confidence: Number(note.confidence) || 0,
+        likedTraits: Array.isArray(note.likedTraits) ? note.likedTraits.slice(0, 6) : [],
+        dislikedTraits: Array.isArray(note.dislikedTraits) ? note.dislikedTraits.slice(0, 6) : [],
+        observations: Array.isArray(note.observations) ? note.observations.slice(0, 5) : [],
+        brewingNote: note.brewingNote || '',
+        contextNotes: note.contextNotes || '',
+        summary: note.summary || ''
+      };
+    }),
+    inventory: (inventory || []).filter(function(item) {
+      return item && !item.deletedAt && item.teaId === teaId;
+    }).map(function(item) {
+      return {
+        packageType: item.packageType || '',
+        packageLabel: item.packageLabel || '',
+        status: item.status || '',
+        quantity: Number(item.quantity) || 0,
+        netWeightPerUnit: Number(item.netWeightPerUnit) || 0,
+        remainingWeight: Number(item.remainingWeight) || 0,
+        remainingSessions: Number(item.remainingSessions) || 0
+      };
+    })
+  };
+}
 Page({
   data: {
     season: '',
@@ -343,6 +408,11 @@ Page({
     var self = this;
     var appData = self._appData || data.load();
     self._appData = appData;
+    var previousRec = self.data.hasResult ? self.data.rec : null;
+    var rerollIds = [];
+    if (previousRec && previousRec.primary && Number.isInteger(Number(previousRec.primary._teaId))) rerollIds.push(Number(previousRec.primary._teaId));
+    if (previousRec && previousRec.alt && Number.isInteger(Number(previousRec.alt._teaId)) && rerollIds.indexOf(Number(previousRec.alt._teaId)) < 0) rerollIds.push(Number(previousRec.alt._teaId));
+    self._rerollExcludeTeaIds = rerollIds;
     self._recT0 = Date.now();
     self.setData({ loading: true, loadingText: 'AI 正在分析', showCancel: false, noResult: false, hasResult: false, showInput: false, btnText: '分析中...' });
     self._startLoadingTimer();
@@ -357,7 +427,8 @@ Page({
           net: net,
           inputLen: (self.data.inputValue || '').length,
           llmRec: !!(llmConfig.enabled && llmConfig.apiKey),
-          llmParse: !!(llmConfig.parserEnabled && llmConfig.apiKey)
+          llmParse: !!(llmConfig.parserEnabled && llmConfig.apiKey),
+          rerollExcluded: self._rerollExcludeTeaIds.length
         });
         if (net === 'none') {
           tracker.track('rec_offline_fallback', {});
@@ -428,7 +499,7 @@ Page({
       var constitution = (appData.profile && appData.profile.constitution) || null;
 
       // 硬过滤候选池（含连续推荐上限，规则与 AI 共用）
-      var eligibleTeas = recommend.filterEligible(teaLib, parsed, history, avoidDays, appData.temporaryAvoids);
+      var eligibleTeas = self._withKnowledgeContext(recommend.filterEligible(teaLib, parsed, history, avoidDays, appData.temporaryAvoids, self._rerollExcludeTeaIds), appData);
       if (!eligibleTeas || eligibleTeas.length === 0) {
         tracker.track('rec_empty', { stage: 'filter', ms: Date.now() - (self._recT0 || Date.now()) });
         self.setData({ loading: false, noResult: true, btnText: '今天喝点什么茶' });
@@ -448,7 +519,7 @@ Page({
         }
         self._callLLM(eligibleTeas, parsed, appData, history, constitution, avoidDays);
       } else {
-        var result = recommend.recommend(teaLib, parsed, self._weatherData, history, avoidDays, constitution, appData.temporaryAvoids, appData.llm && appData.llm.noteAnalysisEnabled);
+        var result = recommend.recommend(teaLib, parsed, self._weatherData, history, avoidDays, constitution, appData.temporaryAvoids, appData.llm && appData.llm.noteAnalysisEnabled, self._rerollExcludeTeaIds);
         if (!result.primary) {
           tracker.track('rec_empty', { stage: 'score', ms: Date.now() - (self._recT0 || Date.now()) });
           self.setData({ loading: false, noResult: true, btnText: '今天喝点什么茶' });
@@ -459,6 +530,24 @@ Page({
     }); // end .then()
   },
 
+  _withKnowledgeContext: function (eligibleTeas, appData) {
+    var base = (appData.knowledgeBase && appData.knowledgeBase.profilesByTeaId) || {};
+    var overrides = appData.knowledgeOverrides || {};
+    var inventory = appData.inventory || [];
+    return (eligibleTeas || []).map(function(tea) {
+      var copy = {}; Object.keys(tea).forEach(function(key) { copy[key] = tea[key]; });
+      var profile = base[tea.id]; var override = overrides[tea.id] || {};
+      var aroma = override.patch && override.patch['sensory.aromaTags'];
+      aroma = aroma || (profile && profile.sensory && profile.sensory.aromaTags);
+      copy._knowledgeSummary = {
+        aromaTags: aroma && Array.isArray(aroma.value) ? aroma.value.slice(0, 4) : [],
+        completeness: profile && profile.research ? profile.research.completeness : null,
+        opened: inventory.some(function(item) { return item && !item.deletedAt && item.teaId === tea.id && item.status === 'opened'; })
+      };
+      copy._knowledgeDetail = _knowledgeDetailForLLM(profile, override, inventory, appData.history, tea.id);
+      return copy;
+    });
+  },
   _callLLM: function (eligibleTeas, parsed, appData, history, constitution, avoidDays) {
     var self = this;
     self._loadingBase = 'AI 深度分析中';
@@ -494,25 +583,53 @@ Page({
       profile: appData.profile
     };
 
-    llm.callLLM(eligibleTeas, context, appData.llm)
-      .then(function (llmRes) {
-        if (llmRes) {
-          self._showLLMResult(llmRes, parsed);
-        } else {
-          var errMsg = llm.getLastError() || 'AI 调用失败';
-          tracker.track('llm_fallback', { reason: errMsg });
-          wx.showToast({ title: errMsg + '，已切换规则推荐', icon: 'none', duration: 2500 });
-          self._fallbackRule(parsed, appData, history, constitution, avoidDays);
-        }
-      })
-      .catch(function (e) {
-        tracker.track('llm_fallback', { reason: 'exception', err: String(e && e.message || e) });
-        self._fallbackRule(parsed, appData, history, constitution, avoidDays);
+    function fallback(reason, err) {
+      tracker.track('llm_fallback', { reason: reason, err: err || '', twoStage: !!appData.llm.twoStageRecommendationEnabled });
+      wx.showToast({ title: reason + '，已切换规则推荐', icon: 'none', duration: 2500 });
+      self._fallbackRule(parsed, appData, history, constitution, avoidDays);
+    }
+
+    if (!appData.llm.twoStageRecommendationEnabled) {
+      llm.callLLM(eligibleTeas, context, appData.llm).then(function(llmRes) {
+        if (llmRes) self._showLLMResult(llmRes, parsed);
+        else fallback(llm.getLastError() || 'AI 调用失败');
+      }).catch(function(e) { fallback('AI 调用异常', String(e && e.message || e)); });
+      return;
+    }
+
+    self._loadingBase = 'AI 初选候选中';
+    self.setData({ loadingText: self._loadingBase });
+    llm.callLLMCoarse(eligibleTeas, context, appData.llm).then(function(coarseResult) {
+      var ruleResult = recommend.recommend(teaLib, parsed, self._weatherData, history, avoidDays, constitution, appData.temporaryAvoids, appData.llm.noteAnalysisEnabled, self._rerollExcludeTeaIds);
+      var finePool = recommend.buildTwoStageCandidatePool(
+        eligibleTeas,
+        coarseResult ? coarseResult.candidates : [],
+        ruleResult.candidates,
+        { relaxCategoryCap: !!(parsed && parsed.strongPreferCats && parsed.strongPreferCats.length) }
+      );
+      if (!finePool.length) { fallback('没有可用的精选候选'); return null; }
+      tracker.track('llm_two_stage_pool', {
+        coarseOk: !!coarseResult,
+        eligibleCount: eligibleTeas.length,
+        fineCount: finePool.length
       });
+      self._loadingBase = 'AI 精选推荐中';
+      self.setData({ loadingText: self._loadingBase });
+      var fineContext = {};
+      Object.keys(context).forEach(function(key) { fineContext[key] = context[key]; });
+      fineContext.fine = true;
+      return llm.callLLM(finePool, fineContext, appData.llm);
+    }).then(function(llmRes) {
+      if (llmRes) self._showLLMResult(llmRes, parsed);
+      else if (llmRes !== null) fallback(llm.getLastError() || 'AI 精选失败');
+      else if (self.data.loading) fallback(llm.getLastError() || 'AI 精选失败');
+    }).catch(function(e) {
+      fallback('两阶段推荐异常', String(e && e.message || e));
+    });
   },
 
   _fallbackRule: function (parsed, appData, history, constitution, avoidDays) {
-    var result = recommend.recommend(appData.teaLibrary || teaData.TEAS, parsed, this._weatherData, history, avoidDays, constitution, appData.temporaryAvoids, appData.llm && appData.llm.noteAnalysisEnabled);
+    var result = recommend.recommend(appData.teaLibrary || teaData.TEAS, parsed, this._weatherData, history, avoidDays, constitution, appData.temporaryAvoids, appData.llm && appData.llm.noteAnalysisEnabled, this._rerollExcludeTeaIds);
     if (result.primary) {
       this._showRuleResult(result, parsed);
     } else {
@@ -558,7 +675,7 @@ Page({
 
     this.setData({
       loading: false, hasResult: true, noResult: false,
-      rec: rec, checkedIn: false, btnText: '今天喝点什么茶'
+      rec: rec, checkedIn: false, btnText: '重新推荐'
     });
     tracker.track('rec_done', { mode: 'rule', ms: Date.now() - (this._recT0 || Date.now()), tea: rec.primary.name });
   },
@@ -618,7 +735,7 @@ Page({
 
     this.setData({
       loading: false, hasResult: true, noResult: false,
-      rec: rec, checkedIn: false, btnText: '今天喝点什么茶'
+      rec: rec, checkedIn: false, btnText: '重新推荐'
     });
     tracker.track('rec_done', { mode: 'ai', ms: Date.now() - (this._recT0 || Date.now()), tea: rec.primary.name });
   },

@@ -103,13 +103,18 @@ function getIdealNature(season, weather, states, constitution, hour, todayNature
  * Filter tea library: remove disabled / today-drunk / avoidCats / quality concern.
  * Returns Tea[] without scoring or sorting.
  */
-function filterEligible(teaLibrary, parsed, history, avoidDays, temporaryAvoids) {
+function filterEligible(teaLibrary, parsed, history, avoidDays, temporaryAvoids, excludedTeaIds) {
   var safeParsed = parsed || {};
   var safeAvoidCats = Array.isArray(safeParsed.avoidCats) ? safeParsed.avoidCats : [];
   var safeHistory = Array.isArray(history) ? history : [];
   var today = _formatDate(new Date());
   var consecutiveBlocked = _getConsecutiveBlockedTeaIds(safeHistory, avoidDays);
   var temporarilyBlocked = _getActiveTemporaryAvoidTeaIds(temporaryAvoids);
+  var rerollBlocked = {};
+  (Array.isArray(excludedTeaIds) ? excludedTeaIds : []).forEach(function(id) {
+    var numericId = Number(id);
+    if (Number.isInteger(numericId)) rerollBlocked[numericId] = true;
+  });
 
   var todayTeaIds = {};
   for (var i = 0; i < safeHistory.length; i++) {
@@ -125,6 +130,7 @@ function filterEligible(teaLibrary, parsed, history, avoidDays, temporaryAvoids)
     if (tea.disabled) continue;
     if (consecutiveBlocked[tea.id]) continue;
     if (temporarilyBlocked[tea.id]) continue;
+    if (rerollBlocked[tea.id]) continue;
     if (todayTeaIds[tea.id]) continue;
     if (safeAvoidCats.indexOf(tea.cat) >= 0) continue;
     if (tea.note && tea.note.indexOf('疑似假货') >= 0) continue;
@@ -146,7 +152,7 @@ function filterEligible(teaLibrary, parsed, history, avoidDays, temporaryAvoids)
  * @param {string|null} constitution
  * @returns {Object} { primary, alt, candidates, filteredCount }
  */
-function recommend(teaLibrary, parsed, weather, history, avoidDays, constitution, temporaryAvoids, noteAnalysisEnabled) {
+function recommend(teaLibrary, parsed, weather, history, avoidDays, constitution, temporaryAvoids, noteAnalysisEnabled, excludedTeaIds) {
   if (!teaLibrary || !teaLibrary.length) {
     return { primary: null, alt: null, candidates: [], filteredCount: 0 };
   }
@@ -173,6 +179,11 @@ function recommend(teaLibrary, parsed, weather, history, avoidDays, constitution
   var consecutiveBlocked = _getConsecutiveBlockedTeaIds(safeHistory, safeAvoidDays);
   var temporarilyBlocked = _getActiveTemporaryAvoidTeaIds(temporaryAvoids);
   var preference = buildPreferenceContext(safeHistory, teaLibrary, noteAnalysisEnabled !== false);
+  var rerollBlocked = {};
+  (Array.isArray(excludedTeaIds) ? excludedTeaIds : []).forEach(function(id) {
+    var numericId = Number(id);
+    if (Number.isInteger(numericId)) rerollBlocked[numericId] = true;
+  });
 
   // Score all eligible teas
   var candidates = [];
@@ -193,6 +204,7 @@ function recommend(teaLibrary, parsed, weather, history, avoidDays, constitution
       recentStats: recentStats,
       consecutiveBlocked: consecutiveBlocked,
       temporarilyBlocked: temporarilyBlocked,
+      rerollBlocked: rerollBlocked,
       preferenceScore: _preferenceScoreForTea(tea, preference)
     });
 
@@ -270,6 +282,13 @@ function _scoreTea(tea, ctx) {
     score -= 80;
     hardFiltered = true;
     avoids.push('暂时不想喝');
+  }
+
+  // --- Hard filter: excluded only for the current re-recommendation ---
+  if (ctx.rerollBlocked && ctx.rerollBlocked[tea.id]) {
+    score -= 80;
+    hardFiltered = true;
+    avoids.push('上一轮已推荐');
   }
 
   // --- Hard filter: today already drunk ---
@@ -656,6 +675,41 @@ function _formatDate(d) {
     ('0' + d.getDate()).slice(-2);
 }
 
+/**
+ * Rebuild the fine-stage pool from coarse LLM choices plus local rule and
+ * insurance candidates. The pool remains a subset of eligibleTeas.
+ */
+function buildTwoStageCandidatePool(eligibleTeas, coarseRows, ruleCandidates, options) {
+  var eligible = Array.isArray(eligibleTeas) ? eligibleTeas.filter(Boolean) : [];
+  if (!eligible.length) return [];
+  var byId = {};
+  eligible.forEach(function(tea) { byId[tea.id] = tea; });
+  var ordered = [];
+  var seen = {};
+  function addTea(tea) {
+    if (!tea || !byId[tea.id] || seen[tea.id]) return;
+    ordered.push(byId[tea.id]); seen[tea.id] = true;
+  }
+  (Array.isArray(coarseRows) ? coarseRows.slice() : []).sort(function(a,b) {
+    return (Number(b && b.score) || 0) - (Number(a && a.score) || 0);
+  }).forEach(function(row) { addTea(row && row.tea); });
+  (Array.isArray(ruleCandidates) ? ruleCandidates : []).forEach(function(row) { addTea(row && (row.tea || row)); });
+  eligible.forEach(addTea);
+
+  var opts = options || {};
+  var target = Math.min(18, eligible.length);
+  if (eligible.length >= 12) target = Math.max(12, target);
+  var cap = Math.max(1, Math.floor(target * 0.4));
+  var result = [], counts = {}, deferred = [];
+  ordered.forEach(function(tea) {
+    if (result.length >= target) return;
+    var cat = tea.cat || 'unknown';
+    if ((counts[cat] || 0) >= cap && !opts.relaxCategoryCap) { deferred.push(tea); return; }
+    result.push(tea); counts[cat] = (counts[cat] || 0) + 1;
+  });
+  deferred.forEach(function(tea) { if (result.length < target) result.push(tea); });
+  return result;
+}
 // ============================================================
 // Exports
 // ============================================================
@@ -669,5 +723,6 @@ module.exports = {
   getActiveTemporaryAvoidTeaIds: _getActiveTemporaryAvoidTeaIds,
   buildPreferenceContext: buildPreferenceContext,
   preferenceScoreForTea: _preferenceScoreForTea,
+  buildTwoStageCandidatePool: buildTwoStageCandidatePool,
   adjustNature: teaData.adjustNature
 };

@@ -131,6 +131,11 @@ async function run() {
   assert.strictEqual(stored.profile.city, '服务端新档案', 'persisted profile must match merged snapshot');
 
   var defaults = clientData.getDefaultData();
+  assert.strictEqual(defaults.llm.twoStageRecommendationEnabled, false, 'two-stage recommendation experiment must default to off');
+  var llmCloud = baseData(cloudLibrary, 0);
+  var llmLocal = baseData(localLibrary, 0);
+  llmCloud.llm.twoStageRecommendationEnabled = true;
+  assert.strictEqual(cloudMerge.mergeData(llmCloud, llmLocal).llm.twoStageRecommendationEnabled, true, 'cloud sync merge must preserve an explicitly enabled two-stage flag');
   rawLocal = defaults;
   var loadedDefaults = clientData.load();
   assert.strictEqual(loadedDefaults.profileUpdatedAt, 0, 'untouched profile must not claim a local edit');

@@ -1,0 +1,884 @@
+{
+  "schemaVersion": 2,
+  "documentation": "docs/tea-knowledge-field-guide.md",
+  "purpose": "sample",
+  "catalogVersion": "sample-v1",
+  "generatedAt": 1785427200000,
+  "expectedTeaCount": 89,
+  "withheldTeaIds": [],
+  "batches": [
+    {
+      "batchId": "codex-conservative-draft-v1",
+      "model": "codex-initial-draft",
+      "teaIds": [
+        14,
+        35,
+        51
+      ]
+    }
+  ],
+  "teas": [
+    {
+      "teaId": 14,
+      "profileVersion": 1,
+      "lifecycle": "sample",
+      "research": {
+        "completeness": 0.2857,
+        "conflicts": [],
+        "notes": [
+          "故意保留产地、香气、滋味、体感和冲泡参数等未知字段，供后续联网补全。"
+        ]
+      },
+      "identity": {
+        "displayName": {
+          "value": "紧压寿眉·马饼",
+          "status": "confirmed",
+          "sourceType": "user",
+          "confidence": 1,
+          "updatedAt": 1785427200000,
+          "evidence": "用户确认的茶库名称"
+        },
+        "brand": {
+          "value": "品品香",
+          "status": "confirmed",
+          "sourceType": "user",
+          "confidence": 1,
+          "updatedAt": 1785427200000,
+          "evidence": "用户现有茶库记录"
+        },
+        "category": {
+          "value": "white",
+          "status": "confirmed",
+          "sourceType": "user",
+          "confidence": 1,
+          "updatedAt": 1785427200000,
+          "evidence": "用户现有茶库分类"
+        },
+        "year": {
+          "value": 2024,
+          "status": "confirmed",
+          "sourceType": "user",
+          "confidence": 1,
+          "updatedAt": 1785427200000,
+          "evidence": "用户现有茶库年份"
+        },
+        "productCode": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785427200000
+        },
+        "packagingVariant": {
+          "value": "马饼",
+          "status": "confirmed",
+          "sourceType": "user",
+          "confidence": 1,
+          "updatedAt": 1785427200000,
+          "evidence": "用户确认“品品香马饼”是寿眉，旧名称中的白牡丹为误写"
+        },
+        "form": {
+          "value": "紧压饼茶",
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.9,
+          "updatedAt": 1785427200000,
+          "evidence": "由“马饼”和用户确认的寿眉判断，仅作为待查证初稿"
+        }
+      },
+      "origin": {
+        "region": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785427200000
+        },
+        "cultivar": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785427200000
+        },
+        "materialGrade": {
+          "value": "寿眉",
+          "status": "confirmed",
+          "sourceType": "user",
+          "confidence": 1,
+          "updatedAt": 1785427200000,
+          "evidence": "用户明确纠正为寿眉"
+        },
+        "harvestSeason": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785427200000
+        }
+      },
+      "craft": {
+        "processTags": {
+          "value": [
+            "萎凋",
+            "干燥",
+            "紧压"
+          ],
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.55,
+          "updatedAt": 1785427200000,
+          "evidence": "白茶紧压饼的类别默认工艺，尚未核实该批次产品资料"
+        },
+        "roastLevel": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785427200000
+        },
+        "compression": {
+          "value": "tight",
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.75,
+          "updatedAt": 1785427200000,
+          "evidence": "由紧压饼茶形态推测，尚未实测"
+        },
+        "agingState": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785427200000
+        }
+      },
+      "sensory": {
+        "aromaTags": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785427200000
+        },
+        "flavorTags": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785427200000
+        },
+        "aromaIntensity": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785427200000
+        },
+        "sweetness": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785427200000
+        },
+        "bitterness": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785427200000
+        },
+        "astringency": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785427200000
+        },
+        "body": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785427200000
+        },
+        "smoothness": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785427200000
+        },
+        "aftertaste": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785427200000
+        },
+        "durability": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785427200000
+        }
+      },
+      "effects": {
+        "stimulation": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785427200000
+        },
+        "emptyStomachFriendliness": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785427200000
+        },
+        "sleepImpact": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785427200000
+        }
+      },
+      "context": {
+        "bestSeasons": {
+          "value": [
+            "春",
+            "夏",
+            "秋"
+          ],
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.6,
+          "updatedAt": 1785427200000,
+          "evidence": "沿用当前茶库白茶类别默认季节"
+        },
+        "bestTimes": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785427200000
+        }
+      },
+      "brew": {
+        "vessels": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785427200000
+        },
+        "waterTempC": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785427200000
+        },
+        "gramsPer100ml": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785427200000
+        },
+        "firstSteepSeconds": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785427200000
+        },
+        "difficulty": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785427200000
+        }
+      }
+    },
+    {
+      "teaId": 35,
+      "profileVersion": 1,
+      "lifecycle": "sample",
+      "research": {
+        "completeness": 0.3429,
+        "conflicts": [],
+        "notes": [
+          "AT102 与 AT102A 必须作为两个 teaId 分别检索，禁止按名称相似自动合并。"
+        ]
+      },
+      "identity": {
+        "displayName": {
+          "value": "黄罐老枞水仙（足火）",
+          "status": "confirmed",
+          "sourceType": "user",
+          "confidence": 1,
+          "updatedAt": 1785427200000,
+          "evidence": "用户确认的茶库名称"
+        },
+        "brand": {
+          "value": "海堤",
+          "status": "confirmed",
+          "sourceType": "user",
+          "confidence": 1,
+          "updatedAt": 1785427200000,
+          "evidence": "用户现有茶库记录"
+        },
+        "category": {
+          "value": "oolong_wuyi",
+          "status": "confirmed",
+          "sourceType": "user",
+          "confidence": 1,
+          "updatedAt": 1785427200000,
+          "evidence": "用户现有茶库分类"
+        },
+        "year": {
+          "value": 2020,
+          "status": "confirmed",
+          "sourceType": "user",
+          "confidence": 1,
+          "updatedAt": 1785427200000,
+          "evidence": "用户现有茶库年份"
+        },
+        "productCode": {
+          "value": "AT102",
+          "status": "confirmed",
+          "sourceType": "user",
+          "confidence": 1,
+          "updatedAt": 1785427200000,
+          "evidence": "用户确认旧黄罐老枞水仙对应 AT102；AT102A 是库内另一款新黄罐"
+        },
+        "packagingVariant": {
+          "value": "旧黄罐",
+          "status": "confirmed",
+          "sourceType": "user",
+          "confidence": 1,
+          "updatedAt": 1785427200000,
+          "evidence": "用户用旧黄罐与新黄罐区分两款产品"
+        },
+        "form": {
+          "value": "罐装散茶",
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.8,
+          "updatedAt": 1785427200000,
+          "evidence": "由黄罐产品名称推测，包装净重和规格仍需查证"
+        }
+      },
+      "origin": {
+        "region": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785427200000
+        },
+        "cultivar": {
+          "value": "水仙",
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.95,
+          "updatedAt": 1785427200000,
+          "evidence": "产品名称直接包含水仙，但仍需以包装或官方资料确认品种描述"
+        },
+        "materialGrade": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785427200000
+        },
+        "harvestSeason": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785427200000
+        }
+      },
+      "craft": {
+        "processTags": {
+          "value": [
+            "足火烘焙"
+          ],
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.95,
+          "updatedAt": 1785427200000,
+          "evidence": "产品名称明确标注足火"
+        },
+        "roastLevel": {
+          "value": "high",
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.9,
+          "updatedAt": 1785427200000,
+          "evidence": "将名称中的足火映射为标准化高焙火等级"
+        },
+        "compression": {
+          "value": "loose",
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.8,
+          "updatedAt": 1785427200000,
+          "evidence": "罐装岩茶通常为散茶，仍需实物或商品资料确认"
+        },
+        "agingState": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785427200000
+        }
+      },
+      "sensory": {
+        "aromaTags": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785427200000
+        },
+        "flavorTags": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785427200000
+        },
+        "aromaIntensity": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785427200000
+        },
+        "sweetness": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785427200000
+        },
+        "bitterness": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785427200000
+        },
+        "astringency": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785427200000
+        },
+        "body": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785427200000
+        },
+        "smoothness": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785427200000
+        },
+        "aftertaste": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785427200000
+        },
+        "durability": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785427200000
+        }
+      },
+      "effects": {
+        "stimulation": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785427200000
+        },
+        "emptyStomachFriendliness": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785427200000
+        },
+        "sleepImpact": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785427200000
+        }
+      },
+      "context": {
+        "bestSeasons": {
+          "value": [
+            "秋",
+            "冬"
+          ],
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.6,
+          "updatedAt": 1785427200000,
+          "evidence": "沿用当前茶库武夷岩茶类别默认季节"
+        },
+        "bestTimes": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785427200000
+        }
+      },
+      "brew": {
+        "vessels": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785427200000
+        },
+        "waterTempC": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785427200000
+        },
+        "gramsPer100ml": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785427200000
+        },
+        "firstSteepSeconds": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785427200000
+        },
+        "difficulty": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785427200000
+        }
+      }
+    },
+    {
+      "teaId": 51,
+      "profileVersion": 1,
+      "lifecycle": "sample",
+      "research": {
+        "completeness": 0.2571,
+        "conflicts": [],
+        "notes": [
+          "名称只能支持茶区级初步判断，不应据此补写山头、树龄或古树等级。"
+        ]
+      },
+      "identity": {
+        "displayName": {
+          "value": "易武正山饼茶",
+          "status": "confirmed",
+          "sourceType": "user",
+          "confidence": 1,
+          "updatedAt": 1785427200000,
+          "evidence": "用户确认的茶库名称"
+        },
+        "brand": {
+          "value": "八角亭",
+          "status": "confirmed",
+          "sourceType": "user",
+          "confidence": 1,
+          "updatedAt": 1785427200000,
+          "evidence": "用户现有茶库记录"
+        },
+        "category": {
+          "value": "puerh_raw",
+          "status": "confirmed",
+          "sourceType": "user",
+          "confidence": 1,
+          "updatedAt": 1785427200000,
+          "evidence": "用户现有茶库分类"
+        },
+        "year": {
+          "value": 2023,
+          "status": "confirmed",
+          "sourceType": "user",
+          "confidence": 1,
+          "updatedAt": 1785427200000,
+          "evidence": "用户现有茶库年份"
+        },
+        "productCode": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785427200000
+        },
+        "packagingVariant": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785427200000
+        },
+        "form": {
+          "value": "紧压饼茶",
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.95,
+          "updatedAt": 1785427200000,
+          "evidence": "产品名称直接包含饼茶"
+        }
+      },
+      "origin": {
+        "region": {
+          "value": "易武茶区",
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.8,
+          "updatedAt": 1785427200000,
+          "evidence": "由产品名称中的易武正山推测，具体山头与原料范围待查证"
+        },
+        "cultivar": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785427200000
+        },
+        "materialGrade": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785427200000
+        },
+        "harvestSeason": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785427200000
+        }
+      },
+      "craft": {
+        "processTags": {
+          "value": [
+            "晒青",
+            "蒸压"
+          ],
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.55,
+          "updatedAt": 1785427200000,
+          "evidence": "普洱生茶饼的类别默认工艺，尚未核实产品批次资料"
+        },
+        "roastLevel": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785427200000
+        },
+        "compression": {
+          "value": "tight",
+          "status": "inferred",
+          "sourceType": "llm",
+          "confidence": 0.8,
+          "updatedAt": 1785427200000,
+          "evidence": "由饼茶形态推测，尚未实测紧压程度"
+        },
+        "agingState": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785427200000
+        }
+      },
+      "sensory": {
+        "aromaTags": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785427200000
+        },
+        "flavorTags": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785427200000
+        },
+        "aromaIntensity": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785427200000
+        },
+        "sweetness": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785427200000
+        },
+        "bitterness": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785427200000
+        },
+        "astringency": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785427200000
+        },
+        "body": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785427200000
+        },
+        "smoothness": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785427200000
+        },
+        "aftertaste": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785427200000
+        },
+        "durability": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785427200000
+        }
+      },
+      "effects": {
+        "stimulation": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785427200000
+        },
+        "emptyStomachFriendliness": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785427200000
+        },
+        "sleepImpact": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785427200000
+        }
+      },
+      "context": {
+        "bestSeasons": {
+          "value": [
+            "夏"
+          ],
+          "status": "inherited",
+          "sourceType": "category_default",
+          "confidence": 0.6,
+          "updatedAt": 1785427200000,
+          "evidence": "沿用当前茶库普洱生茶类别默认季节"
+        },
+        "bestTimes": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785427200000
+        }
+      },
+      "brew": {
+        "vessels": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785427200000
+        },
+        "waterTempC": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785427200000
+        },
+        "gramsPer100ml": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785427200000
+        },
+        "firstSteepSeconds": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785427200000
+        },
+        "difficulty": {
+          "value": null,
+          "status": "unknown",
+          "sourceType": "unknown",
+          "confidence": 0,
+          "updatedAt": 1785427200000
+        }
+      }
+    }
+  ]
+}

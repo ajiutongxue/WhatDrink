@@ -1,0 +1,367 @@
+{
+  "schemaVersion": 2,
+  "purpose": "research_batch_input",
+  "generatedAt": 1785855870261,
+  "expectedTeaCount": 89,
+  "withheldTeaIds": [
+    0,
+    25,
+    68
+  ],
+  "batchId": "research-02",
+  "teaIds": [
+    21,
+    22,
+    23,
+    24,
+    26,
+    27,
+    28,
+    29,
+    30,
+    31,
+    32,
+    33,
+    34,
+    35,
+    36,
+    37,
+    38,
+    39,
+    40,
+    41
+  ],
+  "teas": [
+    {
+      "teaId": 21,
+      "currentIdentity": {
+        "displayName": "紧压寿眉·金六条",
+        "brand": "绿雪芽",
+        "category": "white",
+        "year": 2019
+      },
+      "confirmedClarifications": [],
+      "confirmedPackageLinks": []
+    },
+    {
+      "teaId": 22,
+      "currentIdentity": {
+        "displayName": "寿眉散茶",
+        "brand": "六妙",
+        "category": "white",
+        "year": 2022
+      },
+      "confirmedClarifications": [],
+      "confirmedPackageLinks": [
+        {
+          "productCode": "522",
+          "packageType": "unknown",
+          "status": "unknown",
+          "note": "用户在第二批补充文档中确认货号 522。",
+          "confirmedBy": "user"
+        }
+      ]
+    },
+    {
+      "teaId": 23,
+      "currentIdentity": {
+        "displayName": "鸭屎香",
+        "brand": "南馥",
+        "category": "oolong_dancong",
+        "year": 2025
+      },
+      "confirmedClarifications": [],
+      "confirmedPackageLinks": []
+    },
+    {
+      "teaId": 24,
+      "currentIdentity": {
+        "displayName": "鸭屎香",
+        "brand": "八马",
+        "category": "oolong_dancong",
+        "year": 2023
+      },
+      "confirmedClarifications": [],
+      "confirmedPackageLinks": [
+        {
+          "url": "https://item.jd.com/100041815235.html",
+          "year": 2023,
+          "packageType": "unknown",
+          "status": "unknown",
+          "note": "用户在第二批补充文档中确认当前八马鸭屎香年份为 2023。",
+          "confirmedBy": "user"
+        }
+      ]
+    },
+    {
+      "teaId": 26,
+      "currentIdentity": {
+        "displayName": "赛珍珠1000浓香铁观音",
+        "brand": "八马",
+        "category": "oolong_tieguanyin",
+        "year": 2025
+      },
+      "confirmedClarifications": [],
+      "confirmedPackageLinks": [
+        {
+          "packageType": "sample",
+          "status": "unknown",
+          "netWeightPerUnit": 25,
+          "productNameOverride": "赛珍珠1000浓香铁观音",
+          "note": "用户确认手头规格是正装内的一盒品鉴装；“轻享版”属于这份包装，不是茶叶产品版本。",
+          "confirmedBy": "user"
+        }
+      ]
+    },
+    {
+      "teaId": 27,
+      "currentIdentity": {
+        "displayName": "清香铁观音·秋茶",
+        "brand": "凤山",
+        "category": "oolong_tieguanyin",
+        "year": 2024
+      },
+      "confirmedClarifications": [],
+      "confirmedPackageLinks": [
+        {
+          "url": "https://item.taobao.com/item.htm?id=563277476150",
+          "packageType": "unknown",
+          "status": "unknown",
+          "confirmedBy": "user"
+        }
+      ]
+    },
+    {
+      "teaId": 28,
+      "currentIdentity": {
+        "displayName": "肉桂（中火）",
+        "brand": "虎标",
+        "category": "oolong_wuyi",
+        "year": 2023
+      },
+      "confirmedClarifications": [],
+      "confirmedPackageLinks": [
+        {
+          "url": "https://detail.tmall.com/item.htm?id=652829709728",
+          "packageType": "unknown",
+          "status": "unknown",
+          "confirmedBy": "user"
+        }
+      ]
+    },
+    {
+      "teaId": 29,
+      "currentIdentity": {
+        "displayName": "大红袍（中火）",
+        "brand": "虎标",
+        "category": "oolong_wuyi",
+        "year": 2022
+      },
+      "confirmedClarifications": [],
+      "confirmedPackageLinks": [
+        {
+          "url": "https://detail.tmall.com/item.htm?id=733048763165",
+          "packageType": "unknown",
+          "status": "unknown",
+          "confirmedBy": "user"
+        }
+      ]
+    },
+    {
+      "teaId": 30,
+      "currentIdentity": {
+        "displayName": "黄条大红袍（足火）",
+        "brand": "武夷星",
+        "category": "oolong_wuyi",
+        "year": 2022
+      },
+      "confirmedClarifications": [],
+      "confirmedPackageLinks": []
+    },
+    {
+      "teaId": 31,
+      "currentIdentity": {
+        "displayName": "山语系列·铁罗汉（中火）",
+        "brand": "武夷星",
+        "category": "oolong_wuyi",
+        "year": null
+      },
+      "confirmedClarifications": [],
+      "confirmedPackageLinks": [
+        {
+          "url": "https://item.jd.com/10347921474.html",
+          "packagingVariant": "山语系列",
+          "roastLevel": "medium",
+          "packageType": "unknown",
+          "status": "unknown",
+          "note": "用户在第二批补充文档中更正为山语系列铁罗汉（中火）。",
+          "confirmedBy": "user"
+        }
+      ]
+    },
+    {
+      "teaId": 32,
+      "currentIdentity": {
+        "displayName": "铁罗汉（足火）",
+        "brand": "海堤",
+        "category": "oolong_wuyi",
+        "year": 2022
+      },
+      "confirmedClarifications": [],
+      "confirmedPackageLinks": [
+        {
+          "productCode": "AT106",
+          "packageType": "unknown",
+          "status": "unknown",
+          "note": "用户在第二批补充文档中确认货号 AT106。",
+          "confirmedBy": "user"
+        }
+      ]
+    },
+    {
+      "teaId": 33,
+      "currentIdentity": {
+        "displayName": "喜上眉梢·水晶龟（足火）",
+        "brand": "海堤",
+        "category": "oolong_wuyi",
+        "year": 2021
+      },
+      "confirmedClarifications": [],
+      "confirmedPackageLinks": [
+        {
+          "url": "https://item.jd.com/47303383698.html",
+          "productCode": "AT665",
+          "packagingVariant": "喜上眉梢",
+          "packageType": "unknown",
+          "status": "unknown",
+          "note": "用户在第二批补充文档中确认喜上眉梢系列与货号 AT665。",
+          "confirmedBy": "user"
+        }
+      ]
+    },
+    {
+      "teaId": 34,
+      "currentIdentity": {
+        "displayName": "新黄罐老枞水仙（足火）",
+        "brand": "海堤",
+        "category": "oolong_wuyi",
+        "year": 2021
+      },
+      "confirmedClarifications": [
+        "产品型号已由用户确认为 AT102A。",
+        "这是新黄罐，不得引用 AT102 旧黄罐资料。"
+      ],
+      "confirmedPackageLinks": []
+    },
+    {
+      "teaId": 35,
+      "currentIdentity": {
+        "displayName": "黄罐老枞水仙（足火）",
+        "brand": "海堤",
+        "category": "oolong_wuyi",
+        "year": 2020
+      },
+      "confirmedClarifications": [
+        "产品型号已由用户确认为 AT102。",
+        "这是旧黄罐，不得引用 AT102A 新黄罐资料。"
+      ],
+      "confirmedPackageLinks": []
+    },
+    {
+      "teaId": 36,
+      "currentIdentity": {
+        "displayName": "红罐大红袍（足火）",
+        "brand": "海堤",
+        "category": "oolong_wuyi",
+        "year": 2020
+      },
+      "confirmedClarifications": [],
+      "confirmedPackageLinks": [
+        {
+          "productCode": "AT103",
+          "packageType": "unknown",
+          "status": "unknown",
+          "note": "用户在第二批补充文档中确认 2020 红罐大红袍货号为 AT103。",
+          "confirmedBy": "user"
+        }
+      ]
+    },
+    {
+      "teaId": 37,
+      "currentIdentity": {
+        "displayName": "小黄罐老枞水仙（中足火）",
+        "brand": "海堤",
+        "category": "oolong_wuyi",
+        "year": 2023
+      },
+      "confirmedClarifications": [],
+      "confirmedPackageLinks": []
+    },
+    {
+      "teaId": 38,
+      "currentIdentity": {
+        "displayName": "乐享肉桂（中火）",
+        "brand": "海堤",
+        "category": "oolong_wuyi",
+        "year": 2022
+      },
+      "confirmedClarifications": [],
+      "confirmedPackageLinks": [
+        {
+          "productCode": "XT5131",
+          "packagingVariant": "乐享系列",
+          "packageType": "unknown",
+          "status": "unknown",
+          "note": "用户在第二批补充文档中更正为乐享系列肉桂，货号 XT5131。",
+          "confirmedBy": "user"
+        }
+      ]
+    },
+    {
+      "teaId": 39,
+      "currentIdentity": {
+        "displayName": "单枞奇种（足火）",
+        "brand": "海堤",
+        "category": "oolong_wuyi",
+        "year": 2021
+      },
+      "confirmedClarifications": [],
+      "confirmedPackageLinks": []
+    },
+    {
+      "teaId": 40,
+      "currentIdentity": {
+        "displayName": "岩值水仙（中足火）·岩值3000特级",
+        "brand": "孝文家",
+        "category": "oolong_wuyi",
+        "year": 2026
+      },
+      "confirmedClarifications": [],
+      "confirmedPackageLinks": [
+        {
+          "url": "https://item.jd.com/10217699548803.html",
+          "packageType": "unknown",
+          "status": "unknown",
+          "confirmedBy": "user"
+        }
+      ]
+    },
+    {
+      "teaId": 41,
+      "currentIdentity": {
+        "displayName": "岩值肉桂（中足火）·岩值2000一级",
+        "brand": "孝文家",
+        "category": "oolong_wuyi",
+        "year": 2025
+      },
+      "confirmedClarifications": [],
+      "confirmedPackageLinks": []
+    }
+  ],
+  "sharedFiles": [
+    "docs/tea-knowledge-batch-rules.md",
+    "data/tea-knowledge.contract.json",
+    "data/tea-knowledge.samples.json"
+  ],
+  "outputRequirement": "每个批次单独输出一个符合契约的 JSON 目录，不要输出 Markdown 代码围栏。"
+}

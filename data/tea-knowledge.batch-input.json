@@ -1,0 +1,1354 @@
+{
+  "schemaVersion": 2,
+  "purpose": "research_input",
+  "generatedAt": 1785855870261,
+  "expectedTeaCount": 89,
+  "researchTeaCount": 86,
+  "withheldTeaIds": [
+    0,
+    25,
+    68
+  ],
+  "contractFile": "data/tea-knowledge.contract.json",
+  "sampleFile": "data/tea-knowledge.samples.json",
+  "instructionFile": "docs/tea-knowledge-batch-rules.md",
+  "outputRequirement": "每个批次单独输出一个符合契约的 JSON 目录，不要输出 Markdown 代码围栏。",
+  "batches": [
+    {
+      "batchId": "research-01",
+      "teaIds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20
+      ],
+      "teas": [
+        {
+          "teaId": 1,
+          "currentIdentity": {
+            "displayName": "峨眉山甘露",
+            "brand": "竹叶青",
+            "category": "green",
+            "year": 2025
+          },
+          "confirmedClarifications": [],
+          "confirmedPackageLinks": [
+            {
+              "sku": "10202268306875",
+              "url": "https://item.jd.com/10202268306875.html",
+              "packageType": "unknown",
+              "status": "opened",
+              "confirmedBy": "user"
+            }
+          ]
+        },
+        {
+          "teaId": 2,
+          "currentIdentity": {
+            "displayName": "竹叶青",
+            "brand": "竹叶青",
+            "category": "green",
+            "year": 2023
+          },
+          "confirmedClarifications": [],
+          "confirmedPackageLinks": [
+            {
+              "sku": "42194246639",
+              "url": "https://item.jd.com/42194246639.html",
+              "packageType": "unknown",
+              "status": "opened",
+              "confirmedBy": "user"
+            }
+          ]
+        },
+        {
+          "teaId": 3,
+          "currentIdentity": {
+            "displayName": "龙井",
+            "brand": "狮峰",
+            "category": "green",
+            "year": 2025
+          },
+          "confirmedClarifications": [],
+          "confirmedPackageLinks": [
+            {
+              "sku": "100033334821",
+              "url": "https://item.jd.com/100033334821.html",
+              "packageType": "sample",
+              "status": "unknown",
+              "confirmedBy": "user"
+            }
+          ]
+        },
+        {
+          "teaId": 4,
+          "currentIdentity": {
+            "displayName": "滇红金芽",
+            "brand": "小厂茶",
+            "category": "black",
+            "year": 2024
+          },
+          "confirmedClarifications": [],
+          "confirmedPackageLinks": []
+        },
+        {
+          "teaId": 5,
+          "currentIdentity": {
+            "displayName": "祁门红茶·1985",
+            "brand": "天之红",
+            "category": "black",
+            "year": 2025
+          },
+          "confirmedClarifications": [],
+          "confirmedPackageLinks": [
+            {
+              "url": "https://mobile.yangkeduo.com/goods1.html?ps=tIBEtvADzV",
+              "packageType": "retail",
+              "status": "opened",
+              "productNameOverride": "祁门红茶·1985",
+              "confirmedBy": "user"
+            }
+          ]
+        },
+        {
+          "teaId": 6,
+          "currentIdentity": {
+            "displayName": "正山小种金妃眉",
+            "brand": "山尔堂",
+            "category": "black",
+            "year": 2025
+          },
+          "confirmedClarifications": [],
+          "confirmedPackageLinks": [
+            {
+              "sku": "100101275669",
+              "url": "https://item.jd.com/100101275669.html",
+              "packageType": "retail",
+              "status": "sealed",
+              "netWeightPerUnit": 50,
+              "confirmedBy": "user"
+            }
+          ]
+        },
+        {
+          "teaId": 7,
+          "currentIdentity": {
+            "displayName": "银骏眉",
+            "brand": "山尔堂",
+            "category": "black",
+            "year": 2025
+          },
+          "confirmedClarifications": [],
+          "confirmedPackageLinks": [
+            {
+              "sku": "31249152778",
+              "url": "https://item.jd.com/31249152778.html",
+              "packageType": "sample",
+              "status": "unknown",
+              "confirmedBy": "user"
+            }
+          ]
+        },
+        {
+          "teaId": 8,
+          "currentIdentity": {
+            "displayName": "金骏眉·岁藏",
+            "brand": "山尔堂",
+            "category": "black",
+            "year": 2025
+          },
+          "confirmedClarifications": [],
+          "confirmedPackageLinks": [
+            {
+              "sku": "10170266090042",
+              "url": "https://item.jd.com/10170266090042.html",
+              "packageType": "sample",
+              "status": "unknown",
+              "confirmedBy": "user"
+            }
+          ]
+        },
+        {
+          "teaId": 9,
+          "currentIdentity": {
+            "displayName": "金骏眉·静享",
+            "brand": "山尔堂",
+            "category": "black",
+            "year": 2025
+          },
+          "confirmedClarifications": [],
+          "confirmedPackageLinks": [
+            {
+              "packageType": "sample",
+              "status": "unknown",
+              "note": "用户确认是品鉴装，当前网上已找不到商品链接",
+              "confirmedBy": "user"
+            }
+          ]
+        },
+        {
+          "teaId": 10,
+          "currentIdentity": {
+            "displayName": "银骏眉·七彩祥云",
+            "brand": "山尔堂",
+            "category": "black",
+            "year": 2025
+          },
+          "confirmedClarifications": [],
+          "confirmedPackageLinks": [
+            {
+              "packageType": "sample",
+              "status": "unknown",
+              "note": "用户确认是品鉴装，当前网上已找不到商品链接",
+              "confirmedBy": "user"
+            }
+          ]
+        },
+        {
+          "teaId": 11,
+          "currentIdentity": {
+            "displayName": "紧压寿眉·晒白金",
+            "brand": "品品香",
+            "category": "white",
+            "year": 2020
+          },
+          "confirmedClarifications": [],
+          "confirmedPackageLinks": [
+            {
+              "sku": "10107529366433",
+              "url": "https://item.jd.com/10107529366433.html",
+              "packageType": "sample",
+              "status": "unknown",
+              "quantity": 4,
+              "netWeightPerUnit": 20,
+              "confirmedBy": "user"
+            }
+          ]
+        },
+        {
+          "teaId": 12,
+          "currentIdentity": {
+            "displayName": "紧压寿眉·晒白金",
+            "brand": "品品香",
+            "category": "white",
+            "year": 2022
+          },
+          "confirmedClarifications": [],
+          "confirmedPackageLinks": [
+            {
+              "sku": "10221654279529",
+              "url": "https://item.jd.com/10221654279529.html",
+              "packageType": "sample",
+              "status": "unknown",
+              "quantityNote": "20+盒",
+              "netWeightPerUnit": 20,
+              "confirmedBy": "user"
+            }
+          ]
+        },
+        {
+          "teaId": 13,
+          "currentIdentity": {
+            "displayName": "紧压寿眉·晒白金",
+            "brand": "品品香",
+            "category": "white",
+            "year": 2023
+          },
+          "confirmedClarifications": [],
+          "confirmedPackageLinks": [
+            {
+              "sku": "652059313019",
+              "url": "https://detail.tmall.com/item.htm?id=652059313019",
+              "packageType": "sample",
+              "status": "unknown",
+              "quantityNote": "10+盒",
+              "confirmedBy": "user"
+            }
+          ]
+        },
+        {
+          "teaId": 14,
+          "currentIdentity": {
+            "displayName": "紧压寿眉·马饼",
+            "brand": "品品香",
+            "category": "white",
+            "year": 2024
+          },
+          "confirmedClarifications": [
+            "原料等级已由用户确认为寿眉，不是白牡丹。",
+            "规范名称为紧压寿眉·马饼。"
+          ],
+          "confirmedPackageLinks": [
+            {
+              "sku": "742835726489",
+              "url": "https://detail.tmall.com/item.htm?id=742835726489",
+              "packageType": "unknown",
+              "status": "opened",
+              "confirmedBy": "user"
+            }
+          ]
+        },
+        {
+          "teaId": 15,
+          "currentIdentity": {
+            "displayName": "寿眉散茶·诗经风雅颂",
+            "brand": "绿雪芽",
+            "category": "white",
+            "year": 2025
+          },
+          "confirmedClarifications": [],
+          "confirmedPackageLinks": [
+            {
+              "sku": "100327546502",
+              "url": "https://item.jd.com/100327546502.html",
+              "packageType": "sample",
+              "status": "unknown",
+              "netWeightPerUnit": 5,
+              "confirmedBy": "user"
+            }
+          ]
+        },
+        {
+          "teaId": 16,
+          "currentIdentity": {
+            "displayName": "白牡丹散茶·诗经风雅颂",
+            "brand": "绿雪芽",
+            "category": "white",
+            "year": 2025
+          },
+          "confirmedClarifications": [],
+          "confirmedPackageLinks": [
+            {
+              "sku": "100327585866",
+              "url": "https://item.jd.com/100327585866.html",
+              "packageType": "sample",
+              "status": "unknown",
+              "confirmedBy": "user"
+            }
+          ]
+        },
+        {
+          "teaId": 17,
+          "currentIdentity": {
+            "displayName": "紧压寿眉小圆片·369",
+            "brand": "绿雪芽",
+            "category": "white",
+            "year": null
+          },
+          "confirmedClarifications": [],
+          "confirmedPackageLinks": [
+            {
+              "sku": "100233959739",
+              "url": "https://item.jd.com/100233959739.html",
+              "packageType": "unknown",
+              "status": "unknown",
+              "confirmedBy": "user"
+            }
+          ]
+        },
+        {
+          "teaId": 18,
+          "currentIdentity": {
+            "displayName": "白牡丹散茶",
+            "brand": "虎标",
+            "category": "white",
+            "year": 2024
+          },
+          "confirmedClarifications": [],
+          "confirmedPackageLinks": [
+            {
+              "sku": "1070897446954",
+              "url": "https://item.taobao.com/item.htm?id=1070897446954",
+              "packageType": "unknown",
+              "status": "opened",
+              "note": "用户确认这是已停产的虎标 2024 白牡丹散茶，目前仅能在三方店看到",
+              "confirmedBy": "user"
+            }
+          ]
+        },
+        {
+          "teaId": 19,
+          "currentIdentity": {
+            "displayName": "寿眉饼茶",
+            "brand": "虎标",
+            "category": "white",
+            "year": 2018
+          },
+          "confirmedClarifications": [],
+          "confirmedPackageLinks": [
+            {
+              "sku": "10034133776579",
+              "url": "https://item.jd.com/10034133776579.html",
+              "packageType": "unknown",
+              "status": "opened",
+              "confirmedBy": "user"
+            }
+          ]
+        },
+        {
+          "teaId": 20,
+          "currentIdentity": {
+            "displayName": "陈韵寿眉",
+            "brand": "虎标",
+            "category": "white",
+            "year": 2018
+          },
+          "confirmedClarifications": [],
+          "confirmedPackageLinks": [
+            {
+              "sku": "663676941882",
+              "url": "https://detail.tmall.com/item.htm?id=663676941882",
+              "packageType": "retail",
+              "status": "opened",
+              "netWeightPerUnit": 120,
+              "productNameOverride": "陈韵寿眉",
+              "note": "商品页和包装图确认是太姥山老寿眉、枣香紧压白茶、120g 铁盒装，内含 5g×24",
+              "confirmedBy": "user"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "batchId": "research-02",
+      "teaIds": [
+        21,
+        22,
+        23,
+        24,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39,
+        40,
+        41
+      ],
+      "teas": [
+        {
+          "teaId": 21,
+          "currentIdentity": {
+            "displayName": "紧压寿眉·金六条",
+            "brand": "绿雪芽",
+            "category": "white",
+            "year": 2019
+          },
+          "confirmedClarifications": [],
+          "confirmedPackageLinks": []
+        },
+        {
+          "teaId": 22,
+          "currentIdentity": {
+            "displayName": "寿眉散茶",
+            "brand": "六妙",
+            "category": "white",
+            "year": 2022
+          },
+          "confirmedClarifications": [],
+          "confirmedPackageLinks": [
+            {
+              "productCode": "522",
+              "packageType": "unknown",
+              "status": "unknown",
+              "note": "用户在第二批补充文档中确认货号 522。",
+              "confirmedBy": "user"
+            }
+          ]
+        },
+        {
+          "teaId": 23,
+          "currentIdentity": {
+            "displayName": "鸭屎香",
+            "brand": "南馥",
+            "category": "oolong_dancong",
+            "year": 2025
+          },
+          "confirmedClarifications": [],
+          "confirmedPackageLinks": []
+        },
+        {
+          "teaId": 24,
+          "currentIdentity": {
+            "displayName": "鸭屎香",
+            "brand": "八马",
+            "category": "oolong_dancong",
+            "year": 2023
+          },
+          "confirmedClarifications": [],
+          "confirmedPackageLinks": [
+            {
+              "url": "https://item.jd.com/100041815235.html",
+              "year": 2023,
+              "packageType": "unknown",
+              "status": "unknown",
+              "note": "用户在第二批补充文档中确认当前八马鸭屎香年份为 2023。",
+              "confirmedBy": "user"
+            }
+          ]
+        },
+        {
+          "teaId": 26,
+          "currentIdentity": {
+            "displayName": "赛珍珠1000浓香铁观音",
+            "brand": "八马",
+            "category": "oolong_tieguanyin",
+            "year": 2025
+          },
+          "confirmedClarifications": [],
+          "confirmedPackageLinks": [
+            {
+              "packageType": "sample",
+              "status": "unknown",
+              "netWeightPerUnit": 25,
+              "productNameOverride": "赛珍珠1000浓香铁观音",
+              "note": "用户确认手头规格是正装内的一盒品鉴装；“轻享版”属于这份包装，不是茶叶产品版本。",
+              "confirmedBy": "user"
+            }
+          ]
+        },
+        {
+          "teaId": 27,
+          "currentIdentity": {
+            "displayName": "清香铁观音·秋茶",
+            "brand": "凤山",
+            "category": "oolong_tieguanyin",
+            "year": 2024
+          },
+          "confirmedClarifications": [],
+          "confirmedPackageLinks": [
+            {
+              "url": "https://item.taobao.com/item.htm?id=563277476150",
+              "packageType": "unknown",
+              "status": "unknown",
+              "confirmedBy": "user"
+            }
+          ]
+        },
+        {
+          "teaId": 28,
+          "currentIdentity": {
+            "displayName": "肉桂（中火）",
+            "brand": "虎标",
+            "category": "oolong_wuyi",
+            "year": 2023
+          },
+          "confirmedClarifications": [],
+          "confirmedPackageLinks": [
+            {
+              "url": "https://detail.tmall.com/item.htm?id=652829709728",
+              "packageType": "unknown",
+              "status": "unknown",
+              "confirmedBy": "user"
+            }
+          ]
+        },
+        {
+          "teaId": 29,
+          "currentIdentity": {
+            "displayName": "大红袍（中火）",
+            "brand": "虎标",
+            "category": "oolong_wuyi",
+            "year": 2022
+          },
+          "confirmedClarifications": [],
+          "confirmedPackageLinks": [
+            {
+              "url": "https://detail.tmall.com/item.htm?id=733048763165",
+              "packageType": "unknown",
+              "status": "unknown",
+              "confirmedBy": "user"
+            }
+          ]
+        },
+        {
+          "teaId": 30,
+          "currentIdentity": {
+            "displayName": "黄条大红袍（足火）",
+            "brand": "武夷星",
+            "category": "oolong_wuyi",
+            "year": 2022
+          },
+          "confirmedClarifications": [],
+          "confirmedPackageLinks": []
+        },
+        {
+          "teaId": 31,
+          "currentIdentity": {
+            "displayName": "山语系列·铁罗汉（中火）",
+            "brand": "武夷星",
+            "category": "oolong_wuyi",
+            "year": null
+          },
+          "confirmedClarifications": [],
+          "confirmedPackageLinks": [
+            {
+              "url": "https://item.jd.com/10347921474.html",
+              "packagingVariant": "山语系列",
+              "roastLevel": "medium",
+              "packageType": "unknown",
+              "status": "unknown",
+              "note": "用户在第二批补充文档中更正为山语系列铁罗汉（中火）。",
+              "confirmedBy": "user"
+            }
+          ]
+        },
+        {
+          "teaId": 32,
+          "currentIdentity": {
+            "displayName": "铁罗汉（足火）",
+            "brand": "海堤",
+            "category": "oolong_wuyi",
+            "year": 2022
+          },
+          "confirmedClarifications": [],
+          "confirmedPackageLinks": [
+            {
+              "productCode": "AT106",
+              "packageType": "unknown",
+              "status": "unknown",
+              "note": "用户在第二批补充文档中确认货号 AT106。",
+              "confirmedBy": "user"
+            }
+          ]
+        },
+        {
+          "teaId": 33,
+          "currentIdentity": {
+            "displayName": "喜上眉梢·水晶龟（足火）",
+            "brand": "海堤",
+            "category": "oolong_wuyi",
+            "year": 2021
+          },
+          "confirmedClarifications": [],
+          "confirmedPackageLinks": [
+            {
+              "url": "https://item.jd.com/47303383698.html",
+              "productCode": "AT665",
+              "packagingVariant": "喜上眉梢",
+              "packageType": "unknown",
+              "status": "unknown",
+              "note": "用户在第二批补充文档中确认喜上眉梢系列与货号 AT665。",
+              "confirmedBy": "user"
+            }
+          ]
+        },
+        {
+          "teaId": 34,
+          "currentIdentity": {
+            "displayName": "新黄罐老枞水仙（足火）",
+            "brand": "海堤",
+            "category": "oolong_wuyi",
+            "year": 2021
+          },
+          "confirmedClarifications": [
+            "产品型号已由用户确认为 AT102A。",
+            "这是新黄罐，不得引用 AT102 旧黄罐资料。"
+          ],
+          "confirmedPackageLinks": []
+        },
+        {
+          "teaId": 35,
+          "currentIdentity": {
+            "displayName": "黄罐老枞水仙（足火）",
+            "brand": "海堤",
+            "category": "oolong_wuyi",
+            "year": 2020
+          },
+          "confirmedClarifications": [
+            "产品型号已由用户确认为 AT102。",
+            "这是旧黄罐，不得引用 AT102A 新黄罐资料。"
+          ],
+          "confirmedPackageLinks": []
+        },
+        {
+          "teaId": 36,
+          "currentIdentity": {
+            "displayName": "红罐大红袍（足火）",
+            "brand": "海堤",
+            "category": "oolong_wuyi",
+            "year": 2020
+          },
+          "confirmedClarifications": [],
+          "confirmedPackageLinks": [
+            {
+              "productCode": "AT103",
+              "packageType": "unknown",
+              "status": "unknown",
+              "note": "用户在第二批补充文档中确认 2020 红罐大红袍货号为 AT103。",
+              "confirmedBy": "user"
+            }
+          ]
+        },
+        {
+          "teaId": 37,
+          "currentIdentity": {
+            "displayName": "小黄罐老枞水仙（中足火）",
+            "brand": "海堤",
+            "category": "oolong_wuyi",
+            "year": 2023
+          },
+          "confirmedClarifications": [],
+          "confirmedPackageLinks": []
+        },
+        {
+          "teaId": 38,
+          "currentIdentity": {
+            "displayName": "乐享肉桂（中火）",
+            "brand": "海堤",
+            "category": "oolong_wuyi",
+            "year": 2022
+          },
+          "confirmedClarifications": [],
+          "confirmedPackageLinks": [
+            {
+              "productCode": "XT5131",
+              "packagingVariant": "乐享系列",
+              "packageType": "unknown",
+              "status": "unknown",
+              "note": "用户在第二批补充文档中更正为乐享系列肉桂，货号 XT5131。",
+              "confirmedBy": "user"
+            }
+          ]
+        },
+        {
+          "teaId": 39,
+          "currentIdentity": {
+            "displayName": "单枞奇种（足火）",
+            "brand": "海堤",
+            "category": "oolong_wuyi",
+            "year": 2021
+          },
+          "confirmedClarifications": [],
+          "confirmedPackageLinks": []
+        },
+        {
+          "teaId": 40,
+          "currentIdentity": {
+            "displayName": "岩值水仙（中足火）·岩值3000特级",
+            "brand": "孝文家",
+            "category": "oolong_wuyi",
+            "year": 2026
+          },
+          "confirmedClarifications": [],
+          "confirmedPackageLinks": [
+            {
+              "url": "https://item.jd.com/10217699548803.html",
+              "packageType": "unknown",
+              "status": "unknown",
+              "confirmedBy": "user"
+            }
+          ]
+        },
+        {
+          "teaId": 41,
+          "currentIdentity": {
+            "displayName": "岩值肉桂（中足火）·岩值2000一级",
+            "brand": "孝文家",
+            "category": "oolong_wuyi",
+            "year": 2025
+          },
+          "confirmedClarifications": [],
+          "confirmedPackageLinks": []
+        }
+      ]
+    },
+    {
+      "batchId": "research-03",
+      "teaIds": [
+        42,
+        43,
+        44,
+        45,
+        46,
+        47,
+        48,
+        49,
+        50,
+        51,
+        52,
+        53,
+        54,
+        55,
+        56,
+        57,
+        58,
+        59,
+        60,
+        61
+      ],
+      "teas": [
+        {
+          "teaId": 42,
+          "currentIdentity": {
+            "displayName": "岩值肉桂（中足火）·一级",
+            "brand": "孝文家",
+            "category": "oolong_wuyi",
+            "year": 2023
+          },
+          "confirmedClarifications": [],
+          "confirmedPackageLinks": []
+        },
+        {
+          "teaId": 43,
+          "currentIdentity": {
+            "displayName": "携山肉桂（中火）·开运纳福2000",
+            "brand": "孝文家",
+            "category": "oolong_wuyi",
+            "year": 2025
+          },
+          "confirmedClarifications": [],
+          "confirmedPackageLinks": []
+        },
+        {
+          "teaId": 44,
+          "currentIdentity": {
+            "displayName": "携山水仙（中火）·富贵花1200",
+            "brand": "孝文家",
+            "category": "oolong_wuyi",
+            "year": 2023
+          },
+          "confirmedClarifications": [],
+          "confirmedPackageLinks": []
+        },
+        {
+          "teaId": 45,
+          "currentIdentity": {
+            "displayName": "携山大红袍（中火）·富贵花1200",
+            "brand": "孝文家",
+            "category": "oolong_wuyi",
+            "year": 2023
+          },
+          "confirmedClarifications": [],
+          "confirmedPackageLinks": []
+        },
+        {
+          "teaId": 46,
+          "currentIdentity": {
+            "displayName": "大红袍贡茶（中足火）·MT102",
+            "brand": "幔亭",
+            "category": "oolong_wuyi",
+            "year": 2023
+          },
+          "confirmedClarifications": [],
+          "confirmedPackageLinks": []
+        },
+        {
+          "teaId": 47,
+          "currentIdentity": {
+            "displayName": "果香肉桂（中轻火）",
+            "brand": "小厂茶",
+            "category": "oolong_wuyi",
+            "year": 2023
+          },
+          "confirmedClarifications": [],
+          "confirmedPackageLinks": []
+        },
+        {
+          "teaId": 48,
+          "currentIdentity": {
+            "displayName": "陈升一号·解散茶",
+            "brand": "陈升号",
+            "category": "puerh_raw",
+            "year": 2019
+          },
+          "confirmedClarifications": [],
+          "confirmedPackageLinks": []
+        },
+        {
+          "teaId": 49,
+          "currentIdentity": {
+            "displayName": "陈升一号·巧克力饼",
+            "brand": "陈升号",
+            "category": "puerh_raw",
+            "year": 2022
+          },
+          "confirmedClarifications": [],
+          "confirmedPackageLinks": []
+        },
+        {
+          "teaId": 50,
+          "currentIdentity": {
+            "displayName": "陈升一号·饼茶",
+            "brand": "陈升号",
+            "category": "puerh_raw",
+            "year": 2023
+          },
+          "confirmedClarifications": [],
+          "confirmedPackageLinks": []
+        },
+        {
+          "teaId": 51,
+          "currentIdentity": {
+            "displayName": "易武正山饼茶",
+            "brand": "八角亭",
+            "category": "puerh_raw",
+            "year": 2023
+          },
+          "confirmedClarifications": [],
+          "confirmedPackageLinks": []
+        },
+        {
+          "teaId": 52,
+          "currentIdentity": {
+            "displayName": "百花谷小饼茶",
+            "brand": "老同志",
+            "category": "puerh_raw",
+            "year": 2025
+          },
+          "confirmedClarifications": [],
+          "confirmedPackageLinks": []
+        },
+        {
+          "teaId": 53,
+          "currentIdentity": {
+            "displayName": "忙麓山饼茶",
+            "brand": "八角亭",
+            "category": "puerh_raw",
+            "year": 2024
+          },
+          "confirmedClarifications": [],
+          "confirmedPackageLinks": []
+        },
+        {
+          "teaId": 54,
+          "currentIdentity": {
+            "displayName": "志士·班盆古树茶砖",
+            "brand": "八角亭",
+            "category": "puerh_raw",
+            "year": 2018
+          },
+          "confirmedClarifications": [],
+          "confirmedPackageLinks": []
+        },
+        {
+          "teaId": 55,
+          "currentIdentity": {
+            "displayName": "胭脂特沱",
+            "brand": "下关",
+            "category": "puerh_raw",
+            "year": 2024
+          },
+          "confirmedClarifications": [],
+          "confirmedPackageLinks": []
+        },
+        {
+          "teaId": 56,
+          "currentIdentity": {
+            "displayName": "7510饼茶",
+            "brand": "八角亭",
+            "category": "puerh_raw",
+            "year": 2024
+          },
+          "confirmedClarifications": [],
+          "confirmedPackageLinks": []
+        },
+        {
+          "teaId": 57,
+          "currentIdentity": {
+            "displayName": "小乾坤迷你小饼",
+            "brand": "八角亭",
+            "category": "puerh_raw",
+            "year": 2018
+          },
+          "confirmedClarifications": [],
+          "confirmedPackageLinks": []
+        },
+        {
+          "teaId": 58,
+          "currentIdentity": {
+            "displayName": "如珪小饼茶",
+            "brand": "八角亭",
+            "category": "puerh_raw",
+            "year": 2023
+          },
+          "confirmedClarifications": [],
+          "confirmedPackageLinks": []
+        },
+        {
+          "teaId": 59,
+          "currentIdentity": {
+            "displayName": "如瑜小饼茶",
+            "brand": "八角亭",
+            "category": "puerh_raw",
+            "year": 2022
+          },
+          "confirmedClarifications": [],
+          "confirmedPackageLinks": []
+        },
+        {
+          "teaId": 60,
+          "currentIdentity": {
+            "displayName": "如璠小饼茶",
+            "brand": "八角亭",
+            "category": "puerh_raw",
+            "year": 2022
+          },
+          "confirmedClarifications": [],
+          "confirmedPackageLinks": []
+        },
+        {
+          "teaId": 61,
+          "currentIdentity": {
+            "displayName": "那卡茶砖",
+            "brand": "陈升号",
+            "category": "puerh_raw",
+            "year": 2023
+          },
+          "confirmedClarifications": [],
+          "confirmedPackageLinks": []
+        }
+      ]
+    },
+    {
+      "batchId": "research-04",
+      "teaIds": [
+        62,
+        63,
+        64,
+        65,
+        66,
+        67,
+        69,
+        70,
+        71,
+        72,
+        73,
+        74,
+        75,
+        76,
+        77,
+        78,
+        79,
+        80,
+        81,
+        82
+      ],
+      "teas": [
+        {
+          "teaId": 62,
+          "currentIdentity": {
+            "displayName": "冰岛解散茶·冠千山",
+            "brand": "八角亭",
+            "category": "puerh_raw",
+            "year": 2024
+          },
+          "confirmedClarifications": [],
+          "confirmedPackageLinks": []
+        },
+        {
+          "teaId": 63,
+          "currentIdentity": {
+            "displayName": "大班章饼茶",
+            "brand": "八角亭",
+            "category": "puerh_raw",
+            "year": 2023
+          },
+          "confirmedClarifications": [],
+          "confirmedPackageLinks": []
+        },
+        {
+          "teaId": 64,
+          "currentIdentity": {
+            "displayName": "大雪山试饮",
+            "brand": "吉普号",
+            "category": "puerh_raw",
+            "year": 2025
+          },
+          "confirmedClarifications": [],
+          "confirmedPackageLinks": []
+        },
+        {
+          "teaId": 65,
+          "currentIdentity": {
+            "displayName": "007紧压小饼",
+            "brand": "澜沧古茶",
+            "category": "puerh_raw",
+            "year": 2023
+          },
+          "confirmedClarifications": [],
+          "confirmedPackageLinks": []
+        },
+        {
+          "teaId": 66,
+          "currentIdentity": {
+            "displayName": "景迈之春散茶",
+            "brand": "澜沧古茶",
+            "category": "puerh_raw",
+            "year": 2025
+          },
+          "confirmedClarifications": [],
+          "confirmedPackageLinks": []
+        },
+        {
+          "teaId": 67,
+          "currentIdentity": {
+            "displayName": "昔归饼茶",
+            "brand": "虎标",
+            "category": "puerh_raw",
+            "year": 2023
+          },
+          "confirmedClarifications": [],
+          "confirmedPackageLinks": []
+        },
+        {
+          "teaId": 69,
+          "currentIdentity": {
+            "displayName": "7572小饼茶",
+            "brand": "大益",
+            "category": "puerh_ripe",
+            "year": 2021
+          },
+          "confirmedClarifications": [],
+          "confirmedPackageLinks": []
+        },
+        {
+          "teaId": 70,
+          "currentIdentity": {
+            "displayName": "白莲金针茶砖",
+            "brand": "大益",
+            "category": "puerh_ripe",
+            "year": 2023
+          },
+          "confirmedClarifications": [],
+          "confirmedPackageLinks": []
+        },
+        {
+          "teaId": 71,
+          "currentIdentity": {
+            "displayName": "凤凰格格小饼茶·鸡年生肖",
+            "brand": "大益",
+            "category": "puerh_ripe",
+            "year": 2017
+          },
+          "confirmedClarifications": [],
+          "confirmedPackageLinks": []
+        },
+        {
+          "teaId": 72,
+          "currentIdentity": {
+            "displayName": "旺夫小饼茶·狗年生肖",
+            "brand": "大益",
+            "category": "puerh_ripe",
+            "year": 2018
+          },
+          "confirmedClarifications": [],
+          "confirmedPackageLinks": []
+        },
+        {
+          "teaId": 73,
+          "currentIdentity": {
+            "displayName": "悟空小饼茶·猴年生肖",
+            "brand": "大益",
+            "category": "puerh_ripe",
+            "year": 2022
+          },
+          "confirmedClarifications": [],
+          "confirmedPackageLinks": []
+        },
+        {
+          "teaId": 74,
+          "currentIdentity": {
+            "displayName": "颂手撕薄饼·风雅颂",
+            "brand": "八角亭",
+            "category": "puerh_ripe",
+            "year": 2020
+          },
+          "confirmedClarifications": [],
+          "confirmedPackageLinks": []
+        },
+        {
+          "teaId": 75,
+          "currentIdentity": {
+            "displayName": "0085小茶砖",
+            "brand": "澜沧古茶",
+            "category": "puerh_ripe",
+            "year": 2026
+          },
+          "confirmedClarifications": [],
+          "confirmedPackageLinks": []
+        },
+        {
+          "teaId": 76,
+          "currentIdentity": {
+            "displayName": "班章龙珠",
+            "brand": "八角亭",
+            "category": "puerh_ripe",
+            "year": 2019
+          },
+          "confirmedClarifications": [],
+          "confirmedPackageLinks": []
+        },
+        {
+          "teaId": 77,
+          "currentIdentity": {
+            "displayName": "魔方小方片",
+            "brand": "老同志",
+            "category": "puerh_ripe",
+            "year": 2023
+          },
+          "confirmedClarifications": [],
+          "confirmedPackageLinks": []
+        },
+        {
+          "teaId": 78,
+          "currentIdentity": {
+            "displayName": "霸相班章古树饼茶",
+            "brand": "八角亭",
+            "category": "puerh_ripe",
+            "year": 2021
+          },
+          "confirmedClarifications": [],
+          "confirmedPackageLinks": []
+        },
+        {
+          "teaId": 79,
+          "currentIdentity": {
+            "displayName": "冰岛地界·715",
+            "brand": "吉普号",
+            "category": "puerh_ripe",
+            "year": 2025
+          },
+          "confirmedClarifications": [],
+          "confirmedPackageLinks": []
+        },
+        {
+          "teaId": 80,
+          "currentIdentity": {
+            "displayName": "大雪山·317",
+            "brand": "吉普号",
+            "category": "puerh_ripe",
+            "year": 2025
+          },
+          "confirmedClarifications": [],
+          "confirmedPackageLinks": []
+        },
+        {
+          "teaId": 81,
+          "currentIdentity": {
+            "displayName": "茉莉花茶·碧潭飘雪品味一级",
+            "brand": "竹叶青",
+            "category": "flavored_jasmine",
+            "year": 2025
+          },
+          "confirmedClarifications": [],
+          "confirmedPackageLinks": []
+        },
+        {
+          "teaId": 82,
+          "currentIdentity": {
+            "displayName": "茉莉花茶·碧潭飘雪品味特级",
+            "brand": "竹叶青",
+            "category": "flavored_jasmine",
+            "year": 2025
+          },
+          "confirmedClarifications": [],
+          "confirmedPackageLinks": []
+        }
+      ]
+    },
+    {
+      "batchId": "research-05",
+      "teaIds": [
+        83,
+        84,
+        85,
+        86,
+        87,
+        88
+      ],
+      "teas": [
+        {
+          "teaId": 83,
+          "currentIdentity": {
+            "displayName": "茉莉花茶·茉莉香",
+            "brand": "猴王",
+            "category": "flavored_jasmine",
+            "year": 2025
+          },
+          "confirmedClarifications": [],
+          "confirmedPackageLinks": []
+        },
+        {
+          "teaId": 84,
+          "currentIdentity": {
+            "displayName": "茉莉花茶·金猴王4号",
+            "brand": "猴王",
+            "category": "flavored_jasmine",
+            "year": 2025
+          },
+          "confirmedClarifications": [],
+          "confirmedPackageLinks": []
+        },
+        {
+          "teaId": 85,
+          "currentIdentity": {
+            "displayName": "茉莉花茶·碧潭飘雪静心特级",
+            "brand": "竹叶青",
+            "category": "flavored_jasmine",
+            "year": 2025
+          },
+          "confirmedClarifications": [],
+          "confirmedPackageLinks": []
+        },
+        {
+          "teaId": 86,
+          "currentIdentity": {
+            "displayName": "小青柑",
+            "brand": "虎标",
+            "category": "flavored_other",
+            "year": 2024
+          },
+          "confirmedClarifications": [],
+          "confirmedPackageLinks": []
+        },
+        {
+          "teaId": 87,
+          "currentIdentity": {
+            "displayName": "桂花红茶·桂花香",
+            "brand": "猴王",
+            "category": "flavored_other",
+            "year": 2025
+          },
+          "confirmedClarifications": [],
+          "confirmedPackageLinks": []
+        },
+        {
+          "teaId": 88,
+          "currentIdentity": {
+            "displayName": "八宝茶",
+            "brand": "自调",
+            "category": "flavored_other",
+            "year": null
+          },
+          "confirmedClarifications": [],
+          "confirmedPackageLinks": []
+        }
+      ]
+    }
+  ]
+}

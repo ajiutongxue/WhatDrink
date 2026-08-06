@@ -6,8 +6,10 @@
 
 var teaData = require('./teaData');
 var teaMatch = require('./teaMatch');
+var teaKnowledge = require('./teaKnowledge');
 
 var STORAGE_KEY = 'tea_doctor_v1';
+var KNOWLEDGE_BACKUP_KEY = 'tea_doctor_knowledge_backup_v1';
 var CLOUD_COLLECTION = 'tea_doctor';
 var DEBOUNCE_MS = 2000;
 
@@ -63,13 +65,17 @@ function getDefaultData() {
       recModel: 'deepseek-v4-pro',
       parserModel: 'deepseek-v4-pro',
       parserEnabled: false,
-      noteAnalysisEnabled: true
+      noteAnalysisEnabled: true,
+      twoStageRecommendationEnabled: false
     },
     teaLibrary: teas,
     // Whole-library last-write-wins version. Keeping this at 0 for a fresh
     // install prevents the built-in defaults from overwriting a restored
     // cloud library.
-    teaLibraryUpdatedAt: 0
+    teaLibraryUpdatedAt: 0,
+    knowledgeBase: _emptyKnowledgeBase(),
+    knowledgeOverrides: {},
+    inventory: []
   };
 }
 
@@ -115,7 +121,10 @@ function load() {
         settingsUpdatedAt: settingsUpdatedAt,
         llm: _merge(defaults.llm, raw.llm),
         teaLibrary: library,
-        teaLibraryUpdatedAt: libraryUpdatedAt
+        teaLibraryUpdatedAt: libraryUpdatedAt,
+        knowledgeBase: _normaliseKnowledgeBase(raw.knowledgeBase),
+        knowledgeOverrides: _normaliseKnowledgeOverrides(raw.knowledgeOverrides),
+        inventory: _normaliseInventory(raw.inventory)
       };
       _repairHistoryLinks(appData, true);
       return appData;
@@ -176,7 +185,7 @@ function sync() {
     // Call cloud function to merge
     wx.cloud.callFunction({
       name: 'syncData',
-      data: { data: local },
+      data: { data: _cloudPayload(local) },
       success: function(res) {
         if (res && res.result && res.result.success && res.result.data) {
           var merged = _mergeData(res.result.data, local);
@@ -247,7 +256,10 @@ function importJSON(json) {
       // over an older cloud snapshot on the next sync.
       teaLibraryUpdatedAt: Array.isArray(parsed.teaLibrary) && parsed.teaLibrary.length > 0
         ? Date.now()
-        : 0
+        : 0,
+      knowledgeBase: _normaliseKnowledgeBase(parsed.knowledgeBase),
+      knowledgeOverrides: _normaliseKnowledgeOverrides(parsed.knowledgeOverrides),
+      inventory: _normaliseInventory(parsed.inventory)
     };
 
     _repairHistoryLinks(data, false);
@@ -257,6 +269,103 @@ function importJSON(json) {
     console.error('[data] import error:', e);
     return false;
   }
+}
+
+/**
+ * Validate and atomically install a complete local baseline package.
+ * This data is intentionally separate from the editable teaLibrary and cloud
+ * snapshot, so a catalog upgrade cannot overwrite user data.
+ */
+function importTeaKnowledgePackage(packageData) {
+  var catalog;
+  try {
+    catalog = typeof packageData === 'string' ? JSON.parse(packageData) : packageData;
+  } catch (e) {
+    return { ok: false, error: 'Knowledge package is not valid JSON' };
+  }
+
+  var validation = teaKnowledge.validateCatalog(catalog, {
+    expectedTeaIds: teaData.TEAS.map(function(tea) { return tea.id; }),
+    requireComplete: true
+  });
+  if (!validation.ok) return { ok: false, error: validation.errors.join('; ') };
+  if (catalog.purpose !== 'import') return { ok: false, error: 'Knowledge package must have import purpose' };
+  if (catalog.teas.some(function(profile) { return profile.lifecycle !== 'complete'; })) {
+    return { ok: false, error: 'Knowledge package contains a non-complete profile' };
+  }
+
+  var current = load();
+  var next = _cloneDeep(current);
+  next.knowledgeBase = _catalogToKnowledgeBase(catalog, Date.now());
+  try {
+    wx.setStorageSync(KNOWLEDGE_BACKUP_KEY, {
+      savedAt: Date.now(),
+      knowledgeBase: _cloneDeep(current.knowledgeBase)
+    });
+    wx.setStorageSync(STORAGE_KEY, next);
+  } catch (e) {
+    try { wx.setStorageSync(STORAGE_KEY, current); } catch (ignored) {}
+    return { ok: false, error: 'Knowledge package write failed: ' + (e && e.message || 'storage unavailable') };
+  }
+  return { ok: true, knowledgeBase: _cloneDeep(next.knowledgeBase) };
+}
+
+/** Restore only the previous knowledge baseline; user data remains intact. */
+function rollbackTeaKnowledgePackage() {
+  var backup;
+  try { backup = wx.getStorageSync(KNOWLEDGE_BACKUP_KEY); } catch (e) { return false; }
+  if (!backup || typeof backup !== 'object' || !backup.knowledgeBase) return false;
+
+  var current = load();
+  var next = _cloneDeep(current);
+  next.knowledgeBase = _normaliseKnowledgeBase(backup.knowledgeBase);
+  try { wx.setStorageSync(STORAGE_KEY, next); } catch (e) { return false; }
+  return true;
+}
+
+function setKnowledgeOverride(teaId, path, field, options) {
+  if (!Number.isInteger(teaId) || teaId < 0 || typeof path !== 'string' || !path) return { ok: false, error: 'Invalid teaId or field path' };
+  var current = load();
+  var teaExists = (current.teaLibrary || []).some(function(tea) { return tea && tea.id === teaId; });
+  if (!teaExists) return { ok: false, error: 'Tea does not exist in the current library' };
+  var validation = teaKnowledge.validateKnowledgeField(path, field);
+  if (!validation.ok) return { ok: false, error: validation.errors.join('; ') };
+  var next = _cloneDeep(current);
+  var item = next.knowledgeOverrides[teaId] || { teaId: teaId, patch: {}, lockedPaths: [], tombstones: {}, updatedAt: 0 };
+  item.patch[path] = _cloneDeep(field);
+  delete item.tombstones[path];
+  if (options && options.locked === true && item.lockedPaths.indexOf(path) < 0) item.lockedPaths.push(path);
+  if (options && options.locked === false) item.lockedPaths = item.lockedPaths.filter(function(p) { return p !== path; });
+  item.updatedAt = Date.now(); next.knowledgeOverrides[teaId] = item; save(next);
+  return { ok: true, override: _cloneDeep(item) };
+}
+
+function removeKnowledgeOverride(teaId, path) {
+  var current = load(); var item = current.knowledgeOverrides[teaId];
+  if (!item || !item.patch || !item.patch[path]) return false;
+  var next = _cloneDeep(current); item = next.knowledgeOverrides[teaId];
+  delete item.patch[path]; item.tombstones[path] = Date.now(); item.lockedPaths = item.lockedPaths.filter(function(p) { return p !== path; }); item.updatedAt = Date.now();
+  save(next); return true;
+}
+
+function upsertInventoryItem(item) {
+  var current = load(); var next = _cloneDeep(current); var record = _cloneDeep(item || {}); var now = Date.now();
+  if (!record.id) record.id = 'inv_' + now + '_' + Math.random().toString(36).slice(2, 8);
+  record.updatedAt = now; delete record.deletedAt;
+  var valid = teaKnowledge.validateInventoryItem(record); if (!valid.ok) return { ok: false, error: valid.errors.join('; ') };
+  var found = -1; next.inventory.forEach(function(existing, index) { if (existing.id === record.id) found = index; });
+  if (found >= 0) next.inventory[found] = record; else next.inventory.push(record); save(next);
+  return { ok: true, item: _cloneDeep(record) };
+}
+
+function deleteInventoryItem(id) {
+  var current = load(); var next = _cloneDeep(current); var found = -1;
+  next.inventory.forEach(function(item, index) { if (item.id === id) found = index; }); if (found < 0) return false;
+  next.inventory[found].deletedAt = Date.now(); next.inventory[found].updatedAt = next.inventory[found].deletedAt; save(next); return true;
+}
+
+function listInventory(teaId) {
+  return load().inventory.filter(function(item) { return !item.deletedAt && (teaId === undefined || item.teaId === teaId); }).map(_cloneDeep);
 }
 
 /**
@@ -348,12 +457,20 @@ function _cloudAvailable() {
  * Fire-and-forget; errors are logged but not surfaced.
  * @param {Object} data
  */
+function _cloudPayload(data) {
+  var payload = _cloneDeep(data);
+  delete payload.knowledgeBase;
+  delete payload.knowledgeOverrides;
+  delete payload.inventory;
+  return payload;
+}
+
 function _pushToCloud(data) {
   if (!_cloudAvailable()) return;
 
   wx.cloud.callFunction({
     name: 'syncData',
-    data: { data: data },
+    data: { data: _cloudPayload(data) },
     success: function() {
       // Cloud push succeeded, nothing else to do
     },
@@ -406,8 +523,87 @@ function _mergeData(cloudData, localData) {
     settingsUpdatedAt: settingsVersion.updatedAt,
     llm: _mergeLLM(cloudData.llm, localData.llm),
     teaLibrary: libraryVersion.library,
-    teaLibraryUpdatedAt: libraryVersion.updatedAt
+    teaLibraryUpdatedAt: libraryVersion.updatedAt,
+    // Basic product knowledge is local-only until a dedicated cloud model exists.
+    knowledgeBase: _normaliseKnowledgeBase(localData.knowledgeBase),
+    knowledgeOverrides: _normaliseKnowledgeOverrides(localData.knowledgeOverrides),
+    inventory: _normaliseInventory(localData.inventory)
   };
+}
+
+function _emptyKnowledgeBase() {
+  return {
+    schemaVersion: teaKnowledge.contract.schemaVersion,
+    catalogVersion: '',
+    sourceGeneratedAt: 0,
+    importedAt: 0,
+    profilesByTeaId: {},
+    withheldTeaIds: [],
+    validationSummary: null
+  };
+}
+
+function _normaliseKnowledgeBase(value) {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return _emptyKnowledgeBase();
+  var base = _emptyKnowledgeBase();
+  if (typeof value.schemaVersion === 'string') base.schemaVersion = value.schemaVersion;
+  if (typeof value.catalogVersion === 'string') base.catalogVersion = value.catalogVersion;
+  base.sourceGeneratedAt = _validTimestamp(value.sourceGeneratedAt);
+  base.importedAt = _validTimestamp(value.importedAt);
+  base.withheldTeaIds = Array.isArray(value.withheldTeaIds) ? value.withheldTeaIds.slice() : [];
+  base.profilesByTeaId = value.profilesByTeaId && typeof value.profilesByTeaId === 'object' && !Array.isArray(value.profilesByTeaId)
+    ? _cloneDeep(value.profilesByTeaId)
+    : {};
+  if (value.validationSummary && typeof value.validationSummary === 'object') {
+    base.validationSummary = _cloneDeep(value.validationSummary);
+  }
+  return base;
+}
+
+function _normaliseKnowledgeOverrides(value) {
+  var source = value && typeof value === 'object' && !Array.isArray(value) ? value : {};
+  var result = {};
+  Object.keys(source).forEach(function(key) {
+    var item = source[key];
+    if (!item || typeof item !== 'object' || !Number.isInteger(item.teaId)) return;
+    result[item.teaId] = {
+      teaId: item.teaId,
+      patch: item.patch && typeof item.patch === 'object' ? _cloneDeep(item.patch) : {},
+      lockedPaths: Array.isArray(item.lockedPaths) ? item.lockedPaths.slice() : [],
+      tombstones: item.tombstones && typeof item.tombstones === 'object' ? _cloneDeep(item.tombstones) : {},
+      updatedAt: _validTimestamp(item.updatedAt)
+    };
+  });
+  return result;
+}
+
+function _normaliseInventory(value) {
+  return (Array.isArray(value) ? value : []).filter(function(item) {
+    return item && typeof item === 'object' && typeof item.id === 'string' && item.id;
+  }).map(_cloneDeep);
+}
+
+function _catalogToKnowledgeBase(catalog, importedAt) {
+  var profiles = {};
+  catalog.teas.forEach(function(profile) { profiles[profile.teaId] = _cloneDeep(profile); });
+  return {
+    schemaVersion: catalog.schemaVersion,
+    catalogVersion: catalog.catalogVersion,
+    sourceGeneratedAt: catalog.generatedAt,
+    importedAt: importedAt,
+    profilesByTeaId: profiles,
+    withheldTeaIds: catalog.withheldTeaIds.slice(),
+    validationSummary: {
+      validatedAt: importedAt,
+      profileCount: catalog.teas.length,
+      withheldTeaIds: catalog.withheldTeaIds.slice(),
+      expectedTeaCount: catalog.expectedTeaCount
+    }
+  };
+}
+
+function _cloneDeep(value) {
+  return value === undefined ? undefined : JSON.parse(JSON.stringify(value));
 }
 
 function _historyKey(h) {
@@ -500,6 +696,9 @@ function _mergeLLM(cloud, local) {
   result.noteAnalysisEnabled = (typeof l.noteAnalysisEnabled === 'boolean')
     ? l.noteAnalysisEnabled
     : ((typeof c.noteAnalysisEnabled === 'boolean') ? c.noteAnalysisEnabled : true);
+  result.twoStageRecommendationEnabled = (typeof l.twoStageRecommendationEnabled === 'boolean')
+    ? l.twoStageRecommendationEnabled
+    : ((typeof c.twoStageRecommendationEnabled === 'boolean') ? c.twoStageRecommendationEnabled : false);
   return result;
 }
 
@@ -587,6 +786,13 @@ module.exports = {
   sync: sync,
   exportJSON: exportJSON,
   importJSON: importJSON,
+  importTeaKnowledgePackage: importTeaKnowledgePackage,
+  rollbackTeaKnowledgePackage: rollbackTeaKnowledgePackage,
+  setKnowledgeOverride: setKnowledgeOverride,
+  removeKnowledgeOverride: removeKnowledgeOverride,
+  upsertInventoryItem: upsertInventoryItem,
+  deleteInventoryItem: deleteInventoryItem,
+  listInventory: listInventory,
   reset: reset,
   getDefaultData: getDefaultData,
   getLastSyncTime: function() { return _getLastSyncTime(); }

@@ -51,6 +51,8 @@
           <text class="nature-mini-tag nature-{{tea.natureCls}}">{{tea.nature}}</text>
           <text wx:if="{{tea.year}}" class="tea-lib-year">{{tea.year}}年</text>
           <text class="tea-lib-caffeine">☕{{tea.caffeine}}</text>
+          <text class="tea-lib-knowledge {{tea.knowledgeMissing ? 'missing' : ''}}">{{tea.knowledgeLabel}}</text>
+          <text wx:if="{{tea.inventorySummary}}" class="tea-lib-inventory">{{tea.inventorySummary}}</text>
         </view>
       </view>
 
@@ -82,6 +84,8 @@
             <text wx:if="{{item.year}}" class="tea-lib-year">{{item.year}}年</text>
             <text class="tea-lib-caffeine">☕{{item.caffeine}}</text>
             <text class="tea-lib-flat-cat">{{item.catName}}</text>
+            <text class="tea-lib-knowledge {{item.knowledgeMissing ? 'missing' : ''}}">{{item.knowledgeLabel}}</text>
+            <text wx:if="{{item.inventorySummary}}" class="tea-lib-inventory">{{item.inventorySummary}}</text>
           </view>
         </view>
       </view>
@@ -155,10 +159,60 @@
       <switch checked="{{form.temporarilyAvoided}}" bindchange="onAvoidChange" color="#C25B45" />
     </view>
 
+    <view wx:if="{{formType === 'edit'}}" class="tea-lib-form-btn cancel" bindtap="onOpenKnowledge">画像与库存</view>
     <view class="tea-lib-form-actions">
       <view class="tea-lib-form-btn cancel" bindtap="onFormCancel">取消</view>
       <view class="tea-lib-form-btn save" bindtap="onFormSave">保存</view>
     </view>
 
+  </view>
+</view>
+
+<view wx:if="{{showKnowledge}}" class="tea-lib-mask" bindtap="onKnowledgeClose">
+  <view class="tea-lib-form knowledge-sheet" catchtap="onStopPropagation">
+    <view class="tea-lib-form-title">{{knowledgeTeaName}} · 画像与库存</view>
+
+    <block wx:if="{{!knowledgeFieldEditing}}">
+      <view class="knowledge-base-state {{knowledgeHasBase ? '' : 'missing'}}">{{knowledgeHasBase ? '基础画像已安装；个人修改不会覆盖基础资料' : '暂无基础画像，可先建立个人补录；以后安装基础画像时仍会保留'}}</view>
+      <scroll-view class="knowledge-scroll" scroll-y enable-flex>
+        <block wx:for="{{knowledgeSections}}" wx:key="name" wx:for-item="section">
+          <view class="knowledge-section-title">{{section.label}}</view>
+          <view wx:for="{{section.fields}}" wx:key="path" wx:for-item="field" class="knowledge-field-card" bindtap="onKnowledgeFieldTap" data-path="{{field.path}}">
+            <view class="knowledge-field-head">
+              <text class="knowledge-field-label">{{field.label}}</text>
+              <view class="knowledge-field-badges"><text wx:if="{{field.overridden}}" class="knowledge-badge personal">个人</text><text wx:if="{{field.locked}}" class="knowledge-badge locked">已锁定</text></view>
+            </view>
+            <view class="knowledge-field-value {{field.valueText === '待补充' ? 'missing' : ''}}">{{field.valueText}}</view>
+            <view class="knowledge-field-meta">{{field.statusLabel}} · {{field.sourceLabel}} · 可信度 {{field.confidenceText}}</view>
+            <view wx:if="{{field.evidence}}" class="knowledge-field-evidence">依据：{{field.evidence}}</view>
+            <view wx:for="{{field.sourceRefs}}" wx:key="*this" wx:for-item="ref" class="knowledge-field-source">来源：{{ref}}</view>
+          </view>
+        </block>
+
+        <view class="knowledge-section-title">库存包装</view>
+        <view class="knowledge-inventory-summary">现有包装 {{inventoryItems.length}} 条</view>
+        <view wx:for="{{inventoryItems}}" wx:key="id" class="knowledge-inventory-row"><text>{{item.packageLabel}}</text><text>{{item.status === 'sealed' ? '未开' : '已开'}} · {{item.quantity}} 份</text></view>
+        <view class="tea-lib-field"><text class="tea-lib-label">包装名称</text><input class="tea-lib-input" value="{{inventoryLabel}}" bindinput="onInventoryLabelInput" placeholder="如 5g 试饮装" /></view>
+        <view class="tea-lib-field"><text class="tea-lib-label">每份克数</text><input class="tea-lib-input" type="digit" value="{{inventoryWeight}}" bindinput="onInventoryWeightInput" placeholder="选填" /></view>
+        <view class="tea-lib-field"><text class="tea-lib-label">状态</text><picker bindchange="onInventoryStatusChange" value="{{inventoryStatusIndex}}" range="{{inventoryStatusOptions}}"><view class="tea-lib-picker">{{inventoryStatusOptions[inventoryStatusIndex]}}</view></picker></view>
+        <view class="tea-lib-field"><text class="tea-lib-label">数量</text><input class="tea-lib-input" type="number" value="{{inventoryQuantity}}" bindinput="onInventoryQuantityInput" placeholder="1" /></view>
+        <view class="tea-lib-form-btn cancel knowledge-add-package" bindtap="onAddInventory">添加包装</view>
+        <view class="tea-lib-form-actions"><view class="tea-lib-form-btn cancel" bindtap="onKnowledgeClose">关闭</view></view>
+      </scroll-view>
+    </block>
+
+    <block wx:else>
+      <view class="knowledge-edit-path">{{knowledgeEditLabel}}</view>
+      <view class="knowledge-edit-description">{{knowledgeEditDescription}}</view>
+      <textarea class="knowledge-edit-input" value="{{knowledgeEditValue}}" bindinput="onKnowledgeFieldInput" placeholder="{{knowledgeEditHint}}" auto-height maxlength="500" />
+      <view class="knowledge-edit-hint">{{knowledgeEditHint}}</view>
+      <view class="tea-lib-field tea-lib-avoid-field"><text class="tea-lib-label">锁定此项</text><switch checked="{{knowledgeEditLocked}}" bindchange="onKnowledgeEditLockChange" color="#C25B45" /></view>
+      <view class="knowledge-edit-actions">
+        <view class="tea-lib-form-btn cancel" bindtap="onKnowledgeBackToList">返回</view>
+        <view wx:if="{{knowledgeEditCanClear}}" class="tea-lib-form-btn cancel" bindtap="onKnowledgeFieldClear">清空值</view>
+        <view wx:if="{{knowledgeEditOverridden}}" class="tea-lib-form-btn cancel" bindtap="onKnowledgeFieldRestore">恢复基础</view>
+        <view class="tea-lib-form-btn save" bindtap="onKnowledgeFieldSave">保存</view>
+      </view>
+    </block>
   </view>
 </view>

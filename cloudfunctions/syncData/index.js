@@ -240,6 +240,9 @@ function mergeLLM(cloud, local) {
   result.noteAnalysisEnabled = (typeof local.noteAnalysisEnabled === 'boolean')
     ? local.noteAnalysisEnabled
     : ((typeof cloud.noteAnalysisEnabled === 'boolean') ? cloud.noteAnalysisEnabled : true);
+  result.twoStageRecommendationEnabled = (typeof local.twoStageRecommendationEnabled === 'boolean')
+    ? local.twoStageRecommendationEnabled
+    : ((typeof cloud.twoStageRecommendationEnabled === 'boolean') ? cloud.twoStageRecommendationEnabled : false);
   return result;
 }
 

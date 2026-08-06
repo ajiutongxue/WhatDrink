@@ -70,7 +70,7 @@ var CITY_REGEX = /(?:在|去|到了?)([\u4e00-\u9fa5]{2,4}(?:市|县|区|镇)?)/
 // Avoid patterns
 var AVOID_PATTERNS = /不想喝|不喝|不要|别喝|避开/;
 // Prefer patterns
-var PREFER_PATTERNS = /想喝|来点|来个|喝点/;
+var PREFER_PATTERNS = /只喝|只想喝|只要喝|就喝|就想喝|就要喝|想喝|来点|来个|喝点/;
 
 // ============================================================
 // Main parser function
@@ -125,6 +125,7 @@ function parseInput(text, llmConfig) {
             avoidCats: llmResult.avoidCats.length > 0 ? llmResult.avoidCats : keywordResult.avoidCats,
             avoidTeas: keywordResult.avoidTeas,
             preferCats: llmResult.preferCats.length > 0 ? llmResult.preferCats : keywordResult.preferCats,
+            strongPreferCats: keywordResult.strongPreferCats,
             mood: llmResult.mood || keywordResult.mood || null
           };
           tracker.track('parse', { mode: 'llm', ok: true, ms: Date.now() - t0, city: !!result.city, states: result.states.length });
@@ -160,8 +161,10 @@ function _parseKeywords(text) {
     avoidCats: [],
     avoidTeas: [],
     preferCats: [],
+    strongPreferCats: [],
     mood: null
   };
+  var hasStrongPreference = /(?:只|就)(?:想|要)?喝/.test(text);
 
   // --- City extraction ---
   var cityMatch = text.match(CITY_REGEX);
@@ -279,6 +282,7 @@ function _parseKeywords(text) {
   result.preferCats = result.preferCats.filter(function(cat) {
     return result.avoidCats.indexOf(cat) < 0;
   });
+  result.strongPreferCats = hasStrongPreference ? result.preferCats.slice() : [];
 
   // --- Mood detection ---
   if (/清淡|清爽|淡/.test(text)) {
@@ -320,6 +324,7 @@ function _emptyResult() {
     avoidCats: [],
     avoidTeas: [],
     preferCats: [],
+    strongPreferCats: [],
     mood: null
   };
 }

@@ -163,7 +163,7 @@ var TEAS = [
 
   // ===== 红茶 (black) =====
   { id: 4,  name: '滇红金芽',         brand: '小厂茶', cat: 'black', year: 2024, baseNature: '温', caffeine: '中', seasons: ['秋','冬'], avoidSeasons: [], note: '' },
-  { id: 5,  name: '祁门功夫',         brand: '天之红', cat: 'black', year: 2025, baseNature: '温', caffeine: '中', seasons: ['秋','冬'], avoidSeasons: [], note: '' },
+  { id: 5,  name: '祁门红茶·1985',   brand: '天之红', cat: 'black', year: 2025, baseNature: '温', caffeine: '中', seasons: ['秋','冬'], avoidSeasons: [], note: '' },
   { id: 6,  name: '正山小种金妃眉',   brand: '山尔堂', cat: 'black', year: 2025, baseNature: '温', caffeine: '中', seasons: ['秋','冬'], avoidSeasons: [], note: '' },
   { id: 7,  name: '银骏眉',           brand: '山尔堂', cat: 'black', year: 2025, baseNature: '温', caffeine: '中', seasons: ['秋','冬'], avoidSeasons: [], note: '' },
   { id: 8,  name: '金骏眉·岁藏',      brand: '山尔堂', cat: 'black', year: 2025, baseNature: '温', caffeine: '中', seasons: ['秋','冬'], avoidSeasons: [], note: '' },
@@ -174,37 +174,37 @@ var TEAS = [
   { id: 11, name: '紧压寿眉·晒白金',  brand: '品品香', cat: 'white', year: 2020, baseNature: '凉', caffeine: '低', seasons: ['春','夏','秋'], avoidSeasons: [], note: '' },
   { id: 12, name: '紧压寿眉·晒白金',  brand: '品品香', cat: 'white', year: 2022, baseNature: '凉', caffeine: '低', seasons: ['春','夏','秋'], avoidSeasons: [], note: '' },
   { id: 13, name: '紧压寿眉·晒白金',  brand: '品品香', cat: 'white', year: 2023, baseNature: '凉', caffeine: '低', seasons: ['春','夏','秋'], avoidSeasons: [], note: '' },
-  { id: 14, name: '白牡丹寿眉饼·马饼', brand: '品品香', cat: 'white', year: 2024, baseNature: '凉', caffeine: '低', seasons: ['春','夏','秋'], avoidSeasons: [], note: '' },
+  { id: 14, name: '紧压寿眉·马饼',     brand: '品品香', cat: 'white', year: 2024, baseNature: '凉', caffeine: '低', seasons: ['春','夏','秋'], avoidSeasons: [], note: '' },
   { id: 15, name: '寿眉散茶·诗经风雅颂', brand: '绿雪芽', cat: 'white', year: 2025, baseNature: '凉', caffeine: '低', seasons: ['春','夏','秋'], avoidSeasons: [], note: '喝过一次，青味较重，茶叶碎渣较多' },
   { id: 16, name: '白牡丹散茶·诗经风雅颂', brand: '绿雪芽', cat: 'white', year: 2025, baseNature: '凉', caffeine: '低', seasons: ['春','夏','秋'], avoidSeasons: [], note: '' },
   { id: 17, name: '紧压寿眉小圆片·369', brand: '绿雪芽', cat: 'white', year: null, baseNature: '凉', caffeine: '低', seasons: ['春','夏','秋'], avoidSeasons: [], note: '' },
   { id: 18, name: '白牡丹散茶',       brand: '虎标',   cat: 'white', year: 2024, baseNature: '凉', caffeine: '低', seasons: ['春','夏','秋'], avoidSeasons: [], note: '' },
   { id: 19, name: '寿眉饼茶',         brand: '虎标',   cat: 'white', year: 2018, baseNature: '凉', caffeine: '低', seasons: ['春','夏','秋'], avoidSeasons: [], note: '' },
-  { id: 20, name: '寿眉小方片',       brand: '虎标',   cat: 'white', year: 2018, baseNature: '凉', caffeine: '低', seasons: ['春','夏','秋'], avoidSeasons: [], note: '' },
+  { id: 20, name: '陈韵寿眉',         brand: '虎标',   cat: 'white', year: 2018, baseNature: '凉', caffeine: '低', seasons: ['春','夏','秋'], avoidSeasons: [], note: '' },
   { id: 21, name: '紧压寿眉·金六条',  brand: '绿雪芽', cat: 'white', year: 2019, baseNature: '凉', caffeine: '低', seasons: ['春','夏','秋'], avoidSeasons: [], note: '喝过几次，糖水味道，不是很喜欢' },
   { id: 22, name: '寿眉散茶',         brand: '六妙',   cat: 'white', year: 2022, baseNature: '凉', caffeine: '低', seasons: ['春','夏','秋'], avoidSeasons: [], note: '' },
 
   // ===== 凤凰单枞 (oolong_dancong) =====
   { id: 23, name: '鸭屎香',           brand: '南馥',   cat: 'oolong_dancong', year: 2025, baseNature: '平', caffeine: '中', seasons: ['春','秋'], avoidSeasons: [], note: '' },
-  { id: 24, name: '鸭屎香',           brand: '八马',   cat: 'oolong_dancong', year: null, baseNature: '平', caffeine: '中', seasons: ['春','秋'], avoidSeasons: [], note: '' },
+  { id: 24, name: '鸭屎香',           brand: '八马',   cat: 'oolong_dancong', year: 2023, baseNature: '平', caffeine: '中', seasons: ['春','秋'], avoidSeasons: [], note: '' },
   { id: 25, name: '蜜韵蜜兰香',       brand: '宋凰',   cat: 'oolong_dancong', year: 2025, baseNature: '平', caffeine: '中', seasons: ['春','秋'], avoidSeasons: [], note: '' },
 
   // ===== 铁观音 (oolong_tieguanyin) =====
-  { id: 26, name: '浓香铁观音·赛珍珠1000', brand: '八马', cat: 'oolong_tieguanyin', year: 2025, baseNature: '平', caffeine: '中', seasons: ['春','秋'], avoidSeasons: [], note: '' },
+  { id: 26, name: '赛珍珠1000浓香铁观音', brand: '八马', cat: 'oolong_tieguanyin', year: 2025, baseNature: '平', caffeine: '中', seasons: ['春','秋'], avoidSeasons: [], note: '' },
   { id: 27, name: '清香铁观音·秋茶',  brand: '凤山',   cat: 'oolong_tieguanyin', year: 2024, baseNature: '平', caffeine: '中', seasons: ['春','秋'], avoidSeasons: [], note: '收货后喝了一次，当时感觉很难喝' },
 
   // ===== 武夷岩茶 (oolong_wuyi) =====
   { id: 28, name: '肉桂（中火）',     brand: '虎标',   cat: 'oolong_wuyi', year: 2023, baseNature: '平', caffeine: '中', seasons: ['秋','冬'], avoidSeasons: [], note: '' },
   { id: 29, name: '大红袍（中火）',   brand: '虎标',   cat: 'oolong_wuyi', year: 2022, baseNature: '平', caffeine: '中', seasons: ['秋','冬'], avoidSeasons: [], note: '' },
   { id: 30, name: '黄条大红袍（足火）', brand: '武夷星', cat: 'oolong_wuyi', year: 2022, baseNature: '平', caffeine: '中', seasons: ['秋','冬'], avoidSeasons: [], note: '' },
-  { id: 31, name: '铁罗汉（轻火）',   brand: '武夷星', cat: 'oolong_wuyi', year: null, baseNature: '平', caffeine: '中', seasons: ['秋','冬'], avoidSeasons: [], note: '以前方铁盒装的，这个系列好几种，其他几个都喝了，实在难喝' },
+  { id: 31, name: '山语系列·铁罗汉（中火）', brand: '武夷星', cat: 'oolong_wuyi', year: null, baseNature: '平', caffeine: '中', seasons: ['秋','冬'], avoidSeasons: [], note: '以前方铁盒装的，这个系列好几种，其他几个都喝了，实在难喝' },
   { id: 32, name: '铁罗汉（足火）',   brand: '海堤',   cat: 'oolong_wuyi', year: 2022, baseNature: '平', caffeine: '中', seasons: ['秋','冬'], avoidSeasons: [], note: '' },
-  { id: 33, name: '水晶龟（足火）',   brand: '海堤',   cat: 'oolong_wuyi', year: 2021, baseNature: '平', caffeine: '中', seasons: ['秋','冬'], avoidSeasons: [], note: '' },
+  { id: 33, name: '喜上眉梢·水晶龟（足火）', brand: '海堤',   cat: 'oolong_wuyi', year: 2021, baseNature: '平', caffeine: '中', seasons: ['秋','冬'], avoidSeasons: [], note: '' },
   { id: 34, name: '新黄罐老枞水仙（足火）', brand: '海堤', cat: 'oolong_wuyi', year: 2021, baseNature: '平', caffeine: '中', seasons: ['秋','冬'], avoidSeasons: [], note: '' },
   { id: 35, name: '黄罐老枞水仙（足火）', brand: '海堤', cat: 'oolong_wuyi', year: 2020, baseNature: '平', caffeine: '中', seasons: ['秋','冬'], avoidSeasons: [], note: '' },
   { id: 36, name: '红罐大红袍（足火）', brand: '海堤', cat: 'oolong_wuyi', year: 2020, baseNature: '平', caffeine: '中', seasons: ['秋','冬'], avoidSeasons: [], note: '' },
   { id: 37, name: '小黄罐老枞水仙（中足火）', brand: '海堤', cat: 'oolong_wuyi', year: 2023, baseNature: '平', caffeine: '中', seasons: ['秋','冬'], avoidSeasons: [], note: '' },
-  { id: 38, name: '轻享肉桂（中火）', brand: '海堤',   cat: 'oolong_wuyi', year: 2022, baseNature: '平', caffeine: '中', seasons: ['秋','冬'], avoidSeasons: [], note: '' },
+  { id: 38, name: '乐享肉桂（中火）', brand: '海堤',   cat: 'oolong_wuyi', year: 2022, baseNature: '平', caffeine: '中', seasons: ['秋','冬'], avoidSeasons: [], note: '' },
   { id: 39, name: '单枞奇种（足火）', brand: '海堤',   cat: 'oolong_wuyi', year: 2021, baseNature: '平', caffeine: '中', seasons: ['秋','冬'], avoidSeasons: [], note: '' },
   { id: 40, name: '岩值水仙（中足火）·岩值3000特级', brand: '孝文家', cat: 'oolong_wuyi', year: 2026, baseNature: '平', caffeine: '中', seasons: ['秋','冬'], avoidSeasons: [], note: '' },
   { id: 41, name: '岩值肉桂（中足火）·岩值2000一级', brand: '孝文家', cat: 'oolong_wuyi', year: 2025, baseNature: '平', caffeine: '中', seasons: ['秋','冬'], avoidSeasons: [], note: '' },

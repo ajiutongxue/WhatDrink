@@ -69,6 +69,7 @@ Page({
     parserModel: 'deepseek-v4-pro',
     recEnabled: false,
     recModel: 'deepseek-v4-pro',
+    twoStageRecommendationEnabled: false,
     // Recommend settings
     avoidDays: 5,
     // Data management
@@ -117,6 +118,8 @@ Page({
       parserModel: l.parserModel || 'deepseek-v3',
       recEnabled: !!l.enabled,
       recModel: l.recModel || 'deepseek-v4-pro',
+      noteAnalysisEnabled: l.noteAnalysisEnabled !== false,
+      twoStageRecommendationEnabled: !!l.twoStageRecommendationEnabled,
       avoidDays: Math.max(2, parseInt(s.avoidDays) || 5),
       syncStatus: this._getSyncStatus()
     });
@@ -237,6 +240,10 @@ Page({
     this.setData({ recEnabled: e.detail.value });
   },
 
+  onTwoStageRecommendationToggle: function (e) {
+    this.setData({ twoStageRecommendationEnabled: e.detail.value });
+  },
+
   onRecModelInput: function (e) {
     this.setData({ recModel: e.detail.value });
   },
@@ -269,8 +276,10 @@ Page({
       endpoint: this.data.endpoint,
       parserEnabled: this.data.parserEnabled,
       parserModel: this.data.parserModel,
+      noteAnalysisEnabled: this.data.noteAnalysisEnabled,
       enabled: this.data.recEnabled,
-      recModel: this.data.recModel
+      recModel: this.data.recModel,
+      twoStageRecommendationEnabled: this.data.twoStageRecommendationEnabled
     };
     data.save(appData);
     this._appData = appData;
@@ -345,6 +354,11 @@ Page({
         var fs = wx.getFileSystemManager();
         try {
           var content = fs.readFileSync(filePath, 'utf-8');
+          var parsed = JSON.parse(content);
+          if (parsed && parsed.purpose === 'import') {
+            self._confirmKnowledgePackageInstall(parsed, content);
+            return;
+          }
           var success = data.importJSON(content);
           if (success) {
             self._loadSettings();
@@ -353,7 +367,27 @@ Page({
             wx.showToast({ title: '导入失败：格式不正确', icon: 'none', duration: 3000 });
           }
         } catch (e) {
-          wx.showToast({ title: '读取文件失败', icon: 'none', duration: 3000 });
+          wx.showToast({ title: '读取文件失败或 JSON 格式不正确', icon: 'none', duration: 3000 });
+        }
+      }
+    });
+  },
+
+  _confirmKnowledgePackageInstall: function (manifest, content) {
+    var self = this;
+    wx.showModal({
+      title: '安装基础知识包',
+      content: '版本 ' + (manifest.catalogVersion || '未知') + '，包含 ' +
+        ((manifest.teas && manifest.teas.length) || 0) + ' 款画像。将替换本地基础画像并保留上一版备份；不会上传云端，也不会修改个人记录。',
+      confirmText: '确认安装',
+      success: function (res) {
+        if (!res.confirm) return;
+        var result = data.importTeaKnowledgePackage(content);
+        if (result.ok) {
+          self._loadSettings();
+          wx.showToast({ title: '知识包已安装', icon: 'success' });
+        } else {
+          wx.showModal({ title: '安装失败', content: result.error || '知识包校验未通过', showCancel: false });
         }
       }
     });

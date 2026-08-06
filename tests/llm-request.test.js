@@ -61,7 +61,7 @@ async function run() {
     25
   );
   assert.strictEqual(qwen.data.enable_thinking, false, 'Qwen hybrid models should disable thinking');
-  assert.ok(qwen.data.messages[1].content.indexOf('25. Test Tea 25') >= 0, 'all eligible teas should be sent to the LLM');
+  assert.ok(qwen.data.messages[1].content.indexOf('25. [id:25] Test Tea 25') >= 0, 'all eligible teas should be sent to the LLM');
   assert.ok(qwen.data.messages[1].content.indexOf('不要包含序号、破折号及后续属性') >= 0, 'prompt should prevent Qwen from copying the full candidate row into name');
 
   var thinkingOnly = await call(
@@ -132,6 +132,29 @@ async function run() {
   var conservative = llm.normalizeNoteAnalysis({ explicitSentiment: 'negative', confidence: 0.6, dislikedTraits: ['涩'] }, 456);
   assert.strictEqual(conservative.explicitSentiment, 'unknown', 'low-confidence inferred sentiment must not affect preference');
 
+  var detailedTeas = teas(25);
+  detailedTeas[0]._knowledgeSummary = { aromaTags: ['floral'], completeness: 0.8, opened: true };
+  detailedTeas[0]._knowledgeDetail = { profile: { sensory: { aromaTags: { value: ['floral'] } } }, inventory: [{ status: 'opened', remainingWeight: 20 }] };
+  mockResult = { candidates: [
+    { teaId: 1, score: 0.9, group: 'current_fit' },
+    { teaId: 2, score: 0.8, group: 'exploration' },
+    { teaId: 999, score: 1, group: 'current_fit' }
+  ] };
+  var coarse = await llm.callLLMCoarse(detailedTeas, {}, {
+    apiKey: 'test-key', endpoint: 'https://dashscope.aliyuncs.com/compatible-mode/v1', recModel: 'qwen3.7-plus'
+  });
+  assert.deepStrictEqual(coarse.candidates.map(function(row) { return row.teaId; }), [1, 2], 'coarse output must stay inside the full eligible pool');
+  assert.ok(capturedRequest.data.messages[1].content.indexOf('25. [id:25] Test Tea 25') >= 0, 'coarse stage must see every eligible tea');
+  assert.ok(capturedRequest.data.messages[1].content.indexOf('完整画像:') < 0, 'coarse stage must not receive detailed profiles');
+
+  mockResult = { primary: { teaId: 2, name: 'Tea Outside Library' }, alternative: { teaId: 1, name: '' }, today_avoid_note: '' };
+  var fine = await llm.callLLM(detailedTeas.slice(0, 2), { fine: true }, {
+    apiKey: 'test-key', endpoint: 'https://dashscope.aliyuncs.com/compatible-mode/v1', recModel: 'qwen3.7-plus'
+  });
+  assert.strictEqual(fine.primary._teaId, 2, 'fine stage must prefer stable teaId over a conflicting display name');
+  assert.strictEqual(fine.primary.name, 'Test Tea 2');
+  assert.strictEqual(fine.alternative._teaId, 1, 'alternative may be resolved by teaId without a copied name');
+  assert.ok(capturedRequest.data.messages[1].content.indexOf('完整画像:') >= 0, 'fine stage must include the selected teas detailed profiles');
   console.log('llm request tests passed');
 }
 
