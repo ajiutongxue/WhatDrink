@@ -2,6 +2,8 @@
 
 var assert = require('assert');
 var importPackage = require('../data/tea-knowledge.import-v1.json');
+var runtimeCatalog = require('../data/teaKnowledgeCatalog');
+assert.deepStrictEqual(runtimeCatalog, importPackage, 'generated runtime catalog must stay in sync with the import package');
 
 function clone(value) {
   return JSON.parse(JSON.stringify(value));
@@ -30,6 +32,13 @@ async function run() {
 
   delete require.cache[require.resolve('../utils/data')];
   var data = require('../utils/data');
+  var defaults = data.getDefaultData();
+  assert.strictEqual(defaults.knowledgeBase.catalogVersion, 'research-v1', 'fresh installs must include the built-in knowledge catalog');
+  assert.strictEqual(Object.keys(defaults.knowledgeBase.profilesByTeaId).length, 86);
+  storage.tea_doctor_v1 = clone(defaults);
+  storage.tea_doctor_v1.knowledgeBase = { profilesByTeaId: {} };
+  assert.strictEqual(Object.keys(data.load().knowledgeBase.profilesByTeaId).length, 86, 'legacy or cleared empty baselines must recover from the built-in catalog');
+
   var installed = data.importTeaKnowledgePackage(importPackage);
   assert.strictEqual(installed.ok, true, installed.error);
   assert.strictEqual(installed.knowledgeBase.catalogVersion, 'research-v1');
@@ -48,8 +57,8 @@ async function run() {
   assert.strictEqual(data.rollbackTeaKnowledgePackage(), true, 'the previous baseline should be restorable');
   var rolledBack = data.load();
   assert.strictEqual(rolledBack.profile.city, '杭州', 'rollback must not revert user profile data');
-  assert.strictEqual(rolledBack.knowledgeBase.catalogVersion, '');
-  assert.strictEqual(Object.keys(rolledBack.knowledgeBase.profilesByTeaId).length, 0);
+  assert.strictEqual(rolledBack.knowledgeBase.catalogVersion, 'research-v1');
+  assert.strictEqual(Object.keys(rolledBack.knowledgeBase.profilesByTeaId).length, 86, 'rollback must never leave the app without its built-in baseline');
 
   assert.strictEqual(data.importTeaKnowledgePackage(importPackage).ok, true);
   var baseProfile = data.load().knowledgeBase.profilesByTeaId[1];
@@ -82,14 +91,32 @@ async function run() {
   }).ok, false, 'required identity fields must not be cleared');
 
   var inventory = data.upsertInventoryItem({
-    teaId: 1, packageType: 'sample', packageLabel: '5g试饮装', status: 'opened', quantity: 1,
-    netWeightPerUnit: 5, remainingWeight: 3, openedAt: Date.now()
+    teaId: 1, packageType: 'retail', packageLabel: '100g袋装', status: 'sealed', quantity: 2,
+    netWeightPerUnit: 100, remainingSessions: 10
   });
   assert.strictEqual(inventory.ok, true, inventory.error);
-  assert.strictEqual(data.listInventory(1).length, 1);
-  assert.strictEqual(data.deleteInventoryItem(inventory.item.id), true);
-  assert.strictEqual(data.listInventory(1).length, 0, 'deleted inventory must remain a tombstone, not an active package');
-  assert.strictEqual(data.load().inventory.length, 1);
+  var opened = data.openInventoryItem(inventory.item.id);
+  assert.strictEqual(opened.ok, true, opened.error);
+  assert.strictEqual(opened.split, true, 'opening one package from an aggregate must split a new physical record');
+  assert.strictEqual(opened.item.status, 'opened');
+  assert.strictEqual(opened.item.quantity, 1);
+  assert.strictEqual(opened.item.remainingWeight, 100);
+  var afterOpen = data.listInventory(1);
+  assert.strictEqual(afterOpen.length, 2);
+  assert.strictEqual(afterOpen.filter(function(item) { return item.status === 'sealed'; })[0].quantity, 1);
+
+  var consumed = data.consumeInventorySession(opened.item.id);
+  assert.strictEqual(consumed.ok, true, consumed.error);
+  assert.strictEqual(consumed.item.remainingSessions, 9);
+  var finished = data.finishInventoryItem(opened.item.id);
+  assert.strictEqual(finished.ok, true, finished.error);
+  assert.strictEqual(finished.item.status, 'finished');
+  assert.strictEqual(finished.item.remainingSessions, 0);
+  assert.strictEqual(finished.item.remainingWeight, 0);
+  assert.strictEqual(data.consumeInventorySession(opened.item.id).ok, false, 'finished packages cannot be consumed again');
+  assert.strictEqual(data.deleteInventoryItem(opened.item.id), true);
+  assert.strictEqual(data.listInventory(1).length, 1, 'deleted inventory must remain a tombstone, not an active package');
+  assert.strictEqual(data.load().inventory.length, 2);
 
   failPrimaryWrite = true;
   var failed = data.importTeaKnowledgePackage(importPackage);
@@ -100,7 +127,13 @@ async function run() {
   var synced = await data.sync();
   assert.strictEqual(synced.knowledgeBase.catalogVersion, 'research-v1', 'user-data sync must retain the local-only knowledge baseline');
   assert.ok(synced.knowledgeOverrides['1'], 'user overrides must survive the current cloud sync');
-  assert.strictEqual(synced.inventory.length, 1, 'inventory tombstones must survive the current cloud sync');
+  assert.strictEqual(synced.inventory.length, 2, 'inventory records and tombstones must survive the current cloud sync');
+
+  data.reset();
+  var resetData = data.load();
+  assert.strictEqual(Object.keys(resetData.knowledgeBase.profilesByTeaId).length, 86, 'resetting personal data must restore the built-in baseline');
+  assert.deepStrictEqual(resetData.knowledgeOverrides, {}, 'reset must still clear personal knowledge overrides');
+  assert.deepStrictEqual(resetData.inventory, [], 'reset must still clear personal inventory');
 
   console.log('tea knowledge storage tests passed');
 }

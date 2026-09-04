@@ -77,10 +77,18 @@ npm run verify
 ```
 
 - `npm test`：运行全部 `tests/*.test.js`。
-- `npm run check`：检查 JavaScript 语法、JSON、页面文件、TabBar 资源、WXML 事件处理器及云函数配置。
+- `npm run check`：检查 JavaScript 语法、JSON、页面文件、TabBar 资源、WXML 事件处理器、云函数配置和主包体积。
 - `npm run verify`：依次运行项目静态检查、UI 原型结构检查和全部测试。
 
 这些命令不能替代微信开发者工具编译和真机测试。
+
+## 包体积
+
+小程序主包上限为 2 MB。`project.config.json` 的 `packOptions.ignore` 排除了不参与运行的文件：文档、测试、脚本、UI 原型，以及 `data/` 下的茶叶知识研究产物（模型原始输出、批次输入、生成源 JSON）。运行时只需要 `data/teaKnowledgeCatalog.js` 和 `data/teaKnowledgeContract.js`，其余知识数据是离线生产物料，留在仓库里供重新生成，但不进包。
+
+`npm run check` 会在打包体积超过 1.8 MB 时告警、超过 2 MB 时报错。往 `data/` 或 `utils/` 新增大文件后必须重跑，否则真机预览会因超限失败。
+
+如果体积再次逼近上限，优先把资产移入分包，而不是继续扩充主包。
 
 ## UI 设计迭代
 

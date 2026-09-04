@@ -250,6 +250,14 @@ async function run() {
   assert.strictEqual(duplicateMerge.ok, false);
   assert.ok(hasError(duplicateMerge, 'duplicate profile teaId 14 across batches'));
 
+  var identityFallback = teaKnowledge.getTeaLibraryIdentityField({ name: '预留茶', brand: '测试品牌', cat: 'green', year: 2025 }, 'brand', 123);
+  assert.deepStrictEqual(identityFallback, {
+    value: '测试品牌', status: 'confirmed', sourceType: 'user', confidence: 1, updatedAt: 123,
+    evidence: '来自当前茶库基础信息；不是联网查证结果'
+  });
+  assert.strictEqual(teaKnowledge.getTeaLibraryIdentityField({ name: '预留茶' }, 'productCode', 123), null, 'unknown product codes must not be invented from the tea library');
+  assert.strictEqual(teaKnowledge.getTeaLibraryIdentityField({ name: '预留茶', brand: '' }, 'brand', 123), null, 'blank tea-library values must remain unknown');
+
   console.log('tea knowledge contract tests passed');
 }
 

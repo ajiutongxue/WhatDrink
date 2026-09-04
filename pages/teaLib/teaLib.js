@@ -17,6 +17,64 @@ var KNOWLEDGE_FIELD_LABELS = {
 };
 var KNOWLEDGE_STATUS_LABELS = { confirmed: '已确认', researched: '已查证', inherited: '类别继承', inferred: '模型推测', personal: '个人记录', conflicted: '存在冲突', unknown: '待补充' };
 var KNOWLEDGE_SOURCE_LABELS = { user: '用户', package: '实物包装', purchase: '购买记录', official: '官方', retailer: '零售页面', community: '茶友资料', category_default: '茶类默认', llm: '模型推测', unknown: '未知' };
+var INVENTORY_PACKAGE_TYPES = [
+  { key: 'sample', label: '试饮装' }, { key: 'retail', label: '正装' }, { key: 'split', label: '分装' },
+  { key: 'gift', label: '礼盒拆分' }, { key: 'custom', label: '自定义' }, { key: 'unknown', label: '未知' }
+];
+var INVENTORY_STATUSES = [
+  { key: 'sealed', label: '未开封' }, { key: 'opened', label: '已开封' }, { key: 'finished', label: '已喝完' }, { key: 'unknown', label: '待确认' }
+];
+
+function _inventoryOptionIndex(options, key, fallback) {
+  for (var i = 0; i < options.length; i++) if (options[i].key === key) return i;
+  return fallback || 0;
+}
+
+function _inventoryOptionalNumber(value, integerOnly) {
+  var text = String(value == null ? '' : value).trim();
+  if (!text) return { ok: true, value: undefined };
+  var number = Number(text);
+  if (!isFinite(number) || number < 0 || (integerOnly && !Number.isInteger(number))) {
+    return { ok: false, error: integerOnly ? '请输入非负整数' : '请输入非负数字' };
+  }
+  return { ok: true, value: number };
+}
+
+function _inventoryDateText(timestamp) {
+  if (!timestamp) return '';
+  var date = new Date(timestamp);
+  var pad = function(value) { return value < 10 ? '0' + value : String(value); };
+  return date.getFullYear() + '-' + pad(date.getMonth() + 1) + '-' + pad(date.getDate());
+}
+
+function _inventoryPresentation(items) {
+  return (items || []).map(function(item) {
+    var statusIndex = _inventoryOptionIndex(INVENTORY_STATUSES, item.status, 0);
+    var typeIndex = _inventoryOptionIndex(INVENTORY_PACKAGE_TYPES, item.packageType, INVENTORY_PACKAGE_TYPES.length - 1);
+    var details = [INVENTORY_PACKAGE_TYPES[typeIndex].label, INVENTORY_STATUSES[statusIndex].label];
+    details.push((Number(item.quantity) || 1) + ' 份');
+    if (typeof item.netWeightPerUnit === 'number') details.push('每份 ' + item.netWeightPerUnit + 'g');
+    if (typeof item.remainingWeight === 'number') details.push('剩余 ' + item.remainingWeight + 'g');
+    if (Number.isInteger(item.remainingSessions)) details.push('约 ' + item.remainingSessions + ' 泡');
+    if (item.openedAt) details.push('开封 ' + _inventoryDateText(item.openedAt));
+    var lowStock = item.status === 'opened' && ((Number.isInteger(item.remainingSessions) && item.remainingSessions <= 1) ||
+      (typeof item.remainingWeight === 'number' && item.remainingWeight <= 5));
+    return {
+      id: item.id,
+      packageLabel: item.packageLabel || '未命名包装',
+      detailText: details.join(' · '),
+      note: item.note || '',
+      status: item.status,
+      statusLabel: INVENTORY_STATUSES[statusIndex].label,
+      canOpen: item.status === 'sealed',
+      canConsume: item.status === 'opened' && Number.isInteger(item.remainingSessions) && item.remainingSessions > 0,
+      canFinish: item.status === 'opened',
+      lowStock: lowStock,
+      reminderText: lowStock ? '库存较少，可考虑补充或喝完后归档' : ''
+    };
+  });
+}
+
 
 function _knowledgeValueText(value) {
   if (value === null || value === undefined || value === '') return '待补充';
@@ -104,7 +162,9 @@ Page({
     editMode: false,
     // 表单弹层
     showForm: false,
-    showKnowledge: false, knowledgeTeaId: null, knowledgeTeaName: '', knowledgeHasBase: false, knowledgeSections: [], knowledgeFieldEditing: false, knowledgeEditPath: '', knowledgeEditLabel: '', knowledgeEditValue: '', knowledgeEditHint: '', knowledgeEditDescription: '', knowledgeEditLocked: false, knowledgeEditOverridden: false, knowledgeEditCanClear: true, inventoryItems: [], inventoryLabel: '', inventoryWeight: '', inventoryQuantity: '1', inventoryStatus: 'sealed', inventoryStatusOptions: ['未开封', '已开封'], inventoryStatusIndex: 0,
+    showKnowledge: false, knowledgeTeaId: null, knowledgeTeaName: '', knowledgeHasBase: false, knowledgeSections: [], knowledgeFieldEditing: false, knowledgeEditPath: '', knowledgeEditLabel: '', knowledgeEditValue: '', knowledgeEditHint: '', knowledgeEditDescription: '', knowledgeEditLocked: false, knowledgeEditOverridden: false, knowledgeEditCanClear: true,
+    inventoryItems: [], inventoryEditing: false, inventoryFormTitle: '新增包装', inventoryPackageTypeOptions: INVENTORY_PACKAGE_TYPES.map(function(item) { return item.label; }), inventoryPackageTypeIndex: 4, inventoryStatusOptions: INVENTORY_STATUSES.map(function(item) { return item.label; }), inventoryStatusIndex: 0,
+    inventoryForm: { id: null, packageType: 'custom', packageLabel: '', status: 'sealed', quantity: '1', netWeightPerUnit: '', remainingWeight: '', remainingSessions: '', sku: '', purchaseUrl: '', openedAt: 0, note: '' },
     formType: 'add',       // 'add' | 'edit'
     formTitle: '添加茶叶',
     form: {
@@ -346,6 +406,10 @@ Page({
       Object.keys(definitions).forEach(function(fieldName) {
         var path = sectionName + '.' + fieldName;
         var baseField = profile && profile[sectionName] && profile[sectionName][fieldName];
+        var fallbackField = sectionName === 'identity' ? teaKnowledge.getTeaLibraryIdentityField(tea, fieldName, appData.teaLibraryUpdatedAt) : null;
+        if ((!baseField || baseField.value === null || baseField.value === undefined || baseField.value === '') && fallbackField) {
+          baseField = fallbackField;
+        }
         var hasOverride = Object.prototype.hasOwnProperty.call(patch, path);
         var field = hasOverride ? patch[path] : (baseField || { value: null, status: 'unknown', sourceType: 'unknown', confidence: 0 });
         var definition = definitions[fieldName];
@@ -371,7 +435,7 @@ Page({
       knowledgeTeaName: tea ? tea.name : '未知茶款',
       knowledgeHasBase: !!profile,
       knowledgeSections: sections,
-      inventoryItems: data.listInventory(teaId)
+      inventoryItems: _inventoryPresentation(data.listInventory(teaId))
     });
   },
 
@@ -431,29 +495,138 @@ Page({
     wx.showToast({ title: this.data.knowledgeHasBase ? '已恢复基础值' : '已移除个人值', icon: 'success' });
   },
 
-  onInventoryLabelInput: function (e) { this.setData({ inventoryLabel: e.detail.value }); },
-  onInventoryWeightInput: function (e) { this.setData({ inventoryWeight: e.detail.value }); },
-  onInventoryQuantityInput: function (e) { this.setData({ inventoryQuantity: e.detail.value }); },
-  onInventoryStatusChange: function (e) {
+  onInventoryCreate: function () {
+    this.setData({
+      inventoryEditing: true,
+      inventoryFormTitle: '新增包装',
+      inventoryPackageTypeIndex: 4,
+      inventoryStatusIndex: 0,
+      inventoryForm: { id: null, packageType: 'custom', packageLabel: '', status: 'sealed', quantity: '1', netWeightPerUnit: '', remainingWeight: '', remainingSessions: '', sku: '', purchaseUrl: '', openedAt: 0, note: '' }
+    });
+  },
+  onInventoryEdit: function (e) {
+    var id = e.currentTarget.dataset.id;
+    var item = data.listInventory(this.data.knowledgeTeaId).filter(function(record) { return record.id === id; })[0];
+    if (!item) { wx.showToast({ title: '库存记录不存在', icon: 'none' }); return; }
+    this.setData({
+      inventoryEditing: true,
+      inventoryFormTitle: '编辑包装',
+      inventoryPackageTypeIndex: _inventoryOptionIndex(INVENTORY_PACKAGE_TYPES, item.packageType, 4),
+      inventoryStatusIndex: _inventoryOptionIndex(INVENTORY_STATUSES, item.status, 0),
+      inventoryForm: {
+        id: item.id, packageType: item.packageType, packageLabel: item.packageLabel || '', status: item.status,
+        quantity: String(item.quantity || 1), netWeightPerUnit: item.netWeightPerUnit === undefined ? '' : String(item.netWeightPerUnit),
+        remainingWeight: item.remainingWeight === undefined ? '' : String(item.remainingWeight), remainingSessions: item.remainingSessions === undefined ? '' : String(item.remainingSessions),
+        sku: item.sku || '', purchaseUrl: item.purchaseUrl || '', openedAt: item.openedAt || 0, note: item.note || ''
+      }
+    });
+  },
+  onInventoryBack: function () { this.setData({ inventoryEditing: false }); },
+  onInventoryPackageTypeChange: function (e) {
     var index = Number(e.detail.value) || 0;
-    this.setData({ inventoryStatusIndex: index, inventoryStatus: index === 0 ? 'sealed' : 'opened' });
+    this.setData({ inventoryPackageTypeIndex: index, 'inventoryForm.packageType': INVENTORY_PACKAGE_TYPES[index].key });
   },
-  onAddInventory: function () {
-    var status = this.data.inventoryStatus;
-    var quantity = Math.max(1, Number(this.data.inventoryQuantity) || 1);
-    if (status === 'opened') quantity = 1;
-    var weight = Number(this.data.inventoryWeight);
-    var result = data.upsertInventoryItem({ teaId: this.data.knowledgeTeaId, packageType: 'custom',
-      packageLabel: (this.data.inventoryLabel || '').trim() || '未命名包装', status: status, quantity: quantity,
-      netWeightPerUnit: isFinite(weight) && weight > 0 ? weight : undefined,
-      remainingWeight: status === 'opened' && isFinite(weight) && weight > 0 ? weight : undefined,
-      openedAt: status === 'opened' ? Date.now() : undefined });
-    if (!result.ok) { wx.showToast({ title: '包装信息不正确', icon: 'none' }); return; }
-    this.setData({ inventoryLabel: '', inventoryWeight: '', inventoryQuantity: '1' });
+  onInventoryStatusChange: function (e) {
+    if (this.data.inventoryForm.id && this.data.inventoryForm.status !== 'unknown') return;
+    var index = Number(e.detail.value) || 0;
+    if (index >= 2) { wx.showToast({ title: '请选择未开封或已开封', icon: 'none' }); return; }
+    var status = INVENTORY_STATUSES[index].key;
+    this.setData({ inventoryStatusIndex: index, 'inventoryForm.status': status, 'inventoryForm.quantity': status === 'sealed' ? this.data.inventoryForm.quantity : '1' });
+  },
+  onInventoryLabelInput: function (e) { this.setData({ 'inventoryForm.packageLabel': e.detail.value }); },
+  onInventoryQuantityInput: function (e) { this.setData({ 'inventoryForm.quantity': e.detail.value }); },
+  onInventoryNetWeightInput: function (e) { this.setData({ 'inventoryForm.netWeightPerUnit': e.detail.value }); },
+  onInventoryRemainingWeightInput: function (e) { this.setData({ 'inventoryForm.remainingWeight': e.detail.value }); },
+  onInventoryRemainingSessionsInput: function (e) { this.setData({ 'inventoryForm.remainingSessions': e.detail.value }); },
+  onInventorySkuInput: function (e) { this.setData({ 'inventoryForm.sku': e.detail.value }); },
+  onInventoryPurchaseUrlInput: function (e) { this.setData({ 'inventoryForm.purchaseUrl': e.detail.value }); },
+  onInventoryNoteInput: function (e) { this.setData({ 'inventoryForm.note': e.detail.value }); },
+  onInventoryFormSave: function () {
+    var form = this.data.inventoryForm;
+    var netWeight = _inventoryOptionalNumber(form.netWeightPerUnit, false);
+    var remainingWeight = _inventoryOptionalNumber(form.remainingWeight, false);
+    var remainingSessions = _inventoryOptionalNumber(form.remainingSessions, true);
+    if (!netWeight.ok || !remainingWeight.ok || !remainingSessions.ok) {
+      wx.showToast({ title: (!netWeight.ok ? '每份克数：' + netWeight.error : (!remainingWeight.ok ? '剩余克数：' + remainingWeight.error : '剩余泡数：' + remainingSessions.error)), icon: 'none' });
+      return;
+    }
+    var quantity = Number(form.quantity);
+    if (form.status === 'sealed' && (!Number.isInteger(quantity) || quantity < 1)) {
+      wx.showToast({ title: '数量应为正整数', icon: 'none' }); return;
+    }
+    if (remainingWeight.value !== undefined && netWeight.value !== undefined && remainingWeight.value > netWeight.value) {
+      wx.showToast({ title: '剩余克数不能超过每份克数', icon: 'none' }); return;
+    }
+    var record = {
+      id: form.id || undefined,
+      teaId: this.data.knowledgeTeaId,
+      packageType: form.packageType,
+      packageLabel: (form.packageLabel || '').trim() || '未命名包装',
+      status: form.status,
+      quantity: form.status === 'sealed' ? quantity : 1,
+      netWeightPerUnit: netWeight.value,
+      remainingWeight: form.status === 'sealed' ? undefined : remainingWeight.value,
+      remainingSessions: form.status === 'sealed' ? undefined : remainingSessions.value,
+      openedAt: form.status === 'sealed' ? undefined : (form.openedAt || Date.now()),
+      sku: (form.sku || '').trim() || undefined,
+      purchaseUrl: (form.purchaseUrl || '').trim() || undefined,
+      note: (form.note || '').trim() || undefined
+    };
+    if (!form.id && form.status === 'opened' && record.remainingWeight === undefined && record.netWeightPerUnit !== undefined) {
+      record.remainingWeight = record.netWeightPerUnit;
+    }
+    if (form.status === 'opened') {
+      var weightEmpty = record.remainingWeight === undefined || record.remainingWeight === 0;
+      var sessionsEmpty = record.remainingSessions === undefined || record.remainingSessions === 0;
+      var hasRemainingMeasure = record.remainingWeight !== undefined || record.remainingSessions !== undefined;
+      if (hasRemainingMeasure && weightEmpty && sessionsEmpty) record.status = 'finished';
+    }
+    if (record.status === 'finished') {
+      if (record.remainingWeight !== undefined) record.remainingWeight = 0;
+      if (record.remainingSessions !== undefined) record.remainingSessions = 0;
+    }
+    var result = data.upsertInventoryItem(record);
+    if (!result.ok) { wx.showToast({ title: '保存失败：' + (result.error || '包装信息不正确'), icon: 'none', duration: 3000 }); return; }
+    this.setData({ inventoryEditing: false });
     this._refreshKnowledgePanel(this.data.knowledgeTeaId);
-    this._loadLibrary(); wx.showToast({ title: '包装已添加', icon: 'success' });
+    this._loadLibrary();
+    wx.showToast({ title: form.id ? '包装已更新' : '包装已添加', icon: 'success' });
   },
-  onKnowledgeClose: function () { this.setData({ showKnowledge: false, knowledgeFieldEditing: false }); },
+  onInventoryOpen: function (e) {
+    var self = this; var id = e.currentTarget.dataset.id;
+    wx.showModal({ title: '开封一包', content: '将建立一条独立的已开封记录；多份未开封包装会保留剩余数量。', confirmText: '确认开封', success: function(res) {
+      if (!res.confirm) return;
+      var result = data.openInventoryItem(id);
+      if (!result.ok) { wx.showToast({ title: result.error || '开封失败', icon: 'none' }); return; }
+      self._refreshKnowledgePanel(self.data.knowledgeTeaId); self._loadLibrary();
+      wx.showToast({ title: result.split ? '已开封并拆分记录' : '已开封', icon: 'success' });
+    }});
+  },
+  onInventoryConsume: function (e) {
+    var result = data.consumeInventorySession(e.currentTarget.dataset.id);
+    if (!result.ok) { wx.showToast({ title: result.error || '无法扣减泡数', icon: 'none' }); return; }
+    this._refreshKnowledgePanel(this.data.knowledgeTeaId); this._loadLibrary();
+    wx.showToast({ title: result.item.status === 'finished' ? '已喝完' : '已扣减一泡', icon: 'success' });
+  },
+  onInventoryFinish: function (e) {
+    var self = this; var id = e.currentTarget.dataset.id;
+    wx.showModal({ title: '标记已喝完', content: '该包装会保留为已喝完记录，不再计入现有库存。', confirmText: '确认喝完', success: function(res) {
+      if (!res.confirm) return;
+      var result = data.finishInventoryItem(id);
+      if (!result.ok) { wx.showToast({ title: result.error || '更新失败', icon: 'none' }); return; }
+      self._refreshKnowledgePanel(self.data.knowledgeTeaId); self._loadLibrary(); wx.showToast({ title: '已标记喝完', icon: 'success' });
+    }});
+  },
+  onInventoryDelete: function (e) {
+    var self = this; var id = e.currentTarget.dataset.id || this.data.inventoryForm.id;
+    if (!id) return;
+    wx.showModal({ title: '删除包装记录', content: '删除后不再展示，但会保留同步所需的删除标记。', confirmColor: '#C25B45', success: function(res) {
+      if (!res.confirm) return;
+      if (!data.deleteInventoryItem(id)) { wx.showToast({ title: '删除失败', icon: 'none' }); return; }
+      self.setData({ inventoryEditing: false }); self._refreshKnowledgePanel(self.data.knowledgeTeaId); self._loadLibrary(); wx.showToast({ title: '包装已删除', icon: 'success' });
+    }});
+  },
+  onKnowledgeClose: function () { this.setData({ showKnowledge: false, knowledgeFieldEditing: false, inventoryEditing: false }); },
   onFormCancel: function () {
     this.setData({ showForm: false });
   },
@@ -635,9 +808,9 @@ Page({
     var completeness = profile && profile.research && Number(profile.research.completeness);
     var override = (appData.knowledgeOverrides || {})[teaId] || {};
     var personalCount = Object.keys(override.patch || {}).length;
-    var label = profile ? '画像 ' + Math.round((isFinite(completeness) ? completeness : 0) * 100) + '%' : (personalCount ? '个人补录 ' + personalCount + ' 项' : '待补充');
+    var label = profile ? '画像 ' + Math.round((isFinite(completeness) ? completeness : 0) * 100) + '%' : (personalCount ? '个人补录 ' + personalCount + ' 项' : '基础信息');
     return {
-      missing: !profile && !personalCount,
+      missing: !profile,
       label: label,
       inventorySummary: parts.join(' · ')
     };

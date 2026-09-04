@@ -172,8 +172,8 @@
   <view class="tea-lib-form knowledge-sheet" catchtap="onStopPropagation">
     <view class="tea-lib-form-title">{{knowledgeTeaName}} · 画像与库存</view>
 
-    <block wx:if="{{!knowledgeFieldEditing}}">
-      <view class="knowledge-base-state {{knowledgeHasBase ? '' : 'missing'}}">{{knowledgeHasBase ? '基础画像已安装；个人修改不会覆盖基础资料' : '暂无基础画像，可先建立个人补录；以后安装基础画像时仍会保留'}}</view>
+    <block wx:if="{{!knowledgeFieldEditing && !inventoryEditing}}">
+      <view class="knowledge-base-state {{knowledgeHasBase ? '' : 'missing'}}">{{knowledgeHasBase ? '基础画像已安装；个人修改不会覆盖基础资料' : '暂无完整基础画像；已显示当前茶库中的名称、品牌、茶类和年份，可继续个人补录'}}</view>
       <scroll-view class="knowledge-scroll" scroll-y enable-flex>
         <block wx:for="{{knowledgeSections}}" wx:key="name" wx:for-item="section">
           <view class="knowledge-section-title">{{section.label}}</view>
@@ -190,14 +190,47 @@
         </block>
 
         <view class="knowledge-section-title">库存包装</view>
-        <view class="knowledge-inventory-summary">现有包装 {{inventoryItems.length}} 条</view>
-        <view wx:for="{{inventoryItems}}" wx:key="id" class="knowledge-inventory-row"><text>{{item.packageLabel}}</text><text>{{item.status === 'sealed' ? '未开' : '已开'}} · {{item.quantity}} 份</text></view>
-        <view class="tea-lib-field"><text class="tea-lib-label">包装名称</text><input class="tea-lib-input" value="{{inventoryLabel}}" bindinput="onInventoryLabelInput" placeholder="如 5g 试饮装" /></view>
-        <view class="tea-lib-field"><text class="tea-lib-label">每份克数</text><input class="tea-lib-input" type="digit" value="{{inventoryWeight}}" bindinput="onInventoryWeightInput" placeholder="选填" /></view>
-        <view class="tea-lib-field"><text class="tea-lib-label">状态</text><picker bindchange="onInventoryStatusChange" value="{{inventoryStatusIndex}}" range="{{inventoryStatusOptions}}"><view class="tea-lib-picker">{{inventoryStatusOptions[inventoryStatusIndex]}}</view></picker></view>
-        <view class="tea-lib-field"><text class="tea-lib-label">数量</text><input class="tea-lib-input" type="number" value="{{inventoryQuantity}}" bindinput="onInventoryQuantityInput" placeholder="1" /></view>
-        <view class="tea-lib-form-btn cancel knowledge-add-package" bindtap="onAddInventory">添加包装</view>
+        <view class="knowledge-inventory-summary">库存记录 {{inventoryItems.length}} 条；已喝完记录不计入茶库库存摘要</view>
+        <view wx:if="{{!inventoryItems.length}}" class="knowledge-inventory-empty">还没有包装记录</view>
+        <view wx:for="{{inventoryItems}}" wx:key="id" class="knowledge-inventory-card {{item.status}}">
+          <view class="knowledge-inventory-head"><text class="knowledge-inventory-name">{{item.packageLabel}}</text><text class="knowledge-inventory-status">{{item.statusLabel}}</text></view>
+          <view class="knowledge-inventory-detail">{{item.detailText}}</view>
+          <view wx:if="{{item.note}}" class="knowledge-inventory-note">备注：{{item.note}}</view>
+          <view wx:if="{{item.reminderText}}" class="knowledge-inventory-reminder">{{item.reminderText}}</view>
+          <view class="knowledge-inventory-actions">
+            <view class="knowledge-inventory-action" catchtap="onInventoryEdit" data-id="{{item.id}}">编辑</view>
+            <view wx:if="{{item.canOpen}}" class="knowledge-inventory-action primary" catchtap="onInventoryOpen" data-id="{{item.id}}">开封一包</view>
+            <view wx:if="{{item.canConsume}}" class="knowledge-inventory-action primary" catchtap="onInventoryConsume" data-id="{{item.id}}">喝一泡</view>
+            <view wx:if="{{item.canFinish}}" class="knowledge-inventory-action" catchtap="onInventoryFinish" data-id="{{item.id}}">喝完</view>
+            <view class="knowledge-inventory-action danger" catchtap="onInventoryDelete" data-id="{{item.id}}">删除</view>
+          </view>
+        </view>
+        <view class="tea-lib-form-btn cancel knowledge-add-package" bindtap="onInventoryCreate">新增包装</view>
         <view class="tea-lib-form-actions"><view class="tea-lib-form-btn cancel" bindtap="onKnowledgeClose">关闭</view></view>
+      </scroll-view>
+    </block>
+
+    <block wx:elif="{{inventoryEditing}}">
+      <view class="knowledge-edit-path">{{inventoryFormTitle}}</view>
+      <scroll-view class="knowledge-scroll inventory-edit-scroll" scroll-y enable-flex>
+        <view class="tea-lib-field"><text class="tea-lib-label">包装类型</text><picker bindchange="onInventoryPackageTypeChange" value="{{inventoryPackageTypeIndex}}" range="{{inventoryPackageTypeOptions}}"><view class="tea-lib-picker">{{inventoryPackageTypeOptions[inventoryPackageTypeIndex]}}</view></picker></view>
+        <view class="tea-lib-field"><text class="tea-lib-label">包装名称</text><input class="tea-lib-input" value="{{inventoryForm.packageLabel}}" bindinput="onInventoryLabelInput" placeholder="如 3g 试饮装、100g 袋装" /></view>
+        <view class="tea-lib-field"><text class="tea-lib-label">状态</text><view wx:if="{{inventoryForm.id && inventoryForm.status !== 'unknown'}}" class="tea-lib-picker">{{inventoryStatusOptions[inventoryStatusIndex]}}（请用状态操作修改）</view><picker wx:else bindchange="onInventoryStatusChange" value="{{inventoryStatusIndex}}" range="{{inventoryStatusOptions}}"><view class="tea-lib-picker">{{inventoryStatusOptions[inventoryStatusIndex]}}</view></picker></view>
+        <view wx:if="{{inventoryForm.status === 'sealed'}}" class="tea-lib-field"><text class="tea-lib-label">数量</text><input class="tea-lib-input" type="number" value="{{inventoryForm.quantity}}" bindinput="onInventoryQuantityInput" placeholder="1" /></view>
+        <view class="tea-lib-field"><text class="tea-lib-label">每份克数</text><input class="tea-lib-input" type="digit" value="{{inventoryForm.netWeightPerUnit}}" bindinput="onInventoryNetWeightInput" placeholder="选填" /></view>
+        <block wx:if="{{inventoryForm.status !== 'sealed'}}">
+          <view class="tea-lib-field"><text class="tea-lib-label">剩余克数</text><input class="tea-lib-input" type="digit" value="{{inventoryForm.remainingWeight}}" bindinput="onInventoryRemainingWeightInput" placeholder="可与泡数二选一" /></view>
+          <view class="tea-lib-field"><text class="tea-lib-label">剩余泡数</text><input class="tea-lib-input" type="number" value="{{inventoryForm.remainingSessions}}" bindinput="onInventoryRemainingSessionsInput" placeholder="可与克数二选一" /></view>
+          <view wx:if="{{inventoryForm.openedAt}}" class="inventory-opened-hint">开封时间已记录；通过“开封一包”操作会自动写入当前时间。</view>
+        </block>
+        <view class="tea-lib-field"><text class="tea-lib-label">SKU / 货号</text><input class="tea-lib-input" value="{{inventoryForm.sku}}" bindinput="onInventorySkuInput" placeholder="选填，仅属于该包装" /></view>
+        <view class="tea-lib-field"><text class="tea-lib-label">购买链接</text><input class="tea-lib-input" value="{{inventoryForm.purchaseUrl}}" bindinput="onInventoryPurchaseUrlInput" placeholder="https://…" /></view>
+        <view class="tea-lib-field inventory-note-field"><text class="tea-lib-label">备注</text><textarea class="inventory-note-input" value="{{inventoryForm.note}}" bindinput="onInventoryNoteInput" placeholder="包装、购买或剩余量说明" auto-height maxlength="500" /></view>
+        <view class="knowledge-edit-actions">
+          <view class="tea-lib-form-btn cancel" bindtap="onInventoryBack">返回</view>
+          <view wx:if="{{inventoryForm.id}}" class="tea-lib-form-btn cancel inventory-delete-btn" bindtap="onInventoryDelete" data-id="{{inventoryForm.id}}">删除</view>
+          <view class="tea-lib-form-btn save" bindtap="onInventoryFormSave">保存</view>
+        </view>
       </scroll-view>
     </block>
 

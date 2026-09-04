@@ -447,3 +447,22 @@
 .knowledge-edit-hint { margin-top: 10rpx; color: var(--ink4); font-size: 21rpx; }
 .knowledge-edit-actions { display: flex; flex-wrap: wrap; gap: 16rpx; margin-top: 28rpx; }
 .knowledge-edit-actions .tea-lib-form-btn { min-width: 42%; padding-left: 16rpx; padding-right: 16rpx; }
+.knowledge-inventory-empty { padding: 28rpx 20rpx; text-align: center; color: var(--ink4); font-size: 23rpx; border-radius: var(--r-sm); background: rgba(255,255,255,.36); }
+.knowledge-inventory-card { margin-bottom: 14rpx; padding: 18rpx 20rpx; border: 1rpx solid rgba(201,184,173,.34); border-radius: var(--r-sm); background: rgba(255,255,255,.5); }
+.knowledge-inventory-card.finished { opacity: .72; }
+.knowledge-inventory-head { display: flex; align-items: center; justify-content: space-between; gap: 18rpx; }
+.knowledge-inventory-name { color: var(--ink); font-size: 26rpx; font-weight: 600; }
+.knowledge-inventory-status { flex-shrink: 0; padding: 4rpx 12rpx; border-radius: 999rpx; color: #5F795B; background: rgba(111,139,105,.14); font-size: 19rpx; }
+.knowledge-inventory-card.opened .knowledge-inventory-status { color: #A65743; background: rgba(194,91,69,.12); }
+.knowledge-inventory-card.finished .knowledge-inventory-status { color: var(--ink3); background: var(--cream2); }
+.knowledge-inventory-detail, .knowledge-inventory-note { margin-top: 9rpx; color: var(--ink3); font-size: 21rpx; line-height: 1.5; }
+.knowledge-inventory-note { color: var(--ink4); }
+.knowledge-inventory-reminder { margin-top: 10rpx; padding: 10rpx 12rpx; border-radius: 10rpx; color: #9B6541; background: rgba(176,122,84,.11); font-size: 20rpx; }
+.knowledge-inventory-actions { display: flex; flex-wrap: wrap; gap: 10rpx; margin-top: 14rpx; }
+.knowledge-inventory-action { padding: 9rpx 16rpx; border-radius: 999rpx; color: var(--ink3); background: var(--cream2); font-size: 21rpx; }
+.knowledge-inventory-action.primary { color: #A65743; background: rgba(194,91,69,.12); }
+.knowledge-inventory-action.danger, .inventory-delete-btn { color: #B05A4A; }
+.inventory-edit-scroll { margin-top: 10rpx; }
+.inventory-opened-hint { padding: 14rpx 0; color: var(--ink4); font-size: 21rpx; line-height: 1.5; }
+.inventory-note-field { align-items: flex-start; }
+.inventory-note-input { box-sizing: border-box; flex: 1; min-height: 90rpx; padding: 12rpx; border-radius: var(--r-sm); color: var(--ink); background: rgba(255,255,255,.46); font-size: 25rpx; }

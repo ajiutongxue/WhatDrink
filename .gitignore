@@ -20,3 +20,6 @@ miniprogram_npm/
 
 # WorkBuddy AI workspace
 .workbuddy/
+
+# UI design references (untracked reference material)
+ui-references*.html

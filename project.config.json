@@ -26,7 +26,88 @@
     "compileType": "miniprogram",
     "simulatorPluginLibVersion": {},
     "packOptions": {
-        "ignore": [],
+        "ignore": [
+            {
+                "type": "folder",
+                "value": "docs"
+            },
+            {
+                "type": "folder",
+                "value": "scripts"
+            },
+            {
+                "type": "folder",
+                "value": "tests"
+            },
+            {
+                "type": "folder",
+                "value": "ui-prototype"
+            },
+            {
+                "type": "folder",
+                "value": ".workbuddy"
+            },
+            {
+                "type": "folder",
+                "value": "data/tea-knowledge-model-outputs"
+            },
+            {
+                "type": "folder",
+                "value": "data/tea-knowledge-research-batches"
+            },
+            {
+                "type": "file",
+                "value": "data/tea-knowledge.import-v1.json"
+            },
+            {
+                "type": "file",
+                "value": "data/tea-knowledge.samples.json"
+            },
+            {
+                "type": "file",
+                "value": "data/tea-knowledge.batch-input.json"
+            },
+            {
+                "type": "file",
+                "value": "data/teaProductResearchObservations.js"
+            },
+            {
+                "type": "file",
+                "value": "data/teaSensoryInferenceDrafts.js"
+            },
+            {
+                "type": "file",
+                "value": "data/teaPackageObservations.js"
+            },
+            {
+                "type": "file",
+                "value": "ui-references.html"
+            },
+            {
+                "type": "file",
+                "value": "ui-references-2.html"
+            },
+            {
+                "type": "file",
+                "value": "ui-references-3.html"
+            },
+            {
+                "type": "file",
+                "value": "ui-references-4.html"
+            },
+            {
+                "type": "file",
+                "value": "ui-references-5.html"
+            },
+            {
+                "type": "file",
+                "value": "ui-references-6.html"
+            },
+            {
+                "type": "suffix",
+                "value": ".md"
+            }
+        ],
         "include": []
     },
     "appid": "wx7ddee1952f1ee69b",

@@ -139,6 +139,64 @@ function checkCloudFunctions() {
   }
 }
 
+var MAIN_PACKAGE_LIMIT = 2 * 1024 * 1024;
+var MAIN_PACKAGE_WARN = 1.8 * 1024 * 1024;
+
+function isIgnored(relative, name, rules) {
+  return rules.some(function(rule) {
+    if (rule.type === 'file') return relative === rule.value;
+    if (rule.type === 'folder') return relative === rule.value || relative.indexOf(rule.value + '/') === 0;
+    if (rule.type === 'suffix') return name.slice(-rule.value.length) === rule.value;
+    if (rule.type === 'prefix') return name.slice(0, rule.value.length) === rule.value;
+    return false;
+  });
+}
+
+function checkPackSize() {
+  var project = readJSON(path.join(root, 'project.config.json'));
+  var rules = (project && project.packOptions && Array.isArray(project.packOptions.ignore))
+    ? project.packOptions.ignore.filter(function(rule) { return rule && rule.type && rule.value; })
+    : [];
+
+  var excluded = ['.git', 'node_modules', 'miniprogram_npm', 'cloudfunctions'];
+  var total = 0;
+  var largest = [];
+
+  function walkPack(dir) {
+    fs.readdirSync(dir, { withFileTypes: true }).forEach(function(entry) {
+      var full = path.join(dir, entry.name);
+      var relative = rel(full);
+      if (entry.isDirectory()) {
+        if (excluded.indexOf(entry.name) >= 0) return;
+        if (isIgnored(relative, entry.name, rules)) return;
+        walkPack(full);
+        return;
+      }
+      if (isIgnored(relative, entry.name, rules)) return;
+      var size = fs.statSync(full).size;
+      total += size;
+      largest.push({ size: size, path: relative });
+    });
+  }
+  walkPack(root);
+
+  largest.sort(function(a, b) { return b.size - a.size; });
+  var mb = function(bytes) { return (bytes / 1024 / 1024).toFixed(2) + ' MB'; };
+
+  if (total > MAIN_PACKAGE_LIMIT) {
+    fail('Packed size ' + mb(total) + ' exceeds the 2 MB main package limit by ' + mb(total - MAIN_PACKAGE_LIMIT) +
+      '. Add rules to project.config.json packOptions.ignore.');
+    largest.slice(0, 5).forEach(function(item) {
+      console.error('    ' + (item.size / 1024).toFixed(0) + ' KB  ' + item.path);
+    });
+  } else if (total > MAIN_PACKAGE_WARN) {
+    warn('Packed size ' + mb(total) + ' is close to the 2 MB main package limit (' +
+      mb(MAIN_PACKAGE_LIMIT - total) + ' remaining).');
+  } else {
+    console.log('Packed size ' + mb(total) + ' / 2 MB limit (' + mb(MAIN_PACKAGE_LIMIT - total) + ' remaining).');
+  }
+}
+
 function main() {
   var required = ['README.md', 'SPEC.md', 'package.json', 'sitemap.json', '.gitignore'];
   required.forEach(function(file) { if (!exists(file)) fail(file + ': required project file is missing'); });
@@ -167,6 +225,7 @@ function main() {
   });
   checkProjectConfig();
   checkCloudFunctions();
+  checkPackSize();
 
   warnings.forEach(function(message) { console.warn('WARN: ' + message); });
   if (errors.length) {

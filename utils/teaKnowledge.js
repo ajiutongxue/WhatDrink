@@ -264,6 +264,23 @@ function validateKnowledgeFieldByPath(path, field) {
   validateKnowledgeField(field, definition, path, errors);
   return { ok: errors.length === 0, errors: errors, definition: definition };
 }
+function getTeaLibraryIdentityField(tea, fieldName, updatedAt) {
+  if (!tea || typeof tea !== 'object') return null;
+  var mapping = { displayName: 'name', brand: 'brand', category: 'cat', year: 'year' };
+  var teaKey = mapping[fieldName];
+  if (!teaKey) return null;
+  var value = tea[teaKey];
+  if (value === null || value === undefined || value === '') return null;
+  return {
+    value: value,
+    status: 'confirmed',
+    sourceType: 'user',
+    confidence: 1,
+    updatedAt: isFiniteNumber(updatedAt) && updatedAt > 0 ? updatedAt : 1,
+    evidence: '来自当前茶库基础信息；不是联网查证结果'
+  };
+}
+
 function validateInventoryItem(item) {
   var errors = [];
   var path = 'inventory';
@@ -295,6 +312,9 @@ function validateInventoryItem(item) {
   if (item.status === 'finished' && isFiniteNumber(item.remainingWeight) && item.remainingWeight !== 0) {
     push(errors, path + '.remainingWeight', 'finished inventory must have zero remaining weight');
   }
+  if (item.status === 'finished' && Number.isInteger(item.remainingSessions) && item.remainingSessions !== 0) {
+    push(errors, path + '.remainingSessions', 'finished inventory must have zero remaining sessions');
+  }
 
   return { ok: errors.length === 0, errors: errors };
 }
@@ -303,6 +323,7 @@ module.exports = {
   contract: contract,
   validateCatalog: validateCatalog,
   validateKnowledgeField: validateKnowledgeFieldByPath,
+  getTeaLibraryIdentityField: getTeaLibraryIdentityField,
   validateInventoryItem: validateInventoryItem,
   validateTeaProfile: function(profile) {
     var errors = [];

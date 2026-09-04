@@ -24,7 +24,7 @@
       "label": "茶库",
       "prototype": "ui-prototype/pages/tea-library.html",
       "miniProgram": "pages/teaLib/teaLib",
-      "states": ["browse", "filtered-empty", "manage", "form"]
+      "states": ["browse", "filtered-empty", "manage", "form", "knowledge-profile", "knowledge-profile-basic", "knowledge-field-edit", "inventory-lifecycle", "inventory-edit"]
     },
     {
       "id": "settings",

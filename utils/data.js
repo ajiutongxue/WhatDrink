@@ -7,6 +7,7 @@
 var teaData = require('./teaData');
 var teaMatch = require('./teaMatch');
 var teaKnowledge = require('./teaKnowledge');
+var builtInKnowledgeCatalog = require('../data/teaKnowledgeCatalog');
 
 var STORAGE_KEY = 'tea_doctor_v1';
 var KNOWLEDGE_BACKUP_KEY = 'tea_doctor_knowledge_backup_v1';
@@ -23,7 +24,8 @@ var _saveTimer = null;
  * Returns a fresh default AppData object with initial tea library.
  * @returns {Object} AppData
  */
-function getDefaultData() {
+function getDefaultData(options) {
+  var includeBuiltInKnowledge = !(options && options.skipBuiltInKnowledge);
   // Deep clone teas so each default is independent
   var teas = [];
   for (var i = 0; i < teaData.TEAS.length; i++) {
@@ -73,7 +75,7 @@ function getDefaultData() {
     // install prevents the built-in defaults from overwriting a restored
     // cloud library.
     teaLibraryUpdatedAt: 0,
-    knowledgeBase: _emptyKnowledgeBase(),
+    knowledgeBase: includeBuiltInKnowledge ? _builtInKnowledgeBase() : _emptyKnowledgeBase(),
     knowledgeOverrides: {},
     inventory: []
   };
@@ -93,7 +95,7 @@ function load() {
     var raw = wx.getStorageSync(STORAGE_KEY);
     if (raw && typeof raw === 'object' && raw.teaLibrary) {
       // Ensure all expected top-level keys exist
-      var defaults = getDefaultData();
+      var defaults = getDefaultData({ skipBuiltInKnowledge: true });
       var library = Array.isArray(raw.teaLibrary) && raw.teaLibrary.length > 0
         ? raw.teaLibrary
         : defaults.teaLibrary;
@@ -358,6 +360,92 @@ function upsertInventoryItem(item) {
   return { ok: true, item: _cloneDeep(record) };
 }
 
+function openInventoryItem(id) {
+  var current = load();
+  var next = _cloneDeep(current);
+  var index = -1;
+  next.inventory.forEach(function(item, itemIndex) {
+    if (item.id === id && !item.deletedAt) index = itemIndex;
+  });
+  if (index < 0) return { ok: false, error: 'Inventory item not found' };
+  var sealed = next.inventory[index];
+  if (sealed.status !== 'sealed') return { ok: false, error: 'Only sealed inventory can be opened' };
+
+  var now = Date.now();
+  var shouldSplit = sealed.quantity > 1;
+  var opened = _cloneDeep(sealed);
+  opened.status = 'opened';
+  opened.quantity = 1;
+  opened.openedAt = now;
+  opened.updatedAt = now;
+  delete opened.deletedAt;
+  if (opened.remainingWeight === undefined && typeof opened.netWeightPerUnit === 'number') {
+    opened.remainingWeight = opened.netWeightPerUnit;
+  }
+
+  if (shouldSplit) {
+    sealed.quantity -= 1;
+    sealed.updatedAt = now;
+    opened.id = 'inv_' + now + '_' + Math.random().toString(36).slice(2, 8);
+    next.inventory.push(opened);
+  } else {
+    opened.id = sealed.id;
+    next.inventory[index] = opened;
+  }
+
+  var openedValidation = teaKnowledge.validateInventoryItem(opened);
+  var sealedValidation = shouldSplit ? teaKnowledge.validateInventoryItem(sealed) : { ok: true, errors: [] };
+  if (!openedValidation.ok || !sealedValidation.ok) {
+    return { ok: false, error: openedValidation.errors.concat(sealedValidation.errors).join('; ') };
+  }
+  save(next);
+  return { ok: true, item: _cloneDeep(opened), split: shouldSplit };
+}
+
+function consumeInventorySession(id) {
+  var current = load();
+  var next = _cloneDeep(current);
+  var item = null;
+  next.inventory.forEach(function(record) {
+    if (record.id === id && !record.deletedAt) item = record;
+  });
+  if (!item) return { ok: false, error: 'Inventory item not found' };
+  if (item.status !== 'opened') return { ok: false, error: 'Only opened inventory can be consumed' };
+  if (!Number.isInteger(item.remainingSessions) || item.remainingSessions <= 0) {
+    return { ok: false, error: 'Remaining sessions are not available' };
+  }
+  item.remainingSessions -= 1;
+  item.updatedAt = Date.now();
+  if (item.remainingSessions === 0) {
+    item.status = 'finished';
+    if (typeof item.remainingWeight === 'number') item.remainingWeight = 0;
+  }
+  var validation = teaKnowledge.validateInventoryItem(item);
+  if (!validation.ok) return { ok: false, error: validation.errors.join('; ') };
+  save(next);
+  return { ok: true, item: _cloneDeep(item) };
+}
+
+function finishInventoryItem(id) {
+  var current = load();
+  var next = _cloneDeep(current);
+  var item = null;
+  next.inventory.forEach(function(record) {
+    if (record.id === id && !record.deletedAt) item = record;
+  });
+  if (!item) return { ok: false, error: 'Inventory item not found' };
+  if (item.status !== 'opened') return { ok: false, error: 'Only opened inventory can be finished' };
+  item.status = 'finished';
+  item.quantity = 1;
+  item.updatedAt = Date.now();
+  if (typeof item.remainingWeight === 'number') item.remainingWeight = 0;
+  if (typeof item.remainingSessions === 'number') item.remainingSessions = 0;
+  var validation = teaKnowledge.validateInventoryItem(item);
+  if (!validation.ok) return { ok: false, error: validation.errors.join('; ') };
+  save(next);
+  return { ok: true, item: _cloneDeep(item) };
+}
+
 function deleteInventoryItem(id) {
   var current = load(); var next = _cloneDeep(current); var found = -1;
   next.inventory.forEach(function(item, index) { if (item.id === id) found = index; }); if (found < 0) return false;
@@ -543,8 +631,12 @@ function _emptyKnowledgeBase() {
   };
 }
 
+function _builtInKnowledgeBase() {
+  return _catalogToKnowledgeBase(builtInKnowledgeCatalog, 0);
+}
+
 function _normaliseKnowledgeBase(value) {
-  if (!value || typeof value !== 'object' || Array.isArray(value)) return _emptyKnowledgeBase();
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return _builtInKnowledgeBase();
   var base = _emptyKnowledgeBase();
   if (typeof value.schemaVersion === 'string') base.schemaVersion = value.schemaVersion;
   if (typeof value.catalogVersion === 'string') base.catalogVersion = value.catalogVersion;
@@ -557,7 +649,7 @@ function _normaliseKnowledgeBase(value) {
   if (value.validationSummary && typeof value.validationSummary === 'object') {
     base.validationSummary = _cloneDeep(value.validationSummary);
   }
-  return base;
+  return Object.keys(base.profilesByTeaId).length ? base : _builtInKnowledgeBase();
 }
 
 function _normaliseKnowledgeOverrides(value) {
@@ -791,6 +883,9 @@ module.exports = {
   setKnowledgeOverride: setKnowledgeOverride,
   removeKnowledgeOverride: removeKnowledgeOverride,
   upsertInventoryItem: upsertInventoryItem,
+  openInventoryItem: openInventoryItem,
+  consumeInventorySession: consumeInventorySession,
+  finishInventoryItem: finishInventoryItem,
   deleteInventoryItem: deleteInventoryItem,
   listInventory: listInventory,
   reset: reset,
