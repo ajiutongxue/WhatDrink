@@ -5,6 +5,13 @@ cloudfunctions/*/node_modules/
 # Cloud function secrets (API keys) - never commit
 cloudfunctions/*/config.json
 
+# PWA runtime files and secrets
+web/dist/
+server/.venv/
+server/.env
+deploy/.env
+server/runtime/
+
 # IDE
 .project
 .idea/
