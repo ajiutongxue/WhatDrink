@@ -1,0 +1,53 @@
+:root {
+  font-family: 'DM Sans', 'Noto Serif SC', 'PingFang SC', sans-serif;
+  color: #28392f;
+  background: #f4f0e6;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; min-width: 320px; min-height: 100vh; }
+button, input { font: inherit; }
+button { cursor: pointer; }
+.page-shell { width: min(100% - 40px, 880px); margin: 0 auto; min-height: 100vh; display: flex; flex-direction: column; }
+.topbar { height: 82px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #dedccd; }
+.wordmark { display: inline-flex; align-items: center; gap: 11px; color: inherit; text-decoration: none; font-family: 'Noto Serif SC', serif; font-weight: 600; letter-spacing: .08em; }
+.wordmark-mark { width: 30px; height: 30px; display: grid; place-items: center; border: 1px solid #557660; border-radius: 50%; color: #557660; font-size: 15px; }
+.topbar-note, .eyebrow { color: #778576; font-size: 11px; letter-spacing: .18em; }
+.login-panel { width: min(100%, 420px); margin: auto; padding: 70px 0 100px; }
+h1 { margin: 13px 0 8px; font-family: 'Noto Serif SC', serif; font-size: clamp(30px, 5vw, 38px); font-weight: 500; letter-spacing: .05em; }
+.intro { color: #788078; margin: 0; font-size: 14px; }
+.login-form { margin-top: 38px; display: grid; gap: 11px; }
+.login-form label { font-size: 13px; }
+.login-form input, .search-box input { width: 100%; border: 0; outline: 0; background: transparent; color: inherit; }
+.login-form input { height: 48px; padding: 0 13px; border: 1px solid #d9d7c9; border-radius: 5px; background: #faf8f1; }
+.login-form input:focus, .search-box:focus-within { border-color: #6c8b70; box-shadow: 0 0 0 3px #6c8b7020; }
+.primary-button { height: 48px; margin-top: 6px; border: 0; border-radius: 5px; color: #fffdf6; background: #45644e; letter-spacing: .08em; }
+.primary-button:hover { background: #354f3d; }
+.primary-button:disabled { opacity: .65; cursor: wait; }
+.notice { margin: 15px 0 0; color: #9a5143; font-size: 13px; }
+.library-panel { margin: 62px 0 80px; }
+.library-heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; }
+.text-button { border: 0; padding: 9px 0; color: #667765; background: transparent; font-size: 13px; }
+.text-button:hover { color: #28392f; }
+.search-box { display: flex; align-items: center; gap: 12px; margin: 28px 0 18px; height: 48px; padding: 0 15px; border: 1px solid #dedccd; border-radius: 5px; color: #778576; background: #faf8f1; }
+.search-box span { font-size: 22px; line-height: 1; }
+.search-box input { height: 100%; font-size: 13px; }
+.search-box input::placeholder { color: #a2a69c; }
+.tea-list { border-top: 1px solid #dedccd; }
+.tea-row { min-height: 72px; display: grid; grid-template-columns: 44px 1fr auto; align-items: center; gap: 14px; border-bottom: 1px solid #e4e1d5; }
+.tea-number { color: #a5a394; font-size: 11px; font-variant-numeric: tabular-nums; }
+.tea-info h2 { margin: 0 0 4px; font-family: 'Noto Serif SC', serif; font-size: 15px; font-weight: 500; }
+.tea-info p { margin: 0; color: #899084; font-size: 12px; }
+.nature-tag { min-width: 34px; padding: 5px 8px; border-radius: 3px; color: #58715d; background: #e8ede3; text-align: center; font-size: 12px; }
+.empty-state { padding: 32px 0; color: #899084; text-align: center; font-size: 14px; }
+footer { margin-top: auto; padding: 20px 0 27px; color: #a1a092; text-align: center; font-family: 'Noto Serif SC', serif; font-size: 12px; letter-spacing: .15em; }
+@media (max-width: 560px) {
+  .page-shell { width: min(100% - 32px, 880px); }
+  .topbar { height: 68px; }
+  .login-panel { padding-top: 52px; }
+  .library-panel { margin-top: 42px; }
+  .tea-row { grid-template-columns: 32px 1fr auto; gap: 10px; }
+}

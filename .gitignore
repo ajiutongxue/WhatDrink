@@ -11,6 +11,11 @@ server/.venv/
 server/.env
 deploy/.env
 server/runtime/
+server/.test-runtime/
+server/.test-tea.sqlite3
+server/__pycache__/
+server/tests/__pycache__/
+*.py[cod]
 
 # IDE
 .project
