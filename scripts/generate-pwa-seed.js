@@ -2,12 +2,14 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { TEAS } = require('../utils/teaData.js');
 const knowledgeCatalog = require('../data/teaKnowledgeCatalog.js');
+const knowledgeContract = require('../data/tea-knowledge.contract.json');
 
 const outputPath = path.resolve(__dirname, '../server/seed.json');
 const seed = {
   schemaVersion: 1,
   teas: TEAS,
   knowledgeCatalog,
+  knowledgeContract,
 };
 
 function validateSeed() {

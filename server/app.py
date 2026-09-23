@@ -17,16 +17,30 @@ from urllib.parse import urlparse
 from dotenv import load_dotenv
 from fastapi import Depends, FastAPI, HTTPException, Request, Response
 from pydantic import BaseModel, Field
+from cryptography.fernet import Fernet
 
 from server.passwords import verify_password
+from server.state import EDITABLE_SECTIONS, apply_mutation, default_state, inventory_operation, migrate_state, validate_state
 
 ROOT = Path(__file__).resolve().parent
+SEED = json.loads((ROOT / 'seed.json').read_text(encoding='utf-8'))
 COOKIE_NAME = 'tea_session'
 SESSION_SECONDS = 7 * 24 * 60 * 60
 
 
 class LoginBody(BaseModel):
     password: Annotated[str, Field(min_length=1, max_length=1024)]
+
+
+
+class SectionPatch(BaseModel):
+    baseRevision: Annotated[int, Field(ge=0)]
+    value: object
+
+
+class MutationsBody(BaseModel):
+    baseRevision: Annotated[int, Field(ge=0)]
+    mutations: Annotated[list[dict[str, object]], Field(min_length=1, max_length=100)]
 
 
 @dataclass(frozen=True)
@@ -36,6 +50,14 @@ class Settings:
     cookie_secure: bool
     app_environment: str
     allowed_origin: str | None = None
+    encryption_key: str = ''
+
+    def __post_init__(self) -> None:
+        if self.encryption_key:
+            try:
+                Fernet(self.encryption_key.encode('ascii'))
+            except (ValueError, UnicodeEncodeError) as error:
+                raise RuntimeError('APP_ENCRYPTION_KEY must be a valid Fernet key; generate one with Fernet.generate_key()') from error
 
     @classmethod
     def from_environment(cls) -> 'Settings':
@@ -54,6 +76,7 @@ class Settings:
             cookie_secure=cookie_secure,
             app_environment=environment,
             allowed_origin=os.getenv('ALLOWED_ORIGIN') or None,
+            encryption_key=os.getenv('APP_ENCRYPTION_KEY', '').strip(),
         )
 
 
@@ -78,32 +101,10 @@ def database(database_path: Path):
         connection.close()
 
 
-def initialize_database(database_path: Path, seed_path: Path | None = None) -> None:
+def initialize_database(database_path: Path, seed_path: Path | None = None, encryption_key: str = '') -> None:
     source = seed_path or ROOT / 'seed.json'
     seed = json.loads(source.read_text(encoding='utf-8'))
-    initial_state = {
-        'teaLibrary': seed['teas'],
-        'history': [],
-        'temporaryAvoids': {},
-        'profile': {
-            'gender': '', 'age': '', 'city': '', 'constitution': None, 'quizAnswers': {},
-        },
-        'profileUpdatedAt': 0,
-        'settings': {'avoidDays': 5},
-        'settingsUpdatedAt': 0,
-        'inventory': [],
-        'knowledgeOverrides': {},
-        'teaLibraryUpdatedAt': 0,
-        'llm': {
-            'enabled': False,
-            'endpoint': '',
-            'recModel': 'deepseek-v4-pro',
-            'parserModel': 'deepseek-v4-pro',
-            'parserEnabled': False,
-            'noteAnalysisEnabled': True,
-            'twoStageRecommendationEnabled': False,
-        },
-    }
+    initial_state = default_state(seed)
     with database(database_path) as db:
         db.execute(
             'CREATE TABLE IF NOT EXISTS app_state ('
@@ -114,12 +115,26 @@ def initialize_database(database_path: Path, seed_path: Path | None = None) -> N
             'CREATE TABLE IF NOT EXISTS sessions ('
             'token_hash TEXT PRIMARY KEY, expires_at INTEGER NOT NULL)'
         )
+        db.execute('CREATE TABLE IF NOT EXISTS secrets (name TEXT PRIMARY KEY, ciphertext TEXT NOT NULL)')
         db.execute(
             'INSERT OR IGNORE INTO app_state (id, revision, payload) VALUES (1, 0, ?)',
             (json.dumps(initial_state, ensure_ascii=False, separators=(',', ':')),),
         )
         db.execute('DELETE FROM sessions WHERE expires_at <= ?', (int(time.time()),))
-        db.execute('PRAGMA user_version = 1')
+        row = db.execute('SELECT revision, payload FROM app_state WHERE id = 1').fetchone()
+        old = json.loads(row['payload'])
+        migrated = migrate_state(old, seed)
+        legacy_key = (old.get('llm') or {}).get('apiKey')
+        if legacy_key:
+            if not encryption_key:
+                raise RuntimeError('APP_ENCRYPTION_KEY is required to migrate a stored AI key')
+            cipher = Fernet(encryption_key.encode('ascii'))
+            db.execute('INSERT OR IGNORE INTO secrets(name, ciphertext) VALUES("llm_api_key", ?)',
+                       (cipher.encrypt(legacy_key.encode('utf-8')).decode('ascii'),))
+        if migrated != old:
+            db.execute('UPDATE app_state SET payload = ? WHERE id = 1',
+                       (json.dumps(migrated, ensure_ascii=False, separators=(',', ':')),))
+        db.execute('PRAGMA user_version = 2')
 
 
 def create_app(settings: Settings | None = None) -> FastAPI:
@@ -127,7 +142,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     failed_logins: dict[str, list[int]] = {}
     @asynccontextmanager
     async def lifespan(_: FastAPI):
-        initialize_database(config.database_path)
+        initialize_database(config.database_path, encryption_key=config.encryption_key)
         yield
 
     application = FastAPI(title='今天喝点什么茶', docs_url=None, redoc_url=None, lifespan=lifespan)
@@ -234,9 +249,108 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             row = db.execute('SELECT revision, payload FROM app_state WHERE id = 1').fetchone()
         if not row:
             raise HTTPException(status_code=500, detail='Application state is missing')
-        return {'revision': row['revision'], 'state': json.loads(row['payload'])}
+        state = json.loads(row['payload'])
+        seed_data = SEED
+        if state.get('knowledgeBase') is None:
+            state['knowledgeBase'] = catalog_to_knowledge_base(seed_data['knowledgeCatalog'])
+        with database(config.database_path) as db:
+            secret = db.execute('SELECT ciphertext FROM secrets WHERE name = "llm_api_key"').fetchone()
+        state['llm']['apiKeyConfigured'] = bool(secret)
+        state['llm'].pop('apiKey', None)
+        return {'revision': row['revision'], 'state': state}
+
+    @application.patch('/api/state/{section}')
+    def patch_section(section: str, body: SectionPatch, request: Request,
+                      _: str = Depends(authenticated_session)) -> dict[str, object]:
+        check_origin(request)
+        if section not in EDITABLE_SECTIONS:
+            raise HTTPException(status_code=404, detail='Unknown state section')
+        with database(config.database_path) as db:
+            db.execute('BEGIN IMMEDIATE')
+            row = db.execute('SELECT revision, payload FROM app_state WHERE id = 1').fetchone()
+            if row['revision'] != body.baseRevision:
+                raise HTTPException(status_code=409, detail='State revision changed')
+            state = json.loads(row['payload'])
+            value = body.value
+            if section == 'llm':
+                if not isinstance(value, dict): raise HTTPException(status_code=422, detail='llm must be an object')
+                value = dict(value)
+                supplied_key = value.pop('apiKey', None)
+                if supplied_key is not None:
+                    if not isinstance(supplied_key, str) or len(supplied_key) > 4096:
+                        raise HTTPException(status_code=422, detail='Invalid AI key')
+                    if supplied_key:
+                        if not config.encryption_key: raise HTTPException(status_code=503, detail='APP_ENCRYPTION_KEY is not configured')
+                        encrypted = Fernet(config.encryption_key.encode('ascii')).encrypt(supplied_key.encode('utf-8')).decode('ascii')
+                        db.execute('INSERT INTO secrets(name, ciphertext) VALUES("llm_api_key", ?) ON CONFLICT(name) DO UPDATE SET ciphertext=excluded.ciphertext', (encrypted,))
+                    else:
+                        db.execute('DELETE FROM secrets WHERE name = "llm_api_key"')
+                if 'apiKeyConfigured' in value: raise HTTPException(status_code=422, detail='apiKeyConfigured is read-only')
+            if section == 'knowledgeBase':
+                if not isinstance(value, dict) or not isinstance(value.get('profilesByTeaId'), dict) or not value['profilesByTeaId']:
+                    raise HTTPException(status_code=422, detail='knowledgeBase requires profilesByTeaId')
+                state['knowledgeBaseBackup'] = state.get('knowledgeBase') or catalog_to_knowledge_base(SEED['knowledgeCatalog'])
+            state[section] = value
+            try:
+                validate_state(state, SEED)
+            except ValueError as error:
+                raise HTTPException(status_code=422, detail=str(error)) from error
+            revision = row['revision'] + 1
+            db.execute('UPDATE app_state SET revision=?, payload=? WHERE id=1',
+                       (revision, json.dumps(state, ensure_ascii=False, separators=(',', ':'))))
+        return {'revision': revision, 'saved': section}
+
+    @application.post('/api/mutations')
+    def write_mutations(body: MutationsBody, request: Request,
+                        _: str = Depends(authenticated_session)) -> dict[str, object]:
+        check_origin(request)
+        with database(config.database_path) as db:
+            db.execute('CREATE TABLE IF NOT EXISTS processed_mutations (mutation_id TEXT PRIMARY KEY)')
+            db.execute('BEGIN IMMEDIATE')
+            row = db.execute('SELECT revision, payload FROM app_state WHERE id=1').fetchone()
+            try:
+                mutation_ids = []
+                for mutation in body.mutations:
+                    mutation_id = mutation.get('mutationId')
+                    if not isinstance(mutation_id, str) or not mutation_id or len(mutation_id) > 200:
+                        raise ValueError('mutationId is required')
+                    mutation_ids.append(mutation_id)
+                known = set()
+                for mutation_id in set(mutation_ids):
+                    exists = db.execute('SELECT 1 FROM processed_mutations WHERE mutation_id=?', (mutation_id,)).fetchone()
+                    if exists: known.add(mutation_id)
+                if row['revision'] != body.baseRevision:
+                    if all(mutation_id in known for mutation_id in mutation_ids):
+                        return {'revision': row['revision'], 'results': [
+                            {'mutationId': mutation_id, 'duplicate': True} for mutation_id in mutation_ids]}
+                    raise HTTPException(status_code=409, detail='State revision changed')
+                state = json.loads(row['payload'])
+                applied = []
+                for mutation in body.mutations:
+                    mutation_id = mutation['mutationId']
+                    exists = db.execute('SELECT 1 FROM processed_mutations WHERE mutation_id=?', (mutation_id,)).fetchone()
+                    if exists:
+                        applied.append({'mutationId': mutation_id, 'duplicate': True}); continue
+                    apply_mutation(state, mutation)
+                    db.execute('INSERT INTO processed_mutations(mutation_id) VALUES(?)', (mutation_id,))
+                    applied.append({'mutationId': mutation_id, 'duplicate': False})
+                validate_state(state, SEED)
+            except ValueError as error:
+                raise HTTPException(status_code=422, detail=str(error)) from error
+            revision = row['revision'] + 1
+            db.execute('UPDATE app_state SET revision=?, payload=? WHERE id=1',
+                       (revision, json.dumps(state, ensure_ascii=False, separators=(',', ':'))))
+        return {'revision': revision, 'results': applied}
 
     return application
 
+
+def catalog_to_knowledge_base(catalog: dict[str, object]) -> dict[str, object]:
+    teas = catalog.get('teas', [])
+    return {'schemaVersion': catalog.get('schemaVersion'), 'catalogVersion': catalog.get('catalogVersion'),
+            'sourceGeneratedAt': catalog.get('generatedAt'), 'importedAt': 0,
+            'profilesByTeaId': {str(profile['teaId']): profile for profile in teas},
+            'withheldTeaIds': catalog.get('withheldTeaIds', []),
+            'validationSummary': {'profileCount': len(teas), 'expectedTeaCount': catalog.get('expectedTeaCount')}}
 
 app = create_app()
