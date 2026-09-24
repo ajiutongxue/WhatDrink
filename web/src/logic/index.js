@@ -24,6 +24,7 @@ export const teaCatalog = teaData;
 export const recommend = recommendation.recommend;
 export const filterEligible = recommendation.filterEligible;
 export const getIdealNature = recommendation.getIdealNature;
+export const getTimeSlot = recommendation.getTimeSlot;
 export const adjustNature = recommendation.adjustNature;
 export const getConsecutiveBlockedTeaIds = recommendation.getConsecutiveBlockedTeaIds;
 export const getActiveTemporaryAvoidTeaIds = recommendation.getActiveTemporaryAvoidTeaIds;

@@ -3,6 +3,7 @@ export const teaCatalog: Record<string, unknown>;
 export function recommend(...args: unknown[]): unknown;
 export function filterEligible(...args: unknown[]): unknown[];
 export function getIdealNature(...args: unknown[]): number;
+export function getTimeSlot(hour: number): { name: string; start: number; end: number; caffeinePref: string; natureShift: number; desc: string };
 export function adjustNature(...args: unknown[]): string;
 export function getConsecutiveBlockedTeaIds(...args: unknown[]): Record<string, boolean>;
 export function getActiveTemporaryAvoidTeaIds(...args: unknown[]): Record<string, boolean>;

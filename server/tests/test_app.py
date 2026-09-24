@@ -2,12 +2,14 @@ import json
 import sqlite3
 import unittest
 from contextlib import closing
+from unittest.mock import AsyncMock, patch
 from pathlib import Path
 
+import httpx
 from fastapi.testclient import TestClient
 from cryptography.fernet import Fernet
 
-from server.app import ROOT, Settings, create_app, initialize_database
+from server.app import ROOT, Settings, _apply_model_options, _build_public_chat_url, create_app, initialize_database
 from server.passwords import hash_password
 from server.state import default_state, inventory_operation, migrate_state
 
@@ -24,6 +26,7 @@ class AppTests(unittest.TestCase):
             app_environment='development',
             allowed_origin='http://testserver',
             encryption_key=Fernet.generate_key().decode('ascii'),
+            amap_key='test-only-amap-key',
         )
         self.client = TestClient(create_app(self.settings))
         self.client.__enter__()
@@ -119,6 +122,214 @@ class AppTests(unittest.TestCase):
 
     def login(self) -> None:
         self.assertEqual(self.client.post('/api/login', json={'password': 'correct horse battery staple'}).status_code, 200)
+
+    def test_weather_requires_login_and_uses_coordinate_reverse_geocode(self) -> None:
+        self.assertEqual(self.client.get('/api/weather?city=苏州').status_code, 401)
+        self.login()
+        calls: list[tuple[str, dict[str, str]]] = []
+
+        async def fake_amap(path: str, params: dict[str, str]) -> dict[str, object]:
+            calls.append((path, params))
+            if path == '/v3/geocode/regeo':
+                return {'status': '1', 'regeocode': {'addressComponent': {
+                    'city': '上海市', 'adcode': '310100'}}}
+            if path == '/v3/weather/weatherInfo':
+                return {'status': '1', 'lives': [{'temperature': '23', 'humidity': '61',
+                    'weather': '多云', 'winddirection': '东风', 'windpower': '≤3',
+                    'reporttime': '2026-09-24 10:00:00'}]}
+            raise AssertionError(f'unexpected AMap path: {path}')
+
+        with patch('server.app._amap_get_json', new=AsyncMock(side_effect=fake_amap)):
+            response = self.client.get('/api/weather?city=苏州&latitude=31.2&longitude=121.5')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.headers['cache-control'], 'no-store')
+        self.assertEqual(response.json(), {'success': True, 'data': {
+            'temp': 23, 'feelsLike': 23, 'humidity': 61, 'desc': '多云', 'wind': 0,
+            'winddirection': '东风', 'windpower': '≤3', 'city': '上海市',
+            'reporttime': '2026-09-24 10:00:00'}})
+        self.assertEqual([path for path, _ in calls], [
+            '/v3/geocode/regeo', '/v3/weather/weatherInfo'])
+        self.assertEqual(calls[0][1]['location'], '121.5,31.2')
+        self.assertEqual(calls[1][1]['city'], '310100')
+        self.assertNotIn('test-only-amap-key', response.text)
+
+    def test_weather_falls_back_to_profile_then_requested_city(self) -> None:
+        self.login()
+        self.assertEqual(self.client.patch('/api/state/profile', json={
+            'baseRevision': 0, 'value': {'city': '苏州'}}).status_code, 200)
+        calls: list[tuple[str, dict[str, str]]] = []
+
+        async def fake_amap(path: str, params: dict[str, str]) -> dict[str, object]:
+            calls.append((path, params))
+            if path == '/v3/geocode/regeo':
+                return {'status': '0'}
+            if path == '/v3/geocode/geo':
+                return {'status': '1', 'geocodes': [{'adcode': '320500'}]}
+            if path == '/v3/weather/weatherInfo':
+                return {'status': '1', 'lives': [{'temperature': '18', 'humidity': '70'}]}
+            raise AssertionError(f'unexpected AMap path: {path}')
+
+        with patch('server.app._amap_get_json', new=AsyncMock(side_effect=fake_amap)):
+            profile_city = self.client.get('/api/weather?city=南京&latitude=0&longitude=0')
+        self.assertTrue(profile_city.json()['success'])
+        self.assertEqual(profile_city.json()['data']['city'], '苏州')
+        self.assertEqual(calls[1][1]['address'], '苏州')
+
+        self.assertEqual(self.client.patch('/api/state/profile', json={
+            'baseRevision': 1, 'value': {'city': ''}}).status_code, 200)
+        calls.clear()
+        with patch('server.app._amap_get_json', new=AsyncMock(side_effect=fake_amap)):
+            requested_city = self.client.get('/api/weather?city=南京&latitude=0&longitude=0')
+        self.assertTrue(requested_city.json()['success'])
+        self.assertEqual(requested_city.json()['data']['city'], '南京')
+        self.assertEqual(calls[1][1]['address'], '南京')
+
+    def test_weather_failure_is_non_sensitive_and_recoverable(self) -> None:
+        self.login()
+
+        async def fail_amap(path: str, params: dict[str, str]) -> dict[str, object]:
+            raise httpx.TimeoutException('provider URL included sensitive details')
+
+        with patch('server.app._amap_get_json', new=AsyncMock(side_effect=fail_amap)):
+            response = self.client.get('/api/weather?city=苏州')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()['success'], False)
+        self.assertNotIn('test-only-amap-key', response.text)
+        self.assertNotIn('provider URL', response.text)
+
+    def test_weather_without_amap_key_returns_recoverable_configuration_result(self) -> None:
+        path = ROOT / '.test-weather-unconfigured.sqlite3'
+        path.unlink(missing_ok=True)
+        self.addCleanup(path.unlink, missing_ok=True)
+        settings = Settings(
+            password_hash=self.settings.password_hash,
+            database_path=path,
+            cookie_secure=False,
+            app_environment='development',
+            allowed_origin='http://testserver',
+            amap_key='',
+        )
+        with TestClient(create_app(settings)) as client:
+            client.post('/api/login', json={'password': 'correct horse battery staple'})
+            response = client.get('/api/weather?city=苏州')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), {'success': False, 'error': 'Weather service is not configured'})
+
+    def _save_ai_config(self, *, api_key: str | None = 'test-only-ai-key', rec_model: str = 'rec-model') -> None:
+        value: dict[str, object] = {
+            'enabled': True, 'parserEnabled': True, 'noteAnalysisEnabled': True,
+            'endpoint': 'https://api.openai.com/v1', 'parserModel': 'parser-model',
+            'recModel': rec_model,
+        }
+        if api_key is not None:
+            value['apiKey'] = api_key
+        response = self.client.patch('/api/state/llm', json={'baseRevision': 0, 'value': value})
+        self.assertEqual(response.status_code, 200)
+
+    def test_ai_chat_requires_login_same_origin_and_rejects_client_url_or_key(self) -> None:
+        body = {'purpose': 'quote', 'messages': [{'role': 'user', 'content': '写一句茶语'}]}
+        self.assertEqual(self.client.post('/api/ai/chat', json=body,
+                         headers={'Origin': 'http://testserver'}).status_code, 401)
+        self.login()
+        self.assertEqual(self.client.post('/api/ai/chat', json=body).status_code, 403)
+        hostile = {**body, 'apiKey': 'must-not-echo', 'url': 'https://127.0.0.1'}
+        rejected = self.client.post('/api/ai/chat', json=hostile,
+                                    headers={'Origin': 'http://testserver'})
+        self.assertEqual(rejected.status_code, 422)
+        self.assertNotIn('must-not-echo', rejected.text)
+
+        too_long = self.client.post('/api/ai/chat', json={
+            'purpose': 'quote', 'messages': [{'role': 'user', 'content': 'x' * 16_001}]},
+            headers={'Origin': 'http://testserver'})
+        self.assertEqual(too_long.status_code, 422)
+        too_large = self.client.post('/api/ai/chat', content=b'{' + b' ' * (64 * 1024) + b'}',
+            headers={'Origin': 'http://testserver', 'Content-Type': 'application/json'})
+        self.assertEqual(too_large.status_code, 413)
+
+    def test_ai_chat_uses_saved_models_and_returns_only_content(self) -> None:
+        self.login()
+        self._save_ai_config()
+        calls: list[dict[str, object]] = []
+
+        async def fake_post(url: str, api_key: str, payload: dict[str, object]) -> httpx.Response:
+            self.assertEqual(api_key, 'test-only-ai-key')
+            calls.append(payload)
+            return httpx.Response(200, json={'choices': [{'message': {'content': '模型回复'}}]})
+
+        purposes = [
+            ('parse', 'parser-model'), ('note', 'parser-model'),
+            ('recommend', 'rec-model'), ('coarse', 'rec-model'), ('quote', 'rec-model'),
+        ]
+        with (patch('server.app._validated_chat_url', new=AsyncMock(
+                return_value='https://api.openai.com/v1/chat/completions')),
+              patch('server.app._post_ai_chat', new=AsyncMock(side_effect=fake_post))):
+            for purpose, _ in purposes:
+                response = self.client.post('/api/ai/chat', json={
+                    'purpose': purpose,
+                    'messages': [{'role': 'user', 'content': 'test prompt'}],
+                    'maxTokens': 55,
+                }, headers={'Origin': 'http://testserver'})
+                self.assertEqual(response.status_code, 200, response.text)
+                self.assertEqual(response.json(), {'content': '模型回复'})
+                self.assertEqual(response.headers['cache-control'], 'no-store')
+        self.assertEqual([call['model'] for call in calls], [model for _, model in purposes])
+        self.assertTrue(all(call['max_tokens'] == 55 for call in calls))
+        self.assertEqual([call['temperature'] for call in calls], [0.1, 0.1, 0.5, 0.5, 0.85])
+        self.assertNotIn('apiKey', json.dumps(calls))
+
+    def test_ai_model_options_match_existing_provider_behavior(self) -> None:
+        qwen: dict[str, object] = {}
+        _apply_model_options(qwen, 'parse', 'qwen-plus', 'https://dashscope.aliyuncs.com/v1')
+        self.assertEqual(qwen, {'temperature': 0.1, 'enable_thinking': False})
+        deepseek: dict[str, object] = {}
+        _apply_model_options(deepseek, 'recommend', 'deepseek-v4-pro', 'https://api.deepseek.com/v1')
+        self.assertEqual(deepseek, {'temperature': 0.5, 'thinking': {'type': 'disabled'}})
+        thinking_only: dict[str, object] = {}
+        _apply_model_options(thinking_only, 'quote', 'qwen3.7-max-preview', 'https://dashscope.aliyuncs.com/v1')
+        self.assertEqual(thinking_only, {'temperature': 0.85})
+
+    def test_ai_chat_quote_falls_back_to_parser_model_and_private_endpoint_is_blocked(self) -> None:
+        self.login()
+        self._save_ai_config(rec_model='')
+        with (patch('server.app._validated_chat_url', new=AsyncMock(
+                return_value='https://api.openai.com/v1/chat/completions')),
+              patch('server.app._post_ai_chat', new=AsyncMock(return_value=httpx.Response(
+                  200, json={'choices': [{'message': {'content': '茶语'}}]}))) as post):
+            response = self.client.post('/api/ai/chat', json={
+                'purpose': 'quote', 'messages': [{'role': 'user', 'content': 'test'}]},
+                headers={'Origin': 'http://testserver'})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(post.await_args.args[2]['model'], 'parser-model')
+        with self.assertRaisesRegex(ValueError, 'public'):
+            _build_public_chat_url('https://127.0.0.1/v1')
+
+    def test_ai_chat_configuration_and_provider_errors_do_not_leak_secrets(self) -> None:
+        self.login()
+        self._save_ai_config(api_key=None)
+        body = {'purpose': 'recommend', 'messages': [{'role': 'user', 'content': 'test'}]}
+        headers = {'Origin': 'http://testserver'}
+        missing_key = self.client.post('/api/ai/chat', json=body, headers=headers)
+        self.assertEqual(missing_key.status_code, 503)
+        self.assertEqual(missing_key.json()['detail']['code'], 'ai_key_not_configured')
+        self.assertNotIn('test-only-ai-key', missing_key.text)
+
+        self.assertEqual(self.client.patch('/api/state/llm', json={'baseRevision': 1, 'value': {
+            'enabled': True, 'parserEnabled': True, 'noteAnalysisEnabled': True,
+            'endpoint': 'https://api.openai.com/v1', 'parserModel': 'parser-model',
+            'recModel': 'rec-model', 'apiKey': 'test-only-ai-key'}}).status_code, 200)
+        with (patch('server.app._validated_chat_url', new=AsyncMock(
+                return_value='https://api.openai.com/v1/chat/completions')),
+              patch('server.app._post_ai_chat', new=AsyncMock(return_value=httpx.Response(
+                  401, json={'error': {'message': 'test-only-ai-key'}})))):
+            provider_error = self.client.post('/api/ai/chat', json=body, headers=headers)
+        self.assertEqual(provider_error.status_code, 502)
+        self.assertEqual(provider_error.json()['detail']['code'], 'ai_provider_auth_failed')
+        self.assertNotIn('test-only-ai-key', provider_error.text)
+
+        state = self.client.get('/api/state').json()['state']
+        self.assertTrue(state['llm']['apiKeyConfigured'])
+        self.assertNotIn('test-only-ai-key', json.dumps(state))
+        self.assertNotIn('apiKey', state['llm'])
 
     def test_section_patch_is_validated_revisioned_and_persistent_after_restart(self) -> None:
         self.assertEqual(self.client.patch('/api/state/profile', json={'baseRevision': 0, 'value': {'city': '苏州'}}).status_code, 401)

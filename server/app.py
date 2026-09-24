@@ -2,22 +2,27 @@
 
 from __future__ import annotations
 
+import asyncio
 import hashlib
+import ipaddress
 import json
+import math
 import os
 import secrets
+import socket
 import sqlite3
 import time
 from contextlib import asynccontextmanager, contextmanager
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Annotated
-from urllib.parse import urlparse
+from typing import Annotated, Literal
+from urllib.parse import urlparse, urlsplit, urlunsplit
 
+import httpx
 from dotenv import load_dotenv
-from fastapi import Depends, FastAPI, HTTPException, Request, Response
-from pydantic import BaseModel, Field
-from cryptography.fernet import Fernet
+from fastapi import Depends, FastAPI, HTTPException, Query, Request, Response
+from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_validator
+from cryptography.fernet import Fernet, InvalidToken
 
 from server.passwords import verify_password
 from server.state import EDITABLE_SECTIONS, apply_mutation, default_state, inventory_operation, migrate_state, validate_state
@@ -32,6 +37,25 @@ class LoginBody(BaseModel):
     password: Annotated[str, Field(min_length=1, max_length=1024)]
 
 
+class ChatMessage(BaseModel):
+    model_config = ConfigDict(extra='forbid')
+
+    role: Literal['system', 'user', 'assistant']
+    content: Annotated[str, Field(min_length=1, max_length=16_000)]
+
+
+class AIChatBody(BaseModel):
+    model_config = ConfigDict(extra='forbid')
+
+    purpose: Literal['parse', 'recommend', 'quote', 'note', 'coarse']
+    messages: Annotated[list[ChatMessage], Field(min_length=1, max_length=24)]
+    maxTokens: Annotated[int | None, Field(ge=1, le=4096)] = None
+
+    @model_validator(mode='after')
+    def validate_total_message_size(self) -> 'AIChatBody':
+        if sum(len(message.content) for message in self.messages) > 30_000:
+            raise ValueError('messages are too large')
+        return self
 
 class SectionPatch(BaseModel):
     baseRevision: Annotated[int, Field(ge=0)]
@@ -51,6 +75,7 @@ class Settings:
     app_environment: str
     allowed_origin: str | None = None
     encryption_key: str = ''
+    amap_key: str = field(default='', repr=False)
 
     def __post_init__(self) -> None:
         if self.encryption_key:
@@ -77,7 +102,113 @@ class Settings:
             app_environment=environment,
             allowed_origin=os.getenv('ALLOWED_ORIGIN') or None,
             encryption_key=os.getenv('APP_ENCRYPTION_KEY', '').strip(),
+            amap_key=os.getenv('AMAP_KEY', '').strip(),
         )
+
+
+AI_BODY_LIMIT = 64 * 1024
+AI_REQUEST_TIMEOUT_SECONDS = 30.0
+AMAP_REQUEST_TIMEOUT_SECONDS = 8.0
+
+
+def _as_number(value: object) -> float:
+    if isinstance(value, bool) or not isinstance(value, (int, float, str)):
+        return 0
+    try:
+        number = float(value)
+        return number if math.isfinite(number) else 0
+    except (TypeError, ValueError):
+        return 0
+
+
+async def _amap_get_json(path: str, params: dict[str, str]) -> dict[str, object]:
+    async with httpx.AsyncClient(timeout=AMAP_REQUEST_TIMEOUT_SECONDS, follow_redirects=False,
+                                 trust_env=False) as client:
+        response = await client.get('https://restapi.amap.com' + path, params=params)
+    response.raise_for_status()
+    payload = response.json()
+    if not isinstance(payload, dict):
+        raise ValueError('Invalid weather provider response')
+    return payload
+
+
+def _public_ip_addresses(host: str) -> list[ipaddress.IPv4Address | ipaddress.IPv6Address]:
+    try:
+        addresses = [ipaddress.ip_address(host)]
+    except ValueError:
+        if host.lower() == 'localhost' or host.lower().endswith('.localhost'):
+            raise ValueError('AI endpoint host is not public')
+        try:
+            records = socket.getaddrinfo(host, None, type=socket.SOCK_STREAM)
+        except OSError as error:
+            raise ValueError('AI endpoint host could not be resolved') from error
+        addresses = [ipaddress.ip_address(record[4][0]) for record in records]
+    if not addresses or any(not address.is_global for address in addresses):
+        raise ValueError('AI endpoint host is not public')
+    return addresses
+
+
+def _build_public_chat_url(endpoint: str) -> str:
+    value = endpoint.strip()
+    if not value:
+        raise ValueError('AI endpoint is not configured')
+    if '://' not in value:
+        value = 'https://' + value
+    parsed = urlsplit(value)
+    if (parsed.scheme.lower() != 'https' or not parsed.hostname or parsed.username or parsed.password
+            or parsed.query or parsed.fragment):
+        raise ValueError('AI endpoint must be a public HTTPS URL without credentials or query values')
+    try:
+        if parsed.port is not None and not 1 <= parsed.port <= 65535:
+            raise ValueError('AI endpoint port is invalid')
+    except ValueError as error:
+        raise ValueError('AI endpoint port is invalid') from error
+    _public_ip_addresses(parsed.hostname)
+    path = parsed.path.rstrip('/')
+    if not path.endswith('/chat/completions'):
+        path += '/chat/completions'
+    return urlunsplit(('https', parsed.netloc, path or '/chat/completions', '', ''))
+
+
+async def _validated_chat_url(endpoint: str) -> str:
+    return await asyncio.to_thread(_build_public_chat_url, endpoint)
+
+
+def _apply_model_options(payload: dict[str, object], purpose: str, model: str, endpoint: str) -> None:
+    # Keep the mini-program's per-purpose sampling and provider thinking switches.
+    payload['temperature'] = 0.1 if purpose in {'parse', 'note'} else 0.85 if purpose == 'quote' else 0.5
+    name, host = model.lower(), endpoint.lower()
+    if name in {'qwen3.7-max-preview', 'qwen3.7-max-2026-05-17', 'qwen3.8-max-preview'}:
+        return
+    if 'dashscope' in host or name.startswith(('qwen', 'kimi')):
+        payload['enable_thinking'] = False
+    elif 'api.deepseek.com' in host or 'bigmodel.cn' in host or name.startswith(('deepseek-v4-', 'glm-')):
+        payload['thinking'] = {'type': 'disabled'}
+
+
+async def _post_ai_chat(url: str, api_key: str, payload: dict[str, object]) -> httpx.Response:
+    async with httpx.AsyncClient(timeout=AI_REQUEST_TIMEOUT_SECONDS, follow_redirects=False,
+                                 trust_env=False) as client:
+        return await client.post(url, json=payload, headers={
+            'Authorization': 'Bearer ' + api_key,
+            'Content-Type': 'application/json',
+        })
+
+
+async def _read_limited_body(request: Request, limit: int) -> bytes:
+    declared_length = request.headers.get('content-length')
+    if declared_length:
+        try:
+            if int(declared_length) > limit:
+                raise HTTPException(status_code=413, detail={'code': 'request_too_large'})
+        except ValueError:
+            raise HTTPException(status_code=400, detail={'code': 'invalid_content_length'})
+    body = bytearray()
+    async for chunk in request.stream():
+        if len(body) + len(chunk) > limit:
+            raise HTTPException(status_code=413, detail={'code': 'request_too_large'})
+        body.extend(chunk)
+    return bytes(body)
 
 
 def connect(database_path: Path) -> sqlite3.Connection:
@@ -147,16 +278,18 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     application = FastAPI(title='今天喝点什么茶', docs_url=None, redoc_url=None, lifespan=lifespan)
 
-    def check_origin(request: Request) -> None:
+    def check_origin(request: Request, *, required: bool = False) -> None:
         origin = request.headers.get('origin')
         if not origin:
+            if required:
+                raise HTTPException(status_code=403, detail='Origin is required')
             return
         expected = config.allowed_origin
         if expected:
             valid = origin.rstrip('/') == expected.rstrip('/')
         else:
             parsed = urlparse(origin)
-            valid = parsed.netloc == request.headers.get('host')
+            valid = parsed.scheme == request.url.scheme and parsed.netloc == request.headers.get('host')
         if not valid:
             raise HTTPException(status_code=403, detail='Origin is not allowed')
 
@@ -241,6 +374,185 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             if error.status_code == 401:
                 return {'authenticated': False}
             raise
+
+    @application.get('/api/weather')
+    async def weather(request: Request, response: Response,
+                      city: str | None = Query(default=None, max_length=100),
+                      latitude: float | None = None, longitude: float | None = None,
+                      _: str = Depends(authenticated_session)) -> dict[str, object]:
+        check_origin(request)
+        response.headers['Cache-Control'] = 'no-store'
+        if not config.amap_key:
+            return {'success': False, 'error': 'Weather service is not configured'}
+
+        with database(config.database_path) as db:
+            state_row = db.execute('SELECT payload FROM app_state WHERE id = 1').fetchone()
+        state = json.loads(state_row['payload']) if state_row else {}
+        profile = state.get('profile') if isinstance(state.get('profile'), dict) else {}
+        profile_city = profile.get('city') if isinstance(profile.get('city'), str) else ''
+        profile_city = profile_city.strip()[:100]
+        requested_city = (city or '').strip()
+        candidates: list[tuple[str, str | None]] = []
+
+        coordinates_valid = (
+            latitude is not None and longitude is not None
+            and math.isfinite(latitude) and math.isfinite(longitude)
+            and -90 <= latitude <= 90 and -180 <= longitude <= 180
+        )
+        if coordinates_valid:
+            try:
+                geo = await _amap_get_json('/v3/geocode/regeo', {
+                    'key': config.amap_key,
+                    'location': f'{longitude},{latitude}',
+                    'extensions': 'base',
+                })
+                regeocode = geo.get('regeocode') if geo.get('status') == '1' else None
+                component = regeocode.get('addressComponent') if isinstance(regeocode, dict) else None
+                if isinstance(component, dict):
+                    resolved_city = component.get('city')
+                    if not isinstance(resolved_city, str) or not resolved_city.strip():
+                        resolved_city = component.get('province')
+                    adcode = component.get('adcode')
+                    if isinstance(resolved_city, str) and resolved_city.strip() and adcode:
+                        candidates.append((resolved_city.strip()[:100], str(adcode)))
+            except Exception:
+                # Location lookup is best-effort; the saved or requested city remains usable.
+                pass
+
+        for fallback_city in (profile_city, requested_city):
+            if fallback_city and all(existing_city != fallback_city for existing_city, _ in candidates):
+                candidates.append((fallback_city, None))
+
+        for candidate_city, adcode in candidates:
+            try:
+                if not adcode:
+                    geocode = await _amap_get_json('/v3/geocode/geo', {
+                        'key': config.amap_key,
+                        'address': candidate_city,
+                    })
+                    geocodes = geocode.get('geocodes') if geocode.get('status') == '1' else None
+                    first = geocodes[0] if isinstance(geocodes, list) and geocodes else None
+                    adcode = first.get('adcode') if isinstance(first, dict) else None
+                    if not adcode:
+                        continue
+
+                weather_result = await _amap_get_json('/v3/weather/weatherInfo', {
+                    'key': config.amap_key,
+                    'city': str(adcode),
+                    'extensions': 'base',
+                })
+                lives = weather_result.get('lives') if weather_result.get('status') == '1' else None
+                live = lives[0] if isinstance(lives, list) and lives else None
+                if not isinstance(live, dict):
+                    continue
+                temperature = _as_number(live.get('temperature'))
+                return {'success': True, 'data': {
+                    'temp': temperature,
+                    'feelsLike': temperature,
+                    'humidity': _as_number(live.get('humidity')),
+                    'desc': live.get('weather') if isinstance(live.get('weather'), str) else '',
+                    'wind': 0,
+                    'winddirection': live.get('winddirection') if isinstance(live.get('winddirection'), str) else '',
+                    'windpower': live.get('windpower') if isinstance(live.get('windpower'), str) else '',
+                    'city': candidate_city,
+                    'reporttime': live.get('reporttime') if isinstance(live.get('reporttime'), str) else '',
+                }}
+            except Exception:
+                # Provider errors should leave rule-based recommendations usable.
+                continue
+        return {'success': False, 'error': 'Weather is unavailable for this location'}
+
+    @application.post('/api/ai/chat')
+    async def ai_chat(request: Request, response: Response,
+                      _: str = Depends(authenticated_session)) -> dict[str, str]:
+        check_origin(request, required=True)
+        response.headers['Cache-Control'] = 'no-store'
+        if request.headers.get('content-type', '').split(';', 1)[0].strip().lower() != 'application/json':
+            raise HTTPException(status_code=415, detail={'code': 'invalid_content_type'})
+        raw_body = await _read_limited_body(request, AI_BODY_LIMIT)
+        try:
+            body = AIChatBody.model_validate_json(raw_body)
+        except ValidationError as error:
+            raise HTTPException(status_code=422, detail={'code': 'invalid_request'}) from error
+
+        with database(config.database_path) as db:
+            row = db.execute('SELECT payload FROM app_state WHERE id = 1').fetchone()
+            secret = db.execute('SELECT ciphertext FROM secrets WHERE name = "llm_api_key"').fetchone()
+        if not row:
+            raise HTTPException(status_code=503, detail={'code': 'ai_configuration_unavailable'})
+        state = json.loads(row['payload'])
+        llm = state.get('llm') if isinstance(state.get('llm'), dict) else {}
+
+        purpose = body.purpose
+        if purpose == 'parse':
+            if not llm.get('parserEnabled'):
+                raise HTTPException(status_code=503, detail={'code': 'ai_purpose_disabled'})
+            model = llm.get('parserModel')
+        elif purpose == 'note':
+            if llm.get('noteAnalysisEnabled') is False:
+                raise HTTPException(status_code=503, detail={'code': 'ai_purpose_disabled'})
+            model = llm.get('parserModel')
+        elif purpose in {'recommend', 'coarse'}:
+            if not llm.get('enabled'):
+                raise HTTPException(status_code=503, detail={'code': 'ai_purpose_disabled'})
+            model = llm.get('recModel')
+        else:  # quote follows the mini-program behavior: recModel, then parserModel.
+            model = llm.get('recModel') or llm.get('parserModel')
+
+        if not isinstance(llm.get('endpoint'), str) or not llm['endpoint'].strip():
+            raise HTTPException(status_code=503, detail={'code': 'ai_endpoint_not_configured'})
+        if len(llm['endpoint']) > 2048:
+            raise HTTPException(status_code=503, detail={'code': 'ai_endpoint_invalid'})
+        if not isinstance(model, str) or not model.strip() or len(model) > 200:
+            raise HTTPException(status_code=503, detail={'code': 'ai_model_not_configured'})
+        if not secret:
+            raise HTTPException(status_code=503, detail={'code': 'ai_key_not_configured'})
+        if not config.encryption_key:
+            raise HTTPException(status_code=503, detail={'code': 'ai_key_unavailable'})
+        try:
+            api_key = Fernet(config.encryption_key.encode('ascii')).decrypt(
+                secret['ciphertext'].encode('ascii')).decode('utf-8')
+        except (InvalidToken, ValueError, UnicodeError):
+            raise HTTPException(status_code=503, detail={'code': 'ai_key_unavailable'})
+
+        try:
+            chat_url = await _validated_chat_url(llm['endpoint'])
+        except (ValueError, OSError, UnicodeError):
+            raise HTTPException(status_code=503, detail={'code': 'ai_endpoint_invalid'})
+
+        outgoing = {
+            'model': model.strip(),
+            'messages': [message.model_dump() for message in body.messages],
+            'max_tokens': body.maxTokens if body.maxTokens is not None else 1200,
+        }
+        _apply_model_options(outgoing, purpose, model, llm['endpoint'])
+        try:
+            upstream = await asyncio.wait_for(
+                _post_ai_chat(chat_url, api_key, outgoing), timeout=AI_REQUEST_TIMEOUT_SECONDS)
+        except (httpx.TimeoutException, asyncio.TimeoutError):
+            raise HTTPException(status_code=504, detail={'code': 'ai_provider_timeout'})
+        except httpx.RequestError:
+            raise HTTPException(status_code=502, detail={'code': 'ai_provider_unavailable'})
+
+        if upstream.status_code == 429:
+            raise HTTPException(status_code=429, detail={'code': 'ai_provider_rate_limited'})
+        if upstream.status_code in {401, 403}:
+            raise HTTPException(status_code=502, detail={'code': 'ai_provider_auth_failed'})
+        if upstream.status_code >= 500:
+            raise HTTPException(status_code=502, detail={'code': 'ai_provider_unavailable'})
+        if upstream.status_code < 200 or upstream.status_code >= 300:
+            raise HTTPException(status_code=502, detail={'code': 'ai_provider_rejected_request'})
+        try:
+            provider_body = upstream.json()
+            choices = provider_body.get('choices') if isinstance(provider_body, dict) else None
+            choice = choices[0] if isinstance(choices, list) and choices else None
+            message = choice.get('message') if isinstance(choice, dict) else None
+            content = message.get('content') if isinstance(message, dict) else None
+            if not isinstance(content, str) or len(content) > 100_000:
+                raise ValueError('Invalid AI content')
+        except (ValueError, TypeError):
+            raise HTTPException(status_code=502, detail={'code': 'ai_provider_invalid_response'})
+        return {'content': content}
 
     @application.get('/api/state')
     def read_state(response: Response, _: str = Depends(authenticated_session)) -> dict[str, object]:
