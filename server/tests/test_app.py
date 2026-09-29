@@ -1,13 +1,18 @@
 import json
+import shutil
 import sqlite3
 import unittest
+import zlib
 from contextlib import closing
+from io import BytesIO
 from unittest.mock import AsyncMock, patch
 from pathlib import Path
 
 import httpx
 from fastapi.testclient import TestClient
 from cryptography.fernet import Fernet
+from PIL import Image, TiffImagePlugin
+from PIL.PngImagePlugin import PngInfo
 
 from server.app import ROOT, Settings, _apply_model_options, _build_public_chat_url, create_app, initialize_database
 from server.passwords import hash_password
@@ -19,6 +24,10 @@ class AppTests(unittest.TestCase):
         self.database_path = ROOT / '.test-tea.sqlite3'
         self.database_path.unlink(missing_ok=True)
         self.addCleanup(self.database_path.unlink, missing_ok=True)
+        self.upload_directory = self.database_path.with_suffix('.uploads')
+        if self.upload_directory.exists():
+            shutil.rmtree(self.upload_directory)
+        self.addCleanup(shutil.rmtree, self.upload_directory, ignore_errors=True)
         self.settings = Settings(
             password_hash=hash_password('correct horse battery staple'),
             database_path=self.database_path,
@@ -122,6 +131,206 @@ class AppTests(unittest.TestCase):
 
     def login(self) -> None:
         self.assertEqual(self.client.post('/api/login', json={'password': 'correct horse battery staple'}).status_code, 200)
+
+    @staticmethod
+    def image_bytes(image_format: str = 'JPEG', *, include_gps: bool = False,
+                    include_png_text: bool = False) -> bytes:
+        output = BytesIO()
+        options: dict[str, object] = {}
+        if include_gps:
+            rational = TiffImagePlugin.IFDRational
+            exif = Image.Exif()
+            exif[271] = 'test camera'
+            exif[34853] = {
+                1: 'N', 2: (rational(31, 1), rational(14, 1), rational(0, 1)),
+                3: 'E', 4: (rational(121, 1), rational(28, 1), rational(0, 1)),
+            }
+            options['exif'] = exif
+        if include_png_text:
+            metadata = PngInfo()
+            metadata.add_text('Location', 'latitude=31.2,longitude=121.5')
+            options['pnginfo'] = metadata
+        Image.new('RGB', (8, 6), '#e6b58a').save(output, format=image_format, **options)
+        return output.getvalue()
+
+    @staticmethod
+    def oversized_png_header() -> bytes:
+        signature = b'\x89PNG\r\n\x1a\n'
+        dimensions = (40_000_001).to_bytes(4, 'big') + (1).to_bytes(4, 'big')
+        ihdr = dimensions + bytes((8, 2, 0, 0, 0))
+        def chunk(name: bytes, data: bytes) -> bytes:
+            content = name + data
+            return len(data).to_bytes(4, 'big') + content + (zlib.crc32(content) & 0xffffffff).to_bytes(4, 'big')
+        return signature + chunk(b'IHDR', ihdr) + chunk(b'IDAT', zlib.compress(b'\0')) + chunk(b'IEND', b'')
+
+    def create_history_record(self, history_id: str = 'history-images', *, revision: int = 0) -> int:
+        response = self.client.post('/api/mutations', json={
+            'baseRevision': revision,
+            'mutations': [{'mutationId': f'mutation-{history_id}', 'type': 'upsert_history',
+                           'entityId': history_id, 'value': {
+                               'id': history_id, 'date': '2026-09-28', 'teaId': 1, 'type': 'primary'}}],
+        })
+        self.assertEqual(response.status_code, 200, response.text)
+        return response.json()['revision']
+
+    def upload_jpeg(self, history_id: str, revision: int, *, caption: str = '', image: bytes | None = None):
+        return self.client.post(
+            f'/api/attachments?historyId={history_id}&baseRevision={revision}&caption={caption}',
+            content=image or self.image_bytes(),
+            headers={'Content-Type': 'image/jpeg', 'Origin': 'http://testserver'},
+        )
+
+    def test_attachment_upload_preview_caption_soft_delete_and_restore(self) -> None:
+        self.login()
+        revision = self.create_history_record()
+        uploaded = self.upload_jpeg('history-images', revision, caption='春日香气',
+                                    image=self.image_bytes(include_gps=True))
+        self.assertEqual(uploaded.status_code, 201, uploaded.text)
+        result = uploaded.json()
+        self.assertRegex(result['fileID'], r'^att_[0-9a-f]{32}$')
+        self.assertEqual(result['historyId'], 'history-images')
+        self.assertEqual(result['contentType'], 'image/jpeg')
+        self.assertEqual(result['caption'], '春日香气')
+        revision = result['revision']
+        state = self.client.get('/api/state').json()
+        self.assertEqual(state['revision'], revision)
+        self.assertEqual(state['state']['history'][0]['imageFileIDs'], [
+            {'fileID': result['fileID'], 'caption': '春日香气'}])
+
+        preview = self.client.get(result['url'], headers={'Origin': 'http://testserver'})
+        self.assertEqual(preview.status_code, 200)
+        self.assertEqual(preview.headers['content-type'], 'image/jpeg')
+        self.assertEqual(preview.headers['cache-control'], 'no-store')
+        self.assertEqual(preview.headers['x-content-type-options'], 'nosniff')
+        with Image.open(BytesIO(preview.content)) as image:
+            self.assertEqual(image.getexif(), {})
+            self.assertEqual(image.size, (8, 6))
+
+        caption = self.client.patch(result['url'], json={
+            'baseRevision': revision, 'caption': '清甜回甘'},
+            headers={'Origin': 'http://testserver'})
+        self.assertEqual(caption.status_code, 200, caption.text)
+        self.assertEqual(caption.json()['caption'], '清甜回甘')
+        revision = caption.json()['revision']
+        self.assertEqual(self.client.get('/api/state').json()['state']['history'][0]
+                         ['imageFileIDs'][0]['caption'], '清甜回甘')
+
+        deleted = self.client.delete(f"{result['url']}?baseRevision={revision}",
+                                     headers={'Origin': 'http://testserver'})
+        self.assertEqual(deleted.status_code, 200, deleted.text)
+        self.assertTrue(deleted.json()['recoverable'])
+        revision = deleted.json()['revision']
+        self.assertEqual(self.client.get(result['url']).status_code, 404)
+        self.assertEqual(self.client.get('/api/state').json()['state']['history'][0]['imageFileIDs'], [])
+        self.assertTrue((self.upload_directory / '.trash' / f"{result['fileID']}.jpg").is_file())
+
+        restored = self.client.post(f"{result['url']}/restore", json={'baseRevision': revision},
+                                    headers={'Origin': 'http://testserver'})
+        self.assertEqual(restored.status_code, 200, restored.text)
+        self.assertEqual(restored.json()['caption'], '清甜回甘')
+        self.assertEqual(self.client.get(result['url']).status_code, 200)
+        self.assertEqual(self.client.get('/api/state').json()['state']['history'][0]
+                         ['imageFileIDs'][0]['fileID'], result['fileID'])
+
+    def test_png_upload_removes_text_metadata(self) -> None:
+        self.login()
+        revision = self.create_history_record()
+        uploaded = self.client.post(
+            f'/api/attachments?historyId=history-images&baseRevision={revision}',
+            content=self.image_bytes('PNG', include_png_text=True),
+            headers={'Content-Type': 'image/png'},
+        )
+        self.assertEqual(uploaded.status_code, 201, uploaded.text)
+        preview = self.client.get(uploaded.json()['url'])
+        self.assertEqual(preview.status_code, 200)
+        with Image.open(BytesIO(preview.content)) as image:
+            self.assertNotIn('Location', image.info)
+
+    def test_attachment_routes_require_login_and_validate_upload_limits_and_ownership(self) -> None:
+        attachment_id = 'att_' + 'a' * 32
+        self.assertEqual(self.client.get(f'/api/attachments/{attachment_id}').status_code, 401)
+        self.assertEqual(self.client.delete(f'/api/attachments/{attachment_id}?baseRevision=0').status_code, 401)
+        self.assertEqual(self.client.patch(f'/api/attachments/{attachment_id}', json={}).status_code, 401)
+        self.assertEqual(self.client.post('/api/attachments?historyId=h&baseRevision=0',
+                                          content=b'x', headers={'Content-Type': 'image/jpeg'}).status_code, 401)
+        self.login()
+        revision = self.create_history_record()
+
+        too_large = self.client.post(
+            f'/api/attachments?historyId=history-images&baseRevision={revision}',
+            content=b'x' * (5 * 1024 * 1024 + 1),
+            headers={'Content-Type': 'image/jpeg'},
+        )
+        self.assertEqual(too_large.status_code, 413)
+        self.assertEqual(too_large.json()['detail']['code'], 'request_too_large')
+
+        oversized_dimensions = self.client.post(
+            f'/api/attachments?historyId=history-images&baseRevision={revision}',
+            content=self.oversized_png_header(), headers={'Content-Type': 'image/png'},
+        )
+        self.assertEqual(oversized_dimensions.status_code, 413)
+        self.assertEqual(oversized_dimensions.json()['detail']['code'], 'image_dimensions_exceed_limit')
+
+        mismatch = self.client.post(
+            f'/api/attachments?historyId=history-images&baseRevision={revision}',
+            content=self.image_bytes('PNG'), headers={'Content-Type': 'image/jpeg'},
+        )
+        self.assertEqual(mismatch.status_code, 415)
+        self.assertEqual(mismatch.json()['detail']['code'], 'image_type_mismatch')
+        invalid_image = self.client.post(
+            f'/api/attachments?historyId=history-images&baseRevision={revision}',
+            content=b'not actually an image', headers={'Content-Type': 'image/jpeg'},
+        )
+        self.assertEqual(invalid_image.status_code, 415)
+        self.assertEqual(invalid_image.json()['detail']['code'], 'invalid_image')
+
+        stale = self.upload_jpeg('history-images', revision - 1)
+        self.assertEqual(stale.status_code, 409)
+        missing_record = self.upload_jpeg('missing-history', revision)
+        self.assertEqual(missing_record.status_code, 404)
+
+        for _ in range(6):
+            uploaded = self.upload_jpeg('history-images', revision)
+            self.assertEqual(uploaded.status_code, 201, uploaded.text)
+            revision = uploaded.json()['revision']
+        seventh = self.upload_jpeg('history-images', revision)
+        self.assertEqual(seventh.status_code, 409)
+        self.assertEqual(seventh.json()['detail']['code'], 'attachment_limit_reached')
+        images = self.client.get('/api/state').json()['state']['history'][0]['imageFileIDs']
+        self.assertEqual(len(images), 6)
+        stale_delete = self.client.delete(f"/api/attachments/{images[0]['fileID']}?baseRevision={revision - 1}")
+        self.assertEqual(stale_delete.status_code, 409)
+        self.assertEqual(len(self.client.get('/api/state').json()['state']['history'][0]['imageFileIDs']), 6)
+        self.assertEqual(self.client.get(f"/api/attachments/{images[0]['fileID']}").status_code, 200)
+
+    def test_attachment_delete_refuses_cross_record_references(self) -> None:
+        self.login()
+        created = self.client.post('/api/mutations', json={'baseRevision': 0, 'mutations': [
+            {'mutationId': 'history-one', 'type': 'upsert_history', 'entityId': 'history-one',
+             'value': {'id': 'history-one', 'date': '2026-09-28', 'teaId': 1, 'type': 'primary'}},
+            {'mutationId': 'history-two', 'type': 'upsert_history', 'entityId': 'history-two',
+             'value': {'id': 'history-two', 'date': '2026-09-27', 'teaId': 2, 'type': 'alt'}},
+        ]})
+        self.assertEqual(created.status_code, 200)
+        uploaded = self.upload_jpeg('history-one', created.json()['revision'])
+        self.assertEqual(uploaded.status_code, 201, uploaded.text)
+        result = uploaded.json()
+        revision = result['revision']
+
+        attempted_reuse = self.client.post('/api/mutations', json={'baseRevision': revision, 'mutations': [
+            {'mutationId': 'reuse-image', 'type': 'upsert_history', 'entityId': 'history-two',
+             'value': {'id': 'history-two', 'date': '2026-09-27', 'teaId': 2, 'type': 'alt',
+                       'imageFileIDs': [{'fileID': result['fileID'], 'caption': ''}]}}
+        ]})
+        self.assertEqual(attempted_reuse.status_code, 422)
+        self.assertIn('owned by another record', attempted_reuse.json()['detail'])
+
+        deleted = self.client.delete(f"{result['url']}?baseRevision={revision}")
+        self.assertEqual(deleted.status_code, 200, deleted.text)
+        state = self.client.get('/api/state').json()['state']
+        second = next(entry for entry in state['history'] if entry['id'] == 'history-two')
+        self.assertNotIn('imageFileIDs', second)
+        self.assertEqual(self.client.get(result['url']).status_code, 404)
 
     def test_weather_requires_login_and_uses_coordinate_reverse_geocode(self) -> None:
         self.assertEqual(self.client.get('/api/weather?city=苏州').status_code, 401)

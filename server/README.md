@@ -26,7 +26,7 @@ Put the generated password hash and encryption key into `server/.env`, then star
 python -m uvicorn server.app:app --reload --port 8000
 ```
 
-In a second terminal, start the frontend with `cd web`, `npm ci`, and `npm run dev`, then open `http://127.0.0.1:5173/`. The current page includes rule/AI recommendations, check-in and tasting notes. Weather is optional: without `AMAP_KEY`, or when AMap is unavailable, it reports that weather is unavailable and rule-based recommendations still work. History, tea-library, and full settings screens remain later migration steps.
+In a second terminal, start the frontend with `cd web`, `npm ci`, and `npm run dev`, then open `http://127.0.0.1:5173/`. The app includes recommendations, history, tea library, statistics, and settings. Weather is optional: without `AMAP_KEY`, or when AMap is unavailable, it reports that weather is unavailable and rule-based recommendations still work. PWA installation, offline writes, old mini-program data import, and deployment remain later migration steps.
 
 ## Authentication and responses
 
@@ -94,6 +94,35 @@ Requests are capped at 64 KiB, 24 messages, 16,000 characters per message, 30,00
 ```
 
 `upsert_history` replaces the entry with the same stable ID. `set_avoid` replaces one tea's full state, including inactive tombstones. The server records each `mutationId`; a replay returns `duplicate:true` and does not apply it again. An all-duplicate batch returns successfully even when its `baseRevision` is old and does not increment the revision; a stale batch containing any new mutation returns `409`. The response includes the resulting `revision` and one result per operation.
+
+## History images
+
+Image endpoints require login and check `Origin` when the browser supplies it. A history record must have one unique stable `id`; each record may reference at most six images. Captions are limited to 40 characters.
+
+Upload the raw image bytes (not multipart form data) so the request body can be capped before decoding:
+
+```http
+POST /api/attachments?historyId=h_1&baseRevision=3&caption=春日香气
+Content-Type: image/jpeg
+
+<image bytes>
+```
+
+The request uses the current state revision. It returns a server-generated `fileID`, a same-origin `url`, the normalized media type, caption, byte size, and new revision. The server decodes and re-encodes static JPEG, PNG, and WebP images, applies EXIF orientation, and drops EXIF/GPS and other embedded metadata. HEIC and other formats, animated images, files over 5 MiB, and images over 40 megapixels are rejected. The declared `Content-Type` must match the detected format (or be `application/octet-stream`).
+
+The image reference is stored in `history[].imageFileIDs` as `{"fileID":"att_<server-id>","caption":"..."}`. `GET /api/attachments/{fileID}` returns the image only while an active history record references it. `PATCH /api/attachments/{fileID}` accepts `{"baseRevision":4,"caption":"清甜回甘"}` and updates both the history JSON and attachment metadata atomically. Upload and caption changes increment the state revision.
+
+`DELETE /api/attachments/{fileID}?baseRevision=5` checks the revision and refuses to delete when the ID is referenced by more than one record. It first removes the history reference and marks the attachment deleted in SQLite, then moves the file under `.trash/`; the file is retained for recovery, and `POST /api/attachments/{fileID}/restore` with `{"baseRevision":6}` restores it to its original record if the record still exists and has room. All previews use `Cache-Control: no-store` and `X-Content-Type-Options: nosniff`.
+
+Image files are stored in a sibling directory next to the configured SQLite file. With the default `DATA_DIR`, the paths are `DATA_DIR/tea.sqlite3` and `DATA_DIR/tea.uploads/`. JSON export contains references and captions, not image bytes; a complete backup must include both the SQLite database and the upload directory. The scheduled full-backup workflow remains part of step 6.
+
+## Settings data actions (step 4)
+
+The browser exports a `tea-pwa-v1` JSON file from `GET /api/state`; the file omits the AI API key. `POST /api/data/import` accepts only a complete export of that same format, with `baseRevision` and a same-origin `Origin` header. It preserves the server's encrypted AI key. It does **not** import the old mini-program format. `POST /api/data/reset` also requires `baseRevision` and `Origin`; it restores the seed state and clears the encrypted AI key. Both actions create a SQLite snapshot in `DATA_DIR/backups/` before replacing state. Reset does not physically remove uploaded image files, so they remain recoverable but are no longer referenced by the new state.
+
+`POST /api/knowledge/install` accepts a complete import-purpose package for all 89 built-in teas, validates it against the bundled contract, and preserves the previous knowledge base as `knowledgeBaseBackup`. The settings page restores that backup through `PATCH /api/state/knowledgeBase`. These operations do not replace tea history or personal overrides.
+
+The JSON export and SQLite snapshot are not full disaster-recovery backups: they omit upload bytes, and the snapshot does not include the encryption environment file. The scheduled complete backup and old mini-program migration are step 6.
 
 ## Inventory lifecycle helper
 

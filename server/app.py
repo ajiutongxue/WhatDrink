@@ -8,10 +8,13 @@ import ipaddress
 import json
 import math
 import os
+import re
 import secrets
 import socket
 import sqlite3
 import time
+import warnings
+from io import BytesIO
 from contextlib import asynccontextmanager, contextmanager
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -19,12 +22,14 @@ from typing import Annotated, Literal
 from urllib.parse import urlparse, urlsplit, urlunsplit
 
 import httpx
+from PIL import Image, ImageOps, UnidentifiedImageError
 from dotenv import load_dotenv
 from fastapi import Depends, FastAPI, HTTPException, Query, Request, Response
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_validator
 from cryptography.fernet import Fernet, InvalidToken
 
 from server.passwords import verify_password
+from server.data_management import parse_pwa_export, prepare_knowledge_install, serialize_state, snapshot_database
 from server.state import EDITABLE_SECTIONS, apply_mutation, default_state, inventory_operation, migrate_state, validate_state
 
 ROOT = Path(__file__).resolve().parent
@@ -65,6 +70,25 @@ class SectionPatch(BaseModel):
 class MutationsBody(BaseModel):
     baseRevision: Annotated[int, Field(ge=0)]
     mutations: Annotated[list[dict[str, object]], Field(min_length=1, max_length=100)]
+
+
+class AttachmentCaptionBody(BaseModel):
+    model_config = ConfigDict(extra='forbid')
+
+    baseRevision: Annotated[int, Field(ge=0)]
+    caption: Annotated[str, Field(max_length=40)]
+
+
+class AttachmentRestoreBody(BaseModel):
+    model_config = ConfigDict(extra='forbid')
+
+    baseRevision: Annotated[int, Field(ge=0)]
+
+
+class DataResetBody(BaseModel):
+    model_config = ConfigDict(extra='forbid')
+
+    baseRevision: Annotated[int, Field(ge=0)]
 
 
 @dataclass(frozen=True)
@@ -109,6 +133,115 @@ class Settings:
 AI_BODY_LIMIT = 64 * 1024
 AI_REQUEST_TIMEOUT_SECONDS = 30.0
 AMAP_REQUEST_TIMEOUT_SECONDS = 8.0
+MAX_ATTACHMENT_BYTES = 5 * 1024 * 1024
+MAX_ATTACHMENT_PIXELS = 40_000_000
+MAX_ATTACHMENTS_PER_HISTORY = 6
+MAX_ATTACHMENT_CAPTION_LENGTH = 40
+ATTACHMENT_MIME_EXTENSIONS = {
+    'image/jpeg': 'jpg',
+    'image/png': 'png',
+    'image/webp': 'webp',
+}
+ATTACHMENT_ID_PATTERN = re.compile(r'^att_[0-9a-f]{32}$')
+
+
+def _sanitize_image(data: bytes) -> tuple[bytes, str]:
+    """Decode and re-encode a still image, dropping EXIF, GPS, and other metadata."""
+    try:
+        with warnings.catch_warnings():
+            warnings.simplefilter('error', Image.DecompressionBombWarning)
+            with Image.open(BytesIO(data)) as source:
+                image_format = source.format
+                if image_format not in {'JPEG', 'PNG', 'WEBP'}:
+                    raise ValueError('unsupported_image_format')
+                if getattr(source, 'is_animated', False) or getattr(source, 'n_frames', 1) > 1:
+                    raise ValueError('animated_images_not_supported')
+                width, height = source.size
+                if width <= 0 or height <= 0 or width * height > MAX_ATTACHMENT_PIXELS:
+                    raise ValueError('image_dimensions_exceed_limit')
+                source.verify()
+
+            with Image.open(BytesIO(data)) as source:
+                source.load()
+                normalized = ImageOps.exif_transpose(source)
+                output = BytesIO()
+                if image_format == 'JPEG':
+                    normalized.convert('RGB').save(output, format='JPEG', quality=90, optimize=True)
+                    content_type = 'image/jpeg'
+                elif image_format == 'PNG':
+                    normalized.save(output, format='PNG', optimize=True)
+                    content_type = 'image/png'
+                else:
+                    if normalized.mode not in {'RGB', 'RGBA'}:
+                        normalized = normalized.convert('RGBA' if 'A' in normalized.getbands() else 'RGB')
+                    normalized.save(output, format='WEBP', quality=90, method=4)
+                    content_type = 'image/webp'
+                return output.getvalue(), content_type
+    except ValueError:
+        raise
+    except (Image.DecompressionBombError, Image.DecompressionBombWarning) as error:
+        raise ValueError('image_dimensions_exceed_limit') from error
+    except (UnidentifiedImageError, OSError, SyntaxError) as error:
+        raise ValueError('invalid_image') from error
+
+
+def _attachment_directory(database_path: Path) -> Path:
+    return database_path.with_suffix('.uploads')
+
+
+def _attachment_paths(database_path: Path, attachment_id: str, content_type: str) -> tuple[Path, Path, Path] | None:
+    extension = ATTACHMENT_MIME_EXTENSIONS.get(content_type)
+    if not ATTACHMENT_ID_PATTERN.fullmatch(attachment_id) or not extension:
+        return None
+    root = _attachment_directory(database_path).resolve()
+    file_name = f'{attachment_id}.{extension}'
+    active_path = (root / file_name).resolve()
+    trash_path = (root / '.trash' / file_name).resolve()
+    if active_path.parent != root or trash_path.parent != root / '.trash':
+        return None
+    return root, active_path, trash_path
+
+
+def _attachment_references(state: dict[str, object], attachment_id: str) -> list[tuple[dict[str, object], int]]:
+    references: list[tuple[dict[str, object], int]] = []
+    history = state.get('history')
+    if not isinstance(history, list):
+        return references
+    for entry in history:
+        if not isinstance(entry, dict):
+            continue
+        images = entry.get('imageFileIDs')
+        if not isinstance(images, list):
+            continue
+        for index, image in enumerate(images):
+            if isinstance(image, dict) and image.get('fileID') == attachment_id:
+                references.append((entry, index))
+    return references
+
+
+def _validate_attachment_links(db: sqlite3.Connection, state: dict[str, object]) -> None:
+    history = state.get('history')
+    if not isinstance(history, list):
+        return
+    for entry in history:
+        if not isinstance(entry, dict):
+            continue
+        images = entry.get('imageFileIDs')
+        if images is None:
+            continue
+        if not isinstance(images, list) or len(images) > MAX_ATTACHMENTS_PER_HISTORY:
+            raise ValueError('history imageFileIDs must contain at most six images')
+        for image in images:
+            if not isinstance(image, dict) or not isinstance(image.get('fileID'), str):
+                continue
+            attachment_id = image['fileID']
+            if not ATTACHMENT_ID_PATTERN.fullmatch(attachment_id):
+                continue  # Keep legacy cloud:// references readable as historical data.
+            row = db.execute('SELECT history_id, deleted_at FROM attachments WHERE id = ?',
+                             (attachment_id,)).fetchone()
+            if (not row or row['deleted_at'] is not None or
+                    entry.get('id') != row['history_id']):
+                raise ValueError('history image attachment is missing, deleted, or owned by another record')
 
 
 def _as_number(value: object) -> float:
@@ -248,6 +381,11 @@ def initialize_database(database_path: Path, seed_path: Path | None = None, encr
         )
         db.execute('CREATE TABLE IF NOT EXISTS secrets (name TEXT PRIMARY KEY, ciphertext TEXT NOT NULL)')
         db.execute(
+            'CREATE TABLE IF NOT EXISTS attachments ('
+            'id TEXT PRIMARY KEY, history_id TEXT NOT NULL, content_type TEXT NOT NULL, '
+            'caption TEXT NOT NULL, created_at INTEGER NOT NULL, deleted_at INTEGER)'
+        )
+        db.execute(
             'INSERT OR IGNORE INTO app_state (id, revision, payload) VALUES (1, 0, ?)',
             (json.dumps(initial_state, ensure_ascii=False, separators=(',', ':')),),
         )
@@ -307,6 +445,47 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                     db.execute('DELETE FROM sessions WHERE token_hash = ?', (digest,))
                 raise HTTPException(status_code=401, detail='Login required')
         return digest
+
+    def persist_attachment_state(db: sqlite3.Connection, current_revision: int,
+                                 state: dict[str, object]) -> int:
+        try:
+            validate_state(state, SEED)
+            _validate_attachment_links(db, state)
+        except ValueError as error:
+            raise HTTPException(status_code=422, detail=str(error)) from error
+        revision = current_revision + 1
+        db.execute('UPDATE app_state SET revision=?, payload=? WHERE id=1',
+                   (revision, json.dumps(state, ensure_ascii=False, separators=(',', ':'))))
+        return revision
+
+    def replace_state_with_backup(base_revision: int, new_state: dict[str, object],
+                                  *, clear_key: bool = False) -> int:
+        with database(config.database_path) as db:
+            row = db.execute('SELECT revision FROM app_state WHERE id=1').fetchone()
+            if not row or row['revision'] != base_revision:
+                raise HTTPException(status_code=409, detail='State revision changed')
+        try:
+            snapshot_database(config.database_path)
+        except OSError as error:
+            raise HTTPException(status_code=503, detail='Could not create a safety backup') from error
+        with database(config.database_path) as db:
+            db.execute('BEGIN IMMEDIATE')
+            row = db.execute('SELECT revision FROM app_state WHERE id=1').fetchone()
+            if row['revision'] != base_revision:
+                raise HTTPException(status_code=409, detail='State revision changed')
+            try:
+                validate_state(new_state, SEED)
+                _validate_attachment_links(db, new_state)
+            except ValueError as error:
+                raise HTTPException(status_code=422, detail=str(error)) from error
+            revision = row['revision'] + 1
+            db.execute('UPDATE app_state SET revision=?, payload=? WHERE id=1',
+                       (revision, serialize_state(new_state)))
+            db.execute('CREATE TABLE IF NOT EXISTS processed_mutations (mutation_id TEXT PRIMARY KEY)')
+            db.execute('DELETE FROM processed_mutations')
+            if clear_key:
+                db.execute('DELETE FROM secrets WHERE name="llm_api_key"')
+        return revision
 
     @application.get('/api/healthz', status_code=204)
     def healthz() -> Response:
@@ -602,6 +781,24 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 if not isinstance(value, dict) or not isinstance(value.get('profilesByTeaId'), dict) or not value['profilesByTeaId']:
                     raise HTTPException(status_code=422, detail='knowledgeBase requires profilesByTeaId')
                 state['knowledgeBaseBackup'] = state.get('knowledgeBase') or catalog_to_knowledge_base(SEED['knowledgeCatalog'])
+            stamp = int(time.time() * 1000)
+            if section == 'profile':
+                state['profileUpdatedAt'] = stamp
+            elif section == 'settings':
+                state['settingsUpdatedAt'] = stamp
+            elif section == 'teaLibrary':
+                if isinstance(value, list):
+                    old_ids = {tea['id'] for tea in state['teaLibrary'] if isinstance(tea, dict) and isinstance(tea.get('id'), int)}
+                    new_ids = {tea['id'] for tea in value if isinstance(tea, dict) and isinstance(tea.get('id'), int)}
+                    removed_ids = old_ids - new_ids
+                    if removed_ids:
+                        state['knowledgeOverrides'] = {key: item for key, item in state['knowledgeOverrides'].items()
+                                                       if item.get('teaId') not in removed_ids}
+                        for item in state['inventory']:
+                            if item.get('teaId') in removed_ids and not item.get('deletedAt'):
+                                item['deletedAt'] = stamp
+                                item['updatedAt'] = stamp
+                state['teaLibraryUpdatedAt'] = stamp
             state[section] = value
             try:
                 validate_state(state, SEED)
@@ -643,16 +840,342 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                     exists = db.execute('SELECT 1 FROM processed_mutations WHERE mutation_id=?', (mutation_id,)).fetchone()
                     if exists:
                         applied.append({'mutationId': mutation_id, 'duplicate': True}); continue
-                    apply_mutation(state, mutation)
+                    candidate = mutation
+                    if mutation.get('type') == 'upsert_history' and isinstance(mutation.get('value'), dict):
+                        value = dict(mutation['value'])
+                        if 'imageFileIDs' not in value:
+                            previous = next((entry for entry in state['history']
+                                             if isinstance(entry, dict) and entry.get('id') == mutation.get('entityId')),
+                                            None)
+                            if isinstance(previous, dict) and 'imageFileIDs' in previous:
+                                value['imageFileIDs'] = previous['imageFileIDs']
+                        candidate = {**mutation, 'value': value}
+                    apply_mutation(state, candidate)
                     db.execute('INSERT INTO processed_mutations(mutation_id) VALUES(?)', (mutation_id,))
                     applied.append({'mutationId': mutation_id, 'duplicate': False})
                 validate_state(state, SEED)
+                _validate_attachment_links(db, state)
             except ValueError as error:
                 raise HTTPException(status_code=422, detail=str(error)) from error
             revision = row['revision'] + 1
             db.execute('UPDATE app_state SET revision=?, payload=? WHERE id=1',
                        (revision, json.dumps(state, ensure_ascii=False, separators=(',', ':'))))
         return {'revision': revision, 'results': applied}
+
+    @application.post('/api/data/import')
+    async def import_pwa_data(request: Request, response: Response,
+                              _: str = Depends(authenticated_session)) -> dict[str, object]:
+        check_origin(request, required=True)
+        response.headers['Cache-Control'] = 'no-store'
+        if request.headers.get('content-type', '').split(';', 1)[0].strip().lower() != 'application/json':
+            raise HTTPException(status_code=415, detail='JSON is required')
+        raw = await _read_limited_body(request, 8 * 1024 * 1024)
+        try:
+            payload = json.loads(raw)
+            if not isinstance(payload, dict):
+                raise ValueError('Import request must be an object')
+            base_revision = payload.get('baseRevision')
+            if not isinstance(base_revision, int) or isinstance(base_revision, bool) or base_revision < 0:
+                raise ValueError('baseRevision is required')
+            imported = parse_pwa_export(payload.get('data'), SEED)
+        except (ValueError, UnicodeDecodeError) as error:
+            raise HTTPException(status_code=422, detail=str(error)) from error
+        revision = replace_state_with_backup(base_revision, imported)
+        return {'revision': revision, 'imported': True, 'backupCreated': True}
+
+    @application.post('/api/data/reset')
+    def reset_pwa_data(body: DataResetBody, request: Request, response: Response,
+                       _: str = Depends(authenticated_session)) -> dict[str, object]:
+        check_origin(request, required=True)
+        response.headers['Cache-Control'] = 'no-store'
+        revision = replace_state_with_backup(body.baseRevision, default_state(SEED), clear_key=True)
+        return {'revision': revision, 'reset': True, 'backupCreated': True}
+
+    @application.post('/api/knowledge/install')
+    async def install_knowledge(request: Request, response: Response,
+                                _: str = Depends(authenticated_session)) -> dict[str, object]:
+        check_origin(request, required=True)
+        response.headers['Cache-Control'] = 'no-store'
+        if request.headers.get('content-type', '').split(';', 1)[0].strip().lower() != 'application/json':
+            raise HTTPException(status_code=415, detail='JSON is required')
+        raw = await _read_limited_body(request, 6 * 1024 * 1024)
+        try:
+            payload = json.loads(raw)
+            if not isinstance(payload, dict):
+                raise ValueError('Knowledge request must be an object')
+            base_revision = payload.get('baseRevision')
+            if not isinstance(base_revision, int) or isinstance(base_revision, bool) or base_revision < 0:
+                raise ValueError('baseRevision is required')
+        except (ValueError, UnicodeDecodeError) as error:
+            raise HTTPException(status_code=422, detail=str(error)) from error
+        with database(config.database_path) as db:
+            row = db.execute('SELECT revision, payload FROM app_state WHERE id=1').fetchone()
+        if not row or row['revision'] != base_revision:
+            raise HTTPException(status_code=409, detail='State revision changed')
+        try:
+            candidate = prepare_knowledge_install(payload.get('catalog'), json.loads(row['payload']), SEED)
+        except ValueError as error:
+            raise HTTPException(status_code=422, detail=str(error)) from error
+        with database(config.database_path) as db:
+            db.execute('BEGIN IMMEDIATE')
+            current = db.execute('SELECT revision FROM app_state WHERE id=1').fetchone()
+            if current['revision'] != base_revision:
+                raise HTTPException(status_code=409, detail='State revision changed')
+            revision = current['revision'] + 1
+            db.execute('UPDATE app_state SET revision=?, payload=? WHERE id=1',
+                       (revision, serialize_state(candidate)))
+        return {'revision': revision, 'installed': True,
+                'catalogVersion': candidate['knowledgeBase']['catalogVersion']}
+
+    @application.post('/api/attachments', status_code=201)
+    async def upload_attachment(request: Request, response: Response,
+                                history_id: Annotated[str, Query(alias='historyId', min_length=1, max_length=200)],
+                                base_revision: Annotated[int, Query(alias='baseRevision', ge=0)],
+                                caption: Annotated[str, Query(max_length=MAX_ATTACHMENT_CAPTION_LENGTH)] = '',
+                                _: str = Depends(authenticated_session)) -> dict[str, object]:
+        check_origin(request)
+        response.headers['Cache-Control'] = 'no-store'
+        declared_type = request.headers.get('content-type', '').split(';', 1)[0].strip().lower()
+        if declared_type and declared_type not in {*ATTACHMENT_MIME_EXTENSIONS, 'application/octet-stream'}:
+            raise HTTPException(status_code=415, detail={'code': 'unsupported_image_format'})
+        raw = await _read_limited_body(request, MAX_ATTACHMENT_BYTES)
+        if not raw:
+            raise HTTPException(status_code=422, detail={'code': 'empty_image'})
+        try:
+            cleaned, content_type = await asyncio.to_thread(_sanitize_image, raw)
+        except ValueError as error:
+            code = str(error)
+            status = 413 if code == 'image_dimensions_exceed_limit' else 415
+            raise HTTPException(status_code=status, detail={'code': code}) from error
+        if declared_type not in {'', 'application/octet-stream', content_type}:
+            raise HTTPException(status_code=415, detail={'code': 'image_type_mismatch'})
+        if len(cleaned) > MAX_ATTACHMENT_BYTES:
+            raise HTTPException(status_code=413, detail={'code': 'request_too_large'})
+
+        directory = _attachment_directory(config.database_path).resolve()
+        directory.mkdir(parents=True, exist_ok=True)
+        created_path: Path | None = None
+        attachment_id = ''
+        revision = base_revision
+        try:
+            with database(config.database_path) as db:
+                db.execute('BEGIN IMMEDIATE')
+                row = db.execute('SELECT revision, payload FROM app_state WHERE id=1').fetchone()
+                if row['revision'] != base_revision:
+                    raise HTTPException(status_code=409, detail='State revision changed')
+                state = json.loads(row['payload'])
+                records = [entry for entry in state.get('history', [])
+                           if isinstance(entry, dict) and entry.get('id') == history_id]
+                if not records:
+                    raise HTTPException(status_code=404, detail={'code': 'history_record_not_found'})
+                if len(records) != 1:
+                    raise HTTPException(status_code=409, detail={'code': 'history_record_id_ambiguous'})
+                record = records[0]
+                images = record.get('imageFileIDs', [])
+                if not isinstance(images, list):
+                    raise HTTPException(status_code=422, detail={'code': 'invalid_history_images'})
+                if len(images) >= MAX_ATTACHMENTS_PER_HISTORY:
+                    raise HTTPException(status_code=409, detail={'code': 'attachment_limit_reached'})
+
+                extension = ATTACHMENT_MIME_EXTENSIONS[content_type]
+                for _attempt in range(5):
+                    attachment_id = 'att_' + secrets.token_hex(16)
+                    paths = _attachment_paths(config.database_path, attachment_id, content_type)
+                    if not paths:
+                        continue
+                    _, candidate_path, _ = paths
+                    try:
+                        with candidate_path.open('xb') as output:
+                            output.write(cleaned)
+                        created_path = candidate_path
+                        break
+                    except FileExistsError:
+                        continue
+                if created_path is None:
+                    raise HTTPException(status_code=503, detail={'code': 'attachment_storage_unavailable'})
+
+                images.append({'fileID': attachment_id, 'caption': caption})
+                record['imageFileIDs'] = images
+                db.execute('INSERT INTO attachments(id, history_id, content_type, caption, created_at) '
+                           'VALUES(?, ?, ?, ?, ?)',
+                           (attachment_id, history_id, content_type, caption, int(time.time() * 1000)))
+                revision = persist_attachment_state(db, row['revision'], state)
+        except Exception:
+            if created_path is not None:
+                created_path.unlink(missing_ok=True)
+            raise
+
+        return {'id': attachment_id, 'fileID': attachment_id, 'historyId': history_id,
+                'url': f'/api/attachments/{attachment_id}', 'contentType': content_type,
+                'caption': caption, 'size': len(cleaned), 'revision': revision}
+
+    @application.get('/api/attachments/{attachment_id}')
+    def read_attachment(attachment_id: str, request: Request,
+                        _: str = Depends(authenticated_session)) -> Response:
+        check_origin(request)
+        if not ATTACHMENT_ID_PATTERN.fullmatch(attachment_id):
+            raise HTTPException(status_code=404, detail='Attachment not found')
+        with database(config.database_path) as db:
+            row = db.execute('SELECT history_id, content_type, deleted_at FROM attachments WHERE id=?',
+                             (attachment_id,)).fetchone()
+            if not row or row['deleted_at'] is not None:
+                raise HTTPException(status_code=404, detail='Attachment not found')
+            paths = _attachment_paths(config.database_path, attachment_id, row['content_type'])
+            if not paths:
+                raise HTTPException(status_code=404, detail='Attachment not found')
+            _, file_path, _ = paths
+            state_row = db.execute('SELECT payload FROM app_state WHERE id=1').fetchone()
+            state = json.loads(state_row['payload']) if state_row else {}
+            references = _attachment_references(state, attachment_id)
+            if (len(references) != 1 or references[0][0].get('id') != row['history_id'] or
+                    not file_path.is_file()):
+                raise HTTPException(status_code=404, detail='Attachment not found')
+            image_bytes = file_path.read_bytes()
+        return Response(content=image_bytes, media_type=row['content_type'], headers={
+            'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff',
+            'Content-Disposition': 'inline',
+        })
+
+    @application.patch('/api/attachments/{attachment_id}')
+    def update_attachment_caption(attachment_id: str, body: AttachmentCaptionBody, request: Request,
+                                  response: Response,
+                                  _: str = Depends(authenticated_session)) -> dict[str, object]:
+        check_origin(request)
+        response.headers['Cache-Control'] = 'no-store'
+        if not ATTACHMENT_ID_PATTERN.fullmatch(attachment_id):
+            raise HTTPException(status_code=404, detail='Attachment not found')
+        with database(config.database_path) as db:
+            db.execute('BEGIN IMMEDIATE')
+            attachment = db.execute('SELECT history_id, deleted_at FROM attachments WHERE id=?',
+                                    (attachment_id,)).fetchone()
+            if not attachment or attachment['deleted_at'] is not None:
+                raise HTTPException(status_code=404, detail='Attachment not found')
+            row = db.execute('SELECT revision, payload FROM app_state WHERE id=1').fetchone()
+            if row['revision'] != body.baseRevision:
+                raise HTTPException(status_code=409, detail='State revision changed')
+            state = json.loads(row['payload'])
+            references = _attachment_references(state, attachment_id)
+            if len(references) != 1 or references[0][0].get('id') != attachment['history_id']:
+                raise HTTPException(status_code=409, detail={'code': 'attachment_reference_conflict'})
+            entry, image_index = references[0]
+            entry['imageFileIDs'][image_index]['caption'] = body.caption
+            db.execute('UPDATE attachments SET caption=? WHERE id=?', (body.caption, attachment_id))
+            revision = persist_attachment_state(db, row['revision'], state)
+        return {'id': attachment_id, 'fileID': attachment_id,
+                'historyId': attachment['history_id'], 'caption': body.caption,
+                'revision': revision}
+
+    @application.delete('/api/attachments/{attachment_id}')
+    def delete_attachment(attachment_id: str, request: Request, response: Response,
+                          base_revision: Annotated[int, Query(alias='baseRevision', ge=0)],
+                          _: str = Depends(authenticated_session)) -> dict[str, object]:
+        check_origin(request)
+        response.headers['Cache-Control'] = 'no-store'
+        if not ATTACHMENT_ID_PATTERN.fullmatch(attachment_id):
+            raise HTTPException(status_code=404, detail='Attachment not found')
+        paths: tuple[Path, Path, Path] | None = None
+        with database(config.database_path) as db:
+            db.execute('BEGIN IMMEDIATE')
+            attachment = db.execute('SELECT history_id, content_type, deleted_at FROM attachments WHERE id=?',
+                                    (attachment_id,)).fetchone()
+            if not attachment:
+                raise HTTPException(status_code=404, detail='Attachment not found')
+            state_row = db.execute('SELECT revision, payload FROM app_state WHERE id=1').fetchone()
+            if state_row['revision'] != base_revision:
+                raise HTTPException(status_code=409, detail='State revision changed')
+            if attachment['deleted_at'] is not None:
+                paths = _attachment_paths(config.database_path, attachment_id, attachment['content_type'])
+                revision = state_row['revision'] if state_row else 0
+            else:
+                row = state_row
+                state = json.loads(row['payload'])
+                references = _attachment_references(state, attachment_id)
+                if len(references) > 1:
+                    raise HTTPException(status_code=409, detail={'code': 'attachment_referenced_elsewhere'})
+                if references and references[0][0].get('id') != attachment['history_id']:
+                    raise HTTPException(status_code=409, detail={'code': 'attachment_reference_conflict'})
+                paths = _attachment_paths(config.database_path, attachment_id, attachment['content_type'])
+                if not paths:
+                    raise HTTPException(status_code=404, detail='Attachment not found')
+                if references:
+                    entry, image_index = references[0]
+                    entry['imageFileIDs'].pop(image_index)
+                    revision = persist_attachment_state(db, row['revision'], state)
+                else:
+                    revision = row['revision']
+                db.execute('UPDATE attachments SET deleted_at=? WHERE id=?',
+                           (int(time.time() * 1000), attachment_id))
+
+        assert paths is not None
+        _, active_path, trash_path = paths
+        trash_path.parent.mkdir(parents=True, exist_ok=True)
+        if active_path.is_file() and not trash_path.exists():
+            try:
+                os.replace(active_path, trash_path)
+            except OSError:
+                # The history reference is already detached; the retained file can be moved later.
+                pass
+        return {'deleted': True, 'recoverable': active_path.is_file() or trash_path.is_file(),
+                'cleanupPending': active_path.is_file(), 'revision': revision}
+
+    @application.post('/api/attachments/{attachment_id}/restore')
+    def restore_attachment(attachment_id: str, body: AttachmentRestoreBody, request: Request,
+                           response: Response,
+                           _: str = Depends(authenticated_session)) -> dict[str, object]:
+        check_origin(request)
+        response.headers['Cache-Control'] = 'no-store'
+        if not ATTACHMENT_ID_PATTERN.fullmatch(attachment_id):
+            raise HTTPException(status_code=404, detail='Attachment not found')
+        moved_from_trash = False
+        active_path: Path | None = None
+        trash_path: Path | None = None
+        try:
+            with database(config.database_path) as db:
+                db.execute('BEGIN IMMEDIATE')
+                attachment = db.execute('SELECT history_id, content_type, caption, deleted_at FROM attachments WHERE id=?',
+                                        (attachment_id,)).fetchone()
+                if not attachment or attachment['deleted_at'] is None:
+                    raise HTTPException(status_code=404, detail='Deleted attachment not found')
+                row = db.execute('SELECT revision, payload FROM app_state WHERE id=1').fetchone()
+                if row['revision'] != body.baseRevision:
+                    raise HTTPException(status_code=409, detail='State revision changed')
+                state = json.loads(row['payload'])
+                records = [entry for entry in state.get('history', [])
+                           if isinstance(entry, dict) and entry.get('id') == attachment['history_id']]
+                if len(records) != 1:
+                    raise HTTPException(status_code=409, detail={'code': 'history_record_unavailable'})
+                record = records[0]
+                images = record.get('imageFileIDs', [])
+                if not isinstance(images, list):
+                    raise HTTPException(status_code=422, detail={'code': 'invalid_history_images'})
+                if len(images) >= MAX_ATTACHMENTS_PER_HISTORY:
+                    raise HTTPException(status_code=409, detail={'code': 'attachment_limit_reached'})
+                if _attachment_references(state, attachment_id):
+                    raise HTTPException(status_code=409, detail={'code': 'attachment_already_referenced'})
+                paths = _attachment_paths(config.database_path, attachment_id, attachment['content_type'])
+                if not paths:
+                    raise HTTPException(status_code=404, detail='Attachment not found')
+                _, active_path, trash_path = paths
+                if not active_path.is_file() and trash_path.is_file():
+                    os.replace(trash_path, active_path)
+                    moved_from_trash = True
+                elif not active_path.is_file():
+                    raise HTTPException(status_code=404, detail={'code': 'attachment_file_missing'})
+                images.append({'fileID': attachment_id, 'caption': attachment['caption']})
+                record['imageFileIDs'] = images
+                db.execute('UPDATE attachments SET deleted_at=NULL WHERE id=?', (attachment_id,))
+                revision = persist_attachment_state(db, row['revision'], state)
+        except Exception:
+            if moved_from_trash and active_path is not None and trash_path is not None and active_path.exists():
+                try:
+                    os.replace(active_path, trash_path)
+                except OSError:
+                    pass
+            raise
+        return {'id': attachment_id, 'fileID': attachment_id,
+                'historyId': attachment['history_id'], 'url': f'/api/attachments/{attachment_id}',
+                'contentType': attachment['content_type'], 'caption': attachment['caption'],
+                'revision': revision}
 
     return application
 
