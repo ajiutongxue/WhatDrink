@@ -108,10 +108,12 @@ workbench exec -i i-2zecp7npm2h4097lvmng -u yang -c "cd /home/yang/webapp/tea &&
 
 ## 在线试用与正式切换
 
-本次完成的是 HTTP 在线试用部署。最终 `tea_doctor_v1` 导出 dry-run、真实数据正式导入、数量/抽样核对，以及停止小程序写入仍需在用户确认正式切换时完成。原计划的真实 iPhone 主屏 PWA 安装及离线验收仍待完成；本次首页和健康接口通过不能替代这些验收。
+本次完成的是 HTTP 在线试用部署，以及按用户指定导入原小程序随代码发布的正式数据（见下方记录）。手机缓存或微信云端中的后续个人记录没有作为本次输入；停止小程序写入仍需用户执行。原计划的真实 iPhone 主屏 PWA 安装及离线验收仍待完成；本次首页和健康接口通过不能替代这些验收。
 
 ### 线上数据核对（2026-09-30）
 
-用户要求核实并补齐正式库数据。已通过 Workbench 以 `yang` 只读检查实际数据库：`app_state.revision=0`，茶叶 89 款，历史、库存、临时回避与知识覆盖均为 0，`knowledgeBase` 为空，没有旧库迁移标记，也未配置 AI Key。当前线上数据库是初始化状态，未完成完整正式库迁移。
+导入前通过 Workbench 以 `yang` 只读检查实际数据库：`app_state.revision=0`，茶叶 89 款，历史、库存、临时回避与知识覆盖均为 0，持久化 `knowledgeBase` 为空，没有旧库迁移标记，也未配置 AI Key。知识目录同时随代码内置，不能仅凭历史和库存为空推断原小程序的正式源数据缺失。
 
-项目目录及服务器 `/home/yang` 下的定向文件查找没有找到正式 `tea_doctor_v1` 导出 JSON；待用户提供完整导出文件或准确路径后，使用现有独立迁移工具 dry-run，通过后先创建 SQLite 快照，再单事务导入并核对。此次检查未修改数据库，Tea 健康接口返回 204，Nginx 与原拼写服务保持 active。
+用户随后指定原小程序使用的源码数据就是本次正式数据。已直接调用原 `utils/data.js` 的 `getDefaultData()` 生成迁移输入，使用独立 `server.legacy_import` 完成两端 dry-run、导入前 SQLite 快照和单事务导入。导入后 `revision=1`，89 款茶与 86 份完整知识画像持久化；九个数据区全部与源数据一致。源数据本身的历史、库存、临时回避、个人覆盖为空，没有 AI Key；没有将包装观察材料生成库存，也没有读取手机缓存或云端个人数据。
+
+导入前快照：`/home/yang/webapp/tea-data/backups/tea-before-change-1790759163-94c091aa.sqlite3`。当前库与快照的 SQLite 完整性均为 `ok`，Tea 直连和 Nginx 代理健康接口均返回 204，Nginx 与原拼写服务保持 active；此次无需重启服务。详细证据见 `docs/production-data-import-20260930.md`。
