@@ -4,7 +4,7 @@
 
 当前应用版本：`1.0.3`。完整行为契约见 [SPEC.md](./SPEC.md)。
 
-微信小程序迁移为个人自用 PWA 的分步骤执行安排见 [PWA 实施方案](./docs/pwa-implementation-plan.md)。当前运行版本仍是微信小程序。
+微信小程序迁移为个人自用 PWA 的分步骤执行安排见 [PWA 实施方案](./docs/pwa-implementation-plan.md)。截至 2026-09-30，PWA 已部署到 [HTTP 在线试用站点](http://tea.xense.com.cn)，复用 ECS 的 Nginx，API 以 `yang` 的 `nohup` 后台进程运行，日常备份由用户手动管理。部署路径、HTTP 配置、启动方式和验收记录见 [部署说明](./deploy/README.md)。当前公网 HTTP 尚不支持 Service Worker 离线验收，真实数据迁移和正式切换仍待完成；以下说明保留微信小程序的运行和发布方式。
 
 ## 已实现能力
 

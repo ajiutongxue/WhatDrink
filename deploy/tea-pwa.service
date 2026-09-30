@@ -1,0 +1,23 @@
+[Unit]
+Description=Tea PWA API
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=simple
+User=yang
+Group=yang
+WorkingDirectory=/home/yang/webapp/tea
+Environment=PYTHONDONTWRITEBYTECODE=1
+ExecStart=/home/yang/webapp/tea/server/.venv/bin/python -m uvicorn server.app:app --host 127.0.0.1 --port 8000 --workers 1
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=30
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ReadWritePaths=/home/yang/webapp/tea-data
+
+[Install]
+WantedBy=multi-user.target

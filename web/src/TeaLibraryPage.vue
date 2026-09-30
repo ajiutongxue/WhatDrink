@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed, nextTick, ref } from 'vue';
 import {
   adjustNature,
   consumeInventorySession,
@@ -91,16 +91,16 @@ type InventoryForm = {
   packageType: string;
   packageLabel: string;
   status: string;
-  quantity: string;
-  netWeightPerUnit: string;
-  remainingWeight: string;
-  remainingSessions: string;
+  quantity: string | number;
+  netWeightPerUnit: string | number;
+  remainingWeight: string | number;
+  remainingSessions: string | number;
   sku: string;
   purchaseUrl: string;
   note: string;
 };
 
-const props = defineProps<{ state: AppState; busy: boolean }>();
+const props = defineProps<{ state: AppState; busy: boolean; offline?: boolean }>();
 const emit = defineEmits<{
   (event: 'save-library', teas: Tea[]): void;
   (event: 'set-avoid', payload: { teaId: number; active: boolean }): void;
@@ -162,10 +162,15 @@ const manageMode = ref(false);
 const notice = ref('');
 const formError = ref('');
 const teaFormOpen = ref(false);
+const teaFormElement = ref<HTMLFormElement | null>(null);
+let teaFormTrigger: HTMLElement | null = null;
 const editingTeaId = ref<number | null>(null);
 const teaForm = ref<TeaForm>(emptyTeaForm());
 const formAvoidActive = ref(false);
 const knowledgeTeaId = ref<number | null>(null);
+const detailSection = ref<'knowledge' | 'inventory'>('knowledge');
+const detailElement = ref<HTMLElement | null>(null);
+let detailTrigger: HTMLElement | null = null;
 const knowledgeEditPath = ref('');
 const knowledgeInput = ref('');
 const knowledgeLocked = ref(false);
@@ -300,13 +305,16 @@ function fieldHint(definition: ContractField) {
 }
 
 function openAddTea() {
+  teaFormTrigger = document.activeElement instanceof HTMLElement ? document.activeElement : null;
   editingTeaId.value = null;
   teaForm.value = emptyTeaForm();
   formAvoidActive.value = false;
   formError.value = '';
   teaFormOpen.value = true;
+  focusTeaForm();
 }
 function openEditTea(tea: Tea) {
+  teaFormTrigger = document.activeElement instanceof HTMLElement ? document.activeElement : null;
   editingTeaId.value = tea.id;
   teaForm.value = {
     name: tea.name, brand: tea.brand || '', cat: tea.cat,
@@ -316,6 +324,30 @@ function openEditTea(tea: Tea) {
   formAvoidActive.value = teaAvoidActive(tea.id);
   formError.value = '';
   teaFormOpen.value = true;
+  focusTeaForm();
+}
+
+async function focusTeaForm() {
+  await nextTick();
+  teaFormElement.value?.querySelector<HTMLElement>('input, select, textarea, button')?.focus();
+}
+
+function handleTeaDialogKeydown(event: KeyboardEvent) {
+  if (event.key === 'Escape') {
+    event.preventDefault();
+    cancelTeaForm();
+    return;
+  }
+  if (event.key !== 'Tab' || !teaFormElement.value) return;
+  const items = [...teaFormElement.value.querySelectorAll<HTMLElement>('button:not(:disabled), input:not(:disabled), select:not(:disabled), textarea:not(:disabled), [tabindex]:not([tabindex="-1"])')];
+  if (!items.length) return;
+  const first = items[0];
+  const last = items[items.length - 1];
+  if (event.shiftKey && (document.activeElement === first || !teaFormElement.value.contains(document.activeElement))) {
+    event.preventDefault(); last.focus();
+  } else if (!event.shiftKey && (document.activeElement === last || !teaFormElement.value.contains(document.activeElement))) {
+    event.preventDefault(); first.focus();
+  }
 }
 function setTeaCategory(cat: string) {
   const defaults = catalog.CAT_DEFAULTS[cat];
@@ -360,9 +392,14 @@ function saveTea() {
   const next = previous ? current.map((item) => item.id === tea.id ? tea : item) : [...current, tea];
   emit('save-library', next);
   teaFormOpen.value = false;
+  void nextTick(() => teaFormTrigger?.focus());
   notice.value = previous ? '已提交茶款修改。' : '已提交新茶款。';
 }
-function cancelTeaForm() { teaFormOpen.value = false; formError.value = ''; }
+function cancelTeaForm() {
+  teaFormOpen.value = false;
+  formError.value = '';
+  void nextTick(() => teaFormTrigger?.focus());
+}
 function allocateTeaId(library: Tea[]) {
   const seen = [
     ...library.map((tea) => tea.id),
@@ -419,17 +456,21 @@ function toggleAvoid(tea: Tea) {
   notice.value = active ? `30 天内不再推荐「${tea.name}」。` : `已恢复「${tea.name}」的推荐。`;
 }
 
-function openKnowledge(tea: Tea) {
+function openKnowledge(tea: Tea, section: 'knowledge' | 'inventory' = 'knowledge') {
+  detailTrigger = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+  detailSection.value = section;
   knowledgeTeaId.value = tea.id;
   knowledgeEditPath.value = '';
   knowledgeError.value = '';
   inventoryError.value = '';
   inventoryForm.value = null;
+  void nextTick(() => detailElement.value?.querySelector<HTMLElement>('.detail-nav button[aria-pressed="true"]')?.focus());
 }
 function closeKnowledge() {
   knowledgeTeaId.value = null;
   knowledgeEditPath.value = '';
   inventoryForm.value = null;
+  void nextTick(() => detailTrigger?.focus());
 }
 function editKnowledgeField(path: string) {
   const row = knowledgeSections.value.flatMap((section) => section.fields).find((field) => field.path === path);
@@ -524,8 +565,9 @@ function openInventoryEditor(item?: InventoryItem) {
     netWeightPerUnit: '', remainingWeight: '', remainingSessions: '', sku: '', purchaseUrl: '', note: '',
   };
 }
-function optionalNumber(raw: string, integerOnly = false) {
-  const text = raw.trim();
+function optionalNumber(raw: string | number, integerOnly = false) {
+  // Vue 的 number 输入会自动将 v-model 转成数值；空输入仍然是字符串。
+  const text = String(raw).trim();
   if (!text) return { ok: true as const, value: undefined };
   const value = Number(text);
   if (!Number.isFinite(value) || value < 0 || (integerOnly && !Number.isInteger(value))) {
@@ -638,9 +680,9 @@ function inventoryDescription(item: InventoryItem) {
   <section class="tea-library-page" aria-labelledby="library-title">
     <div class="page-heading">
       <div>
-        <p class="eyebrow">YOUR COLLECTION</p>
         <h1 id="library-title">我的茶库</h1>
         <p class="page-subtitle">共 {{ state.teaLibrary.length }} 款茶叶<span v-if="disabledCount"> · {{ disabledCount }} 款已停用</span></p>
+        <p v-if="offline" class="page-subtitle">离线可查看；茶库、库存和个人画像的修改需要网络。</p>
       </div>
       <div class="heading-actions">
         <button class="button-primary" type="button" :disabled="busy" @click="openAddTea">＋ 添加</button>
@@ -656,8 +698,9 @@ function inventoryDescription(item: InventoryItem) {
 
     <template v-if="manageMode">
       <div v-if="visibleTeas.length" class="surface tea-list manage-list">
-        <article v-for="tea in visibleTeas" :key="tea.id" class="tea-row" :class="{ disabled: tea.disabled }">
-          <div class="tea-primary"><h2>{{ tea.name }}</h2><p>{{ categoryName(tea.cat) }} · {{ tea.nature || tea.baseNature || '平' }}<span v-if="tea.year"> · {{ tea.year }}</span></p><p class="tea-subline">{{ profileSummary(tea.id) }} · {{ inventorySummary(tea.id) }}</p></div>
+          <article v-for="tea in visibleTeas" :key="tea.id" class="tea-row" :class="{ disabled: tea.disabled }">
+          <i class="tea-dot" aria-hidden="true"></i>
+          <div class="tea-primary"><h2>{{ tea.name }}</h2><p>{{ categoryName(tea.cat) }} · {{ tea.nature || tea.baseNature || '平' }}<span v-if="tea.year"> · {{ tea.year }}</span></p><p class="tea-subline">{{ profileSummary(tea.id) }} · {{ inventorySummary(tea.id) }}</p><button class="inventory-manage-link" type="button" :disabled="busy" :aria-label="`查看${tea.name}库存`" @click="openKnowledge(tea, 'inventory')">查看 / 编辑库存</button></div>
           <div class="row-actions">
             <button class="small-button" type="button" :disabled="busy || !canMove(tea, -1)" aria-label="上移" title="上移" @click="moveTea(tea, -1)">↑</button>
             <button class="small-button" type="button" :disabled="busy || !canMove(tea, 1)" aria-label="下移" title="下移" @click="moveTea(tea, 1)">↓</button>
@@ -675,10 +718,12 @@ function inventoryDescription(item: InventoryItem) {
           <h2 class="group-title">{{ group.label }} <span>{{ group.teas.length }} 款</span></h2>
           <div class="surface tea-list">
             <article v-for="tea in group.teas" :key="tea.id" class="tea-row" :class="{ disabled: tea.disabled }">
+              <i class="tea-dot" aria-hidden="true"></i>
               <button class="tea-open" type="button" :disabled="busy" @click="openKnowledge(tea)">
                 <span class="tea-primary"><span class="tea-name">{{ tea.name }}</span><span class="tea-meta">{{ tea.brand || '未记录品牌' }}<span v-if="tea.year"> · {{ tea.year }}</span></span><span class="tea-subline">{{ profileSummary(tea.id) }} · {{ inventorySummary(tea.id) }}</span></span>
                 <span class="tea-tags"><span class="nature-tag">{{ tea.nature || tea.baseNature || '平' }}</span><span v-if="tea.disabled" class="status-tag">已停用</span><span v-else-if="teaAvoidActive(tea.id)" class="avoid-tag">暂时回避</span></span>
               </button>
+              <button class="small-button inventory-shortcut" type="button" :disabled="busy" :aria-label="`查看${tea.name}库存`" @click="openKnowledge(tea, 'inventory')">库存</button>
               <button class="small-button edit-shortcut" type="button" :disabled="busy" :aria-label="`编辑${tea.name}`" @click="openEditTea(tea)">编辑</button>
             </article>
           </div>
@@ -688,8 +733,8 @@ function inventoryDescription(item: InventoryItem) {
     </template>
 
     <div v-if="teaFormOpen" class="modal-mask" @click.self="cancelTeaForm">
-      <form class="modal-sheet" aria-labelledby="tea-form-title" @submit.prevent="saveTea">
-        <div class="modal-heading"><div><p class="eyebrow">TEA DETAILS</p><h2 id="tea-form-title">{{ editingTeaId == null ? '添加茶叶' : '编辑茶叶' }}</h2></div><button class="icon-button" type="button" aria-label="关闭" @click="cancelTeaForm">×</button></div>
+      <form ref="teaFormElement" class="modal-sheet" role="dialog" aria-modal="true" aria-labelledby="tea-form-title" @keydown="handleTeaDialogKeydown" @submit.prevent="saveTea">
+        <div class="modal-heading"><div><h2 id="tea-form-title">{{ editingTeaId == null ? '添加茶叶' : '编辑茶叶' }}</h2></div><button class="icon-button" type="button" aria-label="关闭" @click="cancelTeaForm">×</button></div>
         <label class="field-label" for="tea-name">茶名 *</label><input id="tea-name" v-model="teaForm.name" class="field" maxlength="80" required />
         <label class="field-label" for="tea-brand">品牌</label><input id="tea-brand" v-model="teaForm.brand" class="field" maxlength="80" />
         <label class="field-label" for="tea-cat">茶类</label><select id="tea-cat" class="field" :value="teaForm.cat" @change="setTeaCategory(($event.target as HTMLSelectElement).value)"><option v-for="item in categoryOptions" :key="item.key" :value="item.key">{{ item.label }}</option></select>
@@ -703,10 +748,11 @@ function inventoryDescription(item: InventoryItem) {
     </div>
 
     <div v-if="knowledgeTeaId != null && activeKnowledgeTea" class="modal-mask" @click.self="closeKnowledge">
-      <section class="modal-sheet knowledge-sheet" aria-labelledby="knowledge-title">
-        <div class="modal-heading"><div><p class="eyebrow">PROFILE & INVENTORY</p><h2 id="knowledge-title">{{ activeKnowledgeTea.name }}</h2><p class="page-subtitle">画像与库存</p></div><button class="icon-button" type="button" aria-label="关闭" @click="closeKnowledge">×</button></div>
-        <div class="knowledge-summary"><span class="status-tag" :class="{ amber: !hasBaseProfile }">{{ hasBaseProfile ? `基础画像 ${activeCompleteness}%` : '暂无完整基础画像' }}</span><p v-if="!hasBaseProfile" class="helper-text">{{ knowledgeWithheld ? '已显示当前茶库中的确定信息，可继续个人补录。' : '此茶款尚无基础画像，可先记录个人观察。' }}</p><p v-else-if="activeProfile?.research?.notes?.length" class="helper-text">{{ activeProfile.research.notes.join('；') }}</p></div>
-        <div class="knowledge-sections">
+      <section ref="detailElement" class="modal-sheet knowledge-sheet" role="dialog" aria-modal="true" aria-labelledby="knowledge-title" @keydown.esc.stop.prevent="closeKnowledge">
+        <div class="modal-heading"><div><h2 id="knowledge-title">{{ activeKnowledgeTea.name }}</h2><p class="page-subtitle">{{ detailSection === 'inventory' ? inventorySummary(activeKnowledgeTea.id) : '茶叶画像与个人补录' }}</p></div><button class="icon-button" type="button" aria-label="关闭" @click="closeKnowledge">×</button></div>
+        <nav class="detail-nav" aria-label="茶叶详情内容"><button type="button" :aria-pressed="detailSection === 'knowledge'" @click="detailSection = 'knowledge'">茶叶画像</button><button type="button" :aria-pressed="detailSection === 'inventory'" @click="detailSection = 'inventory'">库存包装</button></nav>
+        <div v-if="detailSection === 'knowledge'" class="knowledge-summary"><span class="status-tag" :class="{ amber: !hasBaseProfile }">{{ hasBaseProfile ? `基础画像 ${activeCompleteness}%` : '暂无完整基础画像' }}</span><p v-if="!hasBaseProfile" class="helper-text">{{ knowledgeWithheld ? '已显示当前茶库中的确定信息，可继续个人补录。' : '此茶款尚无基础画像，可先记录个人观察。' }}</p><p v-else-if="activeProfile?.research?.notes?.length" class="helper-text">{{ activeProfile.research.notes.join('；') }}</p></div>
+        <div v-if="detailSection === 'knowledge'" class="knowledge-sections">
           <section v-for="section in knowledgeSections" :key="section.key" class="knowledge-section">
             <h3>{{ section.label }}</h3>
             <article v-for="field in section.fields" :key="field.path" class="knowledge-field">
@@ -721,7 +767,7 @@ function inventoryDescription(item: InventoryItem) {
           </section>
         </div>
 
-        <section class="inventory-section" aria-labelledby="inventory-title">
+        <section v-if="detailSection === 'inventory'" class="inventory-section" aria-labelledby="inventory-title">
           <div class="inventory-heading"><div><h3 id="inventory-title">库存包装</h3><p class="page-subtitle">已喝完的包装保留记录，不计入库存摘要</p></div><button class="button-secondary" type="button" :disabled="busy" @click="openInventoryEditor()">＋ 新增包装</button></div>
           <p v-if="inventoryError" class="inline-error" role="alert">{{ inventoryError }}</p>
           <article v-for="item in inventoryRows" :key="item.id" class="inventory-card">
@@ -749,8 +795,8 @@ function inventoryDescription(item: InventoryItem) {
     </div>
 
     <div v-if="inventoryForm" class="modal-mask top-mask" @click.self="inventoryForm = null; inventoryError = ''">
-      <form class="modal-sheet inventory-sheet" aria-labelledby="inventory-form-title" @submit.prevent="saveInventoryItem">
-        <div class="modal-heading"><div><p class="eyebrow">TEA INVENTORY</p><h2 id="inventory-form-title">{{ inventoryForm.id ? '编辑包装' : '新增包装' }}</h2></div><button class="icon-button" type="button" aria-label="返回库存" @click="inventoryForm = null; inventoryError = ''">×</button></div>
+      <form class="modal-sheet inventory-sheet" role="dialog" aria-modal="true" aria-labelledby="inventory-form-title" @keydown.esc.stop.prevent="inventoryForm = null; inventoryError = ''" @submit.prevent="saveInventoryItem">
+        <div class="modal-heading"><div><h2 id="inventory-form-title">{{ inventoryForm.id ? '编辑包装' : '新增包装' }}</h2></div><button class="icon-button" type="button" aria-label="返回库存" @click="inventoryForm = null; inventoryError = ''">×</button></div>
         <label class="field-label" for="inventory-type">包装类型</label><select id="inventory-type" v-model="inventoryForm.packageType" class="field"><option v-for="option in packageTypes" :key="option.key" :value="option.key">{{ option.label }}</option></select>
         <label class="field-label" for="inventory-label">包装名称</label><input id="inventory-label" v-model="inventoryForm.packageLabel" class="field" maxlength="100" placeholder="例如：100g 袋装" />
         <label class="field-label" for="inventory-status">状态</label><select id="inventory-status" v-model="inventoryForm.status" class="field" :disabled="!!inventoryForm.id && inventoryForm.status !== 'unknown'"><option v-for="option in (inventoryForm.id ? inventoryStatuses : inventoryStatuses.filter((item) => item.key === 'sealed' || item.key === 'opened'))" :key="option.key" :value="option.key">{{ option.label }}</option></select><p v-if="inventoryForm.id && inventoryForm.status !== 'unknown'" class="helper-text">已开封/喝完状态请使用库存卡上的操作按钮修改。</p>
@@ -770,4 +816,61 @@ function inventoryDescription(item: InventoryItem) {
 .tea-library-page{width:100%;max-width:64rem;margin:0 auto;padding:clamp(1.4rem,4vw,2.8rem) 0 3rem;color:#3b4039}.page-heading,.modal-heading,.inventory-heading,.inventory-card-heading{display:flex;align-items:center;justify-content:space-between;gap:1rem}.page-heading h1,.modal-heading h2{margin:.35rem 0;color:#544438;font-family:Georgia,'Songti SC',serif;font-weight:500}.page-heading h1{font-size:clamp(2rem,5vw,2.8rem)}.page-subtitle{margin:.3rem 0 0;color:#7a7d75;font-size:.82rem;line-height:1.55}.eyebrow{margin:0;color:#6d8c70;font-size:.68rem;letter-spacing:.19em;font-weight:700}.heading-actions,.row-actions,.inventory-actions{display:flex;align-items:center;justify-content:flex-end;gap:.45rem;flex-wrap:wrap}.button-primary,.button-secondary,.small-button{min-height:2.45rem;border-radius:999px;padding:.55rem .95rem;font-size:.8rem;font-weight:600;white-space:nowrap}.button-primary{border:1px solid #4e7159;background:#4e7159;color:#fffdf9}.button-secondary{border:1px solid #c7d0be;background:#f5f7f1;color:#44604a}.small-button{border:1px solid #ded7cd;background:#fffdf8;color:#615e56}.button-primary:disabled,.button-secondary:disabled,.small-button:disabled{cursor:wait;opacity:.55}.small-button.danger{color:#9c4f3e;border-color:#e5c9bd}.search-box{display:flex;align-items:center;gap:.5rem;max-width:35rem;margin:1.4rem 0 .8rem;border:1px solid #d7cabc;border-radius:.7rem;background:#fffdf8;padding-left:.8rem}.search-box input{width:100%;padding:.75rem .8rem;border:0;background:transparent;color:inherit;outline:0}.search-box span{font-size:1.3rem;color:#777}.filter-row{display:flex;gap:.45rem;overflow:auto;padding:.25rem 0 1.1rem;scrollbar-width:thin}.filter-pill{border:1px solid #ded7cd;border-radius:999px;background:rgba(255,252,247,.8);padding:.48rem .8rem;color:#68685f;font-size:.78rem;white-space:nowrap}.filter-pill.active{border-color:#789275;background:#e9efe5;color:#436248;font-weight:650}.tea-groups{display:grid;gap:1rem}.tea-group{min-width:0}.group-title{display:flex;align-items:baseline;gap:.5rem;margin:.35rem .15rem .45rem;color:#65584c;font-family:Georgia,'Songti SC',serif;font-size:1rem;font-weight:550}.group-title span{color:#8a8d82;font:normal .72rem 'PingFang SC','Microsoft YaHei',sans-serif}.surface{border:1px solid rgba(171,150,130,.32);border-radius:1rem;background:rgba(255,252,247,.9);box-shadow:0 10px 28px rgba(74,60,47,.055)}.tea-list{padding:0 1rem}.tea-row{display:flex;align-items:center;gap:.6rem;min-width:0;padding:.85rem .05rem;border-bottom:1px solid #e9e1d7}.tea-row:last-child{border-bottom:0}.tea-row.disabled{opacity:.58}.tea-open{display:flex;flex:1;align-items:center;justify-content:space-between;gap:.75rem;min-width:0;padding:0;border:0;background:transparent;text-align:left;color:inherit}.tea-primary{display:flex;flex-direction:column;gap:.16rem;min-width:0}.tea-name,.tea-primary h2{font-family:Georgia,'Songti SC',serif;color:#51473d;font-size:.98rem;font-weight:550;line-height:1.35}.tea-meta,.tea-subline,.tea-primary p{margin:0;color:#84857c;font-size:.73rem;line-height:1.45}.tea-subline{color:#71806d;font-size:.68rem}.tea-tags{display:flex;align-items:center;gap:.35rem;flex-wrap:wrap;justify-content:flex-end}.nature-tag,.status-tag,.avoid-tag,.personal-tag,.lock-tag{border-radius:999px;padding:.25rem .52rem;background:#eaf0e7;color:#527058;font-size:.68rem;white-space:nowrap}.status-tag{background:#efeee8;color:#76786e}.status-tag.amber,.avoid-tag{background:#f8ecdf;color:#9a6844}.edit-shortcut{padding:.4rem .65rem;min-height:2.15rem}.manage-list{padding:0 1rem}.manage-list .tea-row{padding:.75rem .05rem}.manage-list .tea-primary{flex:1}.row-actions{flex:0 1 auto;gap:.3rem}.row-actions .small-button{min-height:2rem;padding:.38rem .55rem;font-size:.72rem}.empty-card{display:grid;justify-items:center;gap:.35rem;padding:2.1rem 1rem;text-align:center;color:#8a8b82}.empty-card span{font-size:1.5rem}.empty-card p{margin:.2rem}.notice,.inline-error{margin:.9rem 0;padding:.72rem .9rem;border-radius:.7rem;background:#fff3e9;color:#884b36;font-size:.8rem;line-height:1.5}.inline-error{margin:.25rem 0;background:#fff0ef;color:#9b433b}.modal-mask{position:fixed;z-index:50;inset:0;display:flex;align-items:flex-end;justify-content:center;padding:1rem;background:rgba(41,38,33,.45);backdrop-filter:blur(3px)}.top-mask{z-index:60}.modal-sheet{display:grid;gap:.62rem;width:min(100%,36rem);max-height:min(92dvh,58rem);overflow:auto;padding:1.25rem;border:1px solid rgba(171,150,130,.4);border-radius:1.2rem 1.2rem 0 0;background:#fffdf8;box-shadow:0 18px 50px rgba(42,35,29,.22);overscroll-behavior:contain}.modal-heading{margin-bottom:.15rem}.modal-heading h2{font-size:1.45rem}.icon-button{width:2.25rem;height:2.25rem;border:1px solid #e4d9cd;border-radius:50%;background:#fff;color:#6b655c;font-size:1.4rem;line-height:1}.field-label{margin-top:.25rem;color:#6b655c;font-size:.78rem}.field{width:100%;min-width:0;padding:.72rem .8rem;border:1px solid #d7cabc;border-radius:.65rem;background:#fff;color:#3b4039;outline:0}.field:focus{border-color:#6f8d71;box-shadow:0 0 0 3px rgba(111,141,113,.15)}textarea.field{resize:vertical;line-height:1.55}.field-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.65rem}.field-grid>div{min-width:0}.avoid-row,.lock-row{display:flex;align-items:center;justify-content:space-between;gap:.8rem;padding:.7rem 0;border-top:1px solid #ece4da}.avoid-row strong{font-size:.82rem;color:#55564d}.avoid-row p{margin:.2rem 0 0;color:#87877e;font-size:.7rem}.switch{width:2.7rem;height:1.55rem;padding:.16rem;border:0;border-radius:999px;background:#d4d2ca}.switch span{display:block;width:1.22rem;height:1.22rem;border-radius:50%;background:white;box-shadow:0 1px 3px #0002;transition:transform .16s}.switch.on{background:#6f8d71}.switch.on span{transform:translateX(1.12rem)}.modal-actions{display:flex;justify-content:flex-end;gap:.55rem;margin-top:.45rem;padding-top:.75rem;border-top:1px solid #ece4da}.modal-actions>*{min-width:6rem}.knowledge-sheet{width:min(100%,48rem);max-height:92dvh;border-radius:1.2rem}.knowledge-summary{padding:.65rem .75rem;border-radius:.8rem;background:#f5f2ea}.helper-text{margin:.2rem 0;color:#7b7d75;font-size:.75rem;line-height:1.6}.knowledge-sections{display:grid;gap:.8rem}.knowledge-section{padding:.75rem .85rem;border:1px solid #ebe3d8;border-radius:.8rem;background:#fff}.knowledge-section h3,.inventory-heading h3{margin:0 0 .45rem;color:#625449;font-family:Georgia,'Songti SC',serif;font-size:1rem;font-weight:550}.knowledge-field{border-top:1px solid #f0ebe4}.knowledge-field-button{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:.25rem .7rem;width:100%;padding:.62rem 0;border:0;background:transparent;text-align:left;color:inherit}.knowledge-field-heading{display:flex;align-items:center;gap:.35rem;flex-wrap:wrap}.knowledge-field-heading strong{font-size:.76rem;color:#55564d}.field-value{max-width:13rem;color:#4f624e;text-align:right;font-size:.78rem;overflow-wrap:anywhere}.field-value.missing{color:#aaa99f}.field-provenance,.field-evidence,.field-sources{grid-column:1/-1;color:#898a81;font-size:.66rem;line-height:1.45}.field-evidence{color:#76796f}.field-sources{color:#73816d;overflow-wrap:anywhere}.personal-tag,.lock-tag{padding:.15rem .4rem;font-size:.58rem}.personal-tag{background:#f4eadf;color:#996547}.lock-tag{background:#eeece7;color:#78756d}.inventory-section{display:grid;gap:.6rem;padding-top:.8rem;border-top:1px solid #e9e1d7}.inventory-heading{align-items:flex-start}.inventory-card{padding:.8rem;border:1px solid #e7ded2;border-radius:.8rem;background:#fff}.inventory-card-heading{align-items:flex-start}.inventory-card-heading strong{font-size:.83rem;color:#544c42}.inventory-card-heading p,.inventory-extra{margin:.2rem 0 0;color:#85857c;font-size:.69rem;line-height:1.5;overflow-wrap:anywhere}.inventory-extra a{color:#56785a}.inventory-actions{justify-content:flex-start;margin-top:.6rem}.button-primary.compact{min-height:2rem;padding:.42rem .7rem;font-size:.7rem}.low-stock{margin:.45rem 0 0;color:#9b6541;font-size:.7rem}.empty-inline{margin:0;padding:.8rem;color:#888a81;text-align:center;font-size:.77rem}.field-current{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:.6rem;padding:.65rem .7rem;border-radius:.7rem;background:#f5f2ea;color:#87877e;font-size:.69rem}.field-current strong{color:#4e614d;font-size:.78rem;text-align:right;overflow-wrap:anywhere}.lock-row{font-size:.75rem;color:#5f6259}.lock-row input{width:1rem;height:1rem;accent-color:#4e7159}.three-actions{justify-content:space-between}.three-actions>*{min-width:0;flex:1}.inventory-sheet{width:min(100%,38rem)}
 @media(min-width:700px){.tea-library-page{padding-top:2.1rem}.modal-mask{align-items:center}.modal-sheet{border-radius:1.2rem}.knowledge-sheet{max-height:88dvh}.tea-row{padding-block:1rem}.manage-list .tea-row{padding-block:.9rem}}
 @media(max-width:560px){.page-heading{align-items:flex-start}.heading-actions{gap:.35rem}.heading-actions .button-primary,.heading-actions .button-secondary{min-height:2.25rem;padding:.48rem .7rem;font-size:.74rem}.tea-library-page{padding-top:1.2rem}.tea-list{padding-inline:.75rem}.tea-row{gap:.35rem}.tea-tags{max-width:5rem}.edit-shortcut{padding:.32rem .5rem;font-size:.68rem}.manage-list{padding-inline:.7rem}.manage-list .tea-row{align-items:flex-start;flex-wrap:wrap}.row-actions{width:100%;justify-content:flex-start;padding-left:0}.row-actions .small-button{flex:1}.modal-mask{padding:.55rem}.modal-sheet{padding:1rem}.field-grid{gap:.5rem}.knowledge-field-button{grid-template-columns:minmax(0,1fr) minmax(4.8rem,45%)}.field-value{max-width:none}.inventory-heading{flex-direction:column}.inventory-heading .button-secondary{align-self:flex-start}}
+
+/* Match the existing tea-library prototype while retaining the PWA controls. */
+.tea-library-page{box-sizing:border-box;width:min(100%,64rem);padding:1.25rem 20px calc(100px + env(safe-area-inset-bottom));color:var(--ink);font-family:var(--font-sans)}
+.page-heading{margin-bottom:.8rem;gap:.65rem}
+.page-heading h1{margin:0;color:var(--ink);font-family:var(--font-serif);font-size:1.55rem;font-weight:500;line-height:1.25}
+.page-subtitle{margin:.2rem 0 0;color:var(--ink-3);font-size:.72rem;line-height:1.45}
+.heading-actions{gap:.4rem;flex-wrap:nowrap}
+.button-primary,.button-secondary,.small-button{font-family:var(--font-sans);font-size:.76rem}
+.button-primary{border:0;border-radius:14px;background:var(--coral);color:white}
+.button-primary:hover:not(:disabled){background:var(--coral-deep)}
+.button-secondary{border:0;border-radius:14px;background:var(--sage-soft);color:var(--sage-deep)}
+.small-button{border-color:var(--card-border);border-radius:10px;background:var(--cream-2);color:var(--ink-2)}
+.search-box{margin:.8rem 0 .55rem;border-color:var(--card-border);border-radius:14px;background:var(--card);box-shadow:var(--shadow-card,0 8px 24px rgba(150,110,90,.08))}
+.search-box input{padding:.62rem .65rem;font:inherit;font-size:.82rem}
+.search-box span{color:var(--ink-3)}
+.filter-row{gap:.4rem;margin-bottom:.15rem;padding:.15rem 0 .55rem;scrollbar-width:none}
+.filter-pill{min-height:2.5rem;padding:.42rem .78rem;border-color:transparent;background:var(--cream-2);color:var(--ink-2);font-size:.75rem}
+.filter-pill.active{border-color:transparent;background:var(--coral);color:#fff}
+.tea-groups{gap:.2rem}
+.group-title{margin:.6rem 0 .15rem;color:var(--ink);font-family:var(--font-serif);font-size:.91rem}
+.group-title span{color:var(--ink-3);font-family:var(--font-sans)}
+.surface{border:1px solid var(--card-border);border-radius:20px;background:var(--card);box-shadow:var(--shadow-card,0 8px 24px rgba(150,110,90,.08));backdrop-filter:blur(12px)}
+.tea-list,.manage-list{padding:0 16px}
+.tea-row,.manage-list .tea-row{gap:.55rem;padding:.58rem 0;border-color:rgba(201,184,173,.3)}
+.tea-dot{width:7px;height:7px;flex:0 0 7px;border-radius:50%;background:var(--sage)}
+.tea-open{gap:.5rem}
+.tea-primary{gap:.08rem}
+.tea-name,.tea-primary h2{color:var(--ink);font-family:var(--font-serif);font-size:.88rem;font-weight:550}
+.tea-meta,.tea-subline,.tea-primary p{font-size:.66rem;line-height:1.35}
+.tea-subline{color:var(--sage-deep);font-size:.62rem}
+.tea-tags{gap:.25rem;max-width:none}
+.nature-tag{padding:.2rem .46rem;background:var(--sage-soft);color:var(--sage-deep);font-size:.64rem}
+.status-tag{padding:.2rem .46rem;font-size:.62rem}
+.avoid-tag{padding:.2rem .46rem;background:var(--coral-soft);color:var(--coral-deep);font-size:.62rem}
+.edit-shortcut{min-height:1.9rem;padding:.3rem .5rem;font-size:.66rem}
+.row-actions .small-button{min-height:1.9rem}
+.empty-card{border-color:var(--card-border);background:var(--card);color:var(--ink-3)}
+.notice{border:1px solid var(--card-border);background:var(--coral-soft);color:var(--coral-deep)}
+.modal-mask{padding:0;background:rgba(40,31,28,.42);backdrop-filter:none}
+.modal-sheet{gap:.48rem;width:min(100%,36rem);max-height:88dvh;padding:1.25rem 1.2rem calc(1.1rem + env(safe-area-inset-bottom));border:1px solid var(--card-border);border-radius:24px 24px 0 0;background:#fffdf8;box-shadow:0 -8px 30px rgba(90,65,50,.14)}
+.modal-heading{margin-bottom:.15rem}
+.modal-heading h2{margin:0;color:var(--ink);font-family:var(--font-serif);font-size:1.25rem}
+.field-label{margin:.22rem 0 0;color:var(--ink-3);font-size:.68rem;letter-spacing:.03em}
+.field{padding:.65rem .78rem;border-color:var(--card-border);border-radius:14px;background:var(--cream);color:var(--ink);font-size:.86rem}
+.field:focus{border-color:var(--coral);box-shadow:0 0 0 3px var(--coral-soft)}
+.icon-button{border-color:var(--card-border);background:var(--cream);color:var(--ink-2)}
+.modal-actions{gap:.55rem;margin-top:.35rem;padding-top:.65rem;border-color:var(--card-border)}
+.modal-actions .button-primary,.modal-actions .button-secondary{min-height:42px;min-width:6rem}
+.knowledge-summary,.field-current{background:var(--cream-2)}
+.knowledge-section,.inventory-card{border-color:var(--card-border);background:var(--card)}
+.knowledge-section h3,.inventory-heading h3{color:var(--ink);font-family:var(--font-serif)}
+.inventory-section{border-color:var(--card-border)}
+.inventory-extra a{color:var(--coral-deep)}
+@media(min-width:700px){.tea-library-page{padding:1.8rem 24px 100px}.modal-mask{padding:18px}.modal-sheet{border-radius:24px}.modal-mask:not(.top-mask)>.modal-sheet:not(.knowledge-sheet){max-width:360px}.knowledge-sheet{max-width:48rem}}
+@media(max-width:560px){.tea-library-page{padding:1rem 20px calc(100px + env(safe-area-inset-bottom))}.page-heading h1{font-size:1.45rem}.heading-actions .button-primary,.heading-actions .button-secondary{min-height:2.5rem;padding:.48rem .68rem;font-size:.72rem}.tea-list,.manage-list{padding-inline:12px}.tea-row{gap:.38rem}.tea-primary{flex:1}.tea-tags{max-width:7rem}.manage-list .tea-row{flex-wrap:nowrap;align-items:center}.row-actions{width:auto;justify-content:flex-end;padding:0}.row-actions .small-button{flex:0 1 auto}.modal-mask{padding:0}.modal-sheet{padding:1.05rem 1rem calc(1rem + env(safe-area-inset-bottom));border-radius:24px 24px 0 0}.field-grid{gap:.5rem}.inventory-heading{flex-direction:row}.inventory-heading .button-secondary{align-self:auto}}
+
+.inventory-shortcut{min-height:2.5rem;padding:.4rem .55rem;font-size:.7rem;background:var(--sage-soft);color:var(--sage-deep);border-color:transparent}.inventory-manage-link{align-self:flex-start;padding:4px 0;border:0;background:none;color:var(--coral-deep);font-size:.7rem}.detail-nav{display:flex;gap:8px;padding:5px 0 8px}.detail-nav button{flex:1;min-height:40px;padding:8px 12px;border:0;border-radius:14px;background:var(--cream-2);color:var(--ink-2);font-size:.82rem}.detail-nav button[aria-pressed="true"]{background:var(--coral);color:white}.knowledge-sheet>.inventory-section{padding-top:4px;border-top:0}
 </style>

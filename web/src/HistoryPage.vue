@@ -35,7 +35,7 @@ type HistoryPageState = {
   temporaryAvoids: Record<string, unknown>;
 };
 
-const props = defineProps<{ state: HistoryPageState | null; busy: boolean }>();
+const props = defineProps<{ state: HistoryPageState | null; busy: boolean; offline?: boolean }>();
 const emit = defineEmits<{
   'update-notes': [payload: { id: string; text: string }];
   'clear-notes': [id: string];
@@ -167,12 +167,13 @@ function imageSource(image: HistoryImage) {
   <section class="history-page">
     <header class="history-header">
       <div>
-        <p class="eyebrow">YOUR TEA JOURNAL</p>
         <h1>饮茶记录</h1>
         <p class="history-subtitle">每一杯，都算数</p>
       </div>
       <slot name="actions" />
     </header>
+
+    <p v-if="offline" class="history-status" role="status">离线时品饮文字和近期回避可暂存；图片上传、删除和说明修改需要网络。</p>
 
     <p v-if="busy" class="history-status" role="status" aria-live="polite">正在处理记录…</p>
 
@@ -298,10 +299,10 @@ function imageSource(image: HistoryImage) {
 </template>
 
 <style scoped>
-.history-page { width: min(calc(100% - 2rem), 64rem); margin: 0 auto; padding: clamp(1.6rem, 4vw, 3rem) 0 3rem; }
+.history-page { width: min(calc(100% - 2.5rem), 64rem); margin: 0 auto; padding: 1.5rem 0 7rem; }
 .history-header { display: flex; justify-content: space-between; align-items: end; gap: 1rem; margin-bottom: 1.25rem; }
-.history-header h1 { margin: .35rem 0 .2rem; color: #544438; font-family: Georgia, 'Songti SC', serif; font-size: clamp(1.8rem, 5vw, 2.5rem); font-weight: 500; }
-.history-subtitle { margin: 0; color: #827c72; font-size: .85rem; }
+.history-header h1 { margin: 0 0 .15rem; color: var(--ink-2, #544438); font-family: var(--font-serif, Georgia, 'Songti SC', serif); font-size: 1.5rem; font-weight: 550; letter-spacing: .08em; }
+.history-subtitle { margin: 0; color: var(--ink-3, #827c72); font-size: .75rem; letter-spacing: .06em; }
 .history-status { margin: 0 0 .8rem; padding: .7rem .9rem; border-radius: .7rem; background: #edf2e9; color: #506b53; font-size: .82rem; }
 .history-list { overflow: hidden; padding: .35rem 1.25rem; }
 .history-entry + .history-entry { border-top: 1px solid rgba(171, 150, 130, .24); }
@@ -354,13 +355,13 @@ function imageSource(image: HistoryImage) {
 .history-empty strong { color: #5b5147; font-family: Georgia, 'Songti SC', serif; font-size: 1.05rem; font-weight: 500; }
 .history-empty .muted { margin: 0; font-size: .8rem; }
 .empty-icon { font-size: 2.2rem; }
-:global(.phase-night) .history-header h1,:global(.phase-night) .history-tea-name,:global(.phase-night) .history-empty strong,:global(.phase-night) .images-heading strong,:global(.phase-night) .avoid-row strong { color: #e4e1e5; }
-:global(.phase-night) .history-subtitle,:global(.phase-night) .history-meta,:global(.phase-night) .history-chevron,:global(.phase-night) .history-date-col,:global(.phase-night) .note-placeholder,:global(.phase-night) .images-empty,:global(.phase-night) .avoid-row span { color: #c0c1bc; }
-:global(.phase-night) .history-row,:global(.phase-night) .note-editor textarea,:global(.phase-night) .image-edit-row input { color: #e4e1e5; }
-:global(.phase-night) .saved-note,:global(.phase-night) .image-card,:global(.phase-night) .image-unavailable,:global(.phase-night) .image-edit-row > img { background: #3b3c42; color: #dedadd; }
-:global(.phase-night) .note-editor label { color: #c0c1bc; }
+:global(.home-shell.phase-night) .history-header h1,:global(.home-shell.phase-night) .history-tea-name,:global(.home-shell.phase-night) .history-empty strong,:global(.home-shell.phase-night) .images-heading strong,:global(.home-shell.phase-night) .avoid-row strong { color: #e4e1e5; }
+:global(.home-shell.phase-night) .history-subtitle,:global(.home-shell.phase-night) .history-meta,:global(.home-shell.phase-night) .history-chevron,:global(.home-shell.phase-night) .history-date-col,:global(.home-shell.phase-night) .note-placeholder,:global(.home-shell.phase-night) .images-empty,:global(.home-shell.phase-night) .avoid-row span { color: #c0c1bc; }
+:global(.home-shell.phase-night) .history-row,:global(.home-shell.phase-night) .note-editor textarea,:global(.home-shell.phase-night) .image-edit-row input { color: #e4e1e5; }
+:global(.home-shell.phase-night) .saved-note,:global(.home-shell.phase-night) .image-card,:global(.home-shell.phase-night) .image-unavailable,:global(.home-shell.phase-night) .image-edit-row > img { background: #3b3c42; color: #dedadd; }
+:global(.home-shell.phase-night) .note-editor label { color: #c0c1bc; }
 @media (max-width: 520px) {
-  .history-page { width: min(calc(100% - 1.5rem), 64rem); padding-top: 1.5rem; }
+  .history-page { width: min(calc(100% - 2.5rem), 64rem); padding-top: 1.25rem; }
   .history-list { padding-inline: .85rem; }
   .history-row { gap: .5rem; }
   .history-date-col { flex-basis: 3.7rem; }

@@ -77,7 +77,6 @@ function frequencyHeight(count: number) {
   <section class="stats-page">
     <header class="stats-header">
       <div>
-        <p class="eyebrow">TEA THROUGH THE DAYS</p>
         <h1>饮茶统计</h1>
         <p class="stats-subtitle">{{ stats?.monthLabel || '看看每一杯的累积' }}</p>
       </div>
@@ -88,8 +87,11 @@ function frequencyHeight(count: number) {
     <section v-if="!stats" class="surface stats-empty-page" aria-live="polite">
       <span aria-hidden="true">📊</span><strong>正在载入统计</strong><p>记录准备好后会显示在这里。</p>
     </section>
+    <section v-else-if="!state?.history.length" class="surface stats-empty-page">
+      <span aria-hidden="true">🍃</span><strong>本月暂无饮茶记录</strong><p>完成打卡后生成统计。</p>
+    </section>
     <div v-else class="stats-sections">
-      <section class="surface stats-card" aria-labelledby="category-title">
+      <section v-if="stats.monthTotal" class="surface stats-card" aria-labelledby="category-title">
         <div class="section-heading"><span aria-hidden="true">🥧</span><div><h2 id="category-title">本月茶类分布</h2><p>{{ stats.monthTotal }} 次饮茶记录</p></div></div>
         <div class="category-layout">
           <div class="donut" :style="donutStyle" role="img" :aria-label="`${stats.monthLabel}共有 ${stats.monthTotal} 次饮茶记录`">
@@ -106,7 +108,7 @@ function frequencyHeight(count: number) {
         </div>
       </section>
 
-      <section class="surface stats-card" aria-labelledby="nature-title">
+      <section v-if="stats.monthTotal" class="surface stats-card" aria-labelledby="nature-title">
         <div class="section-heading"><span aria-hidden="true">⚖️</span><div><h2 id="nature-title">本月茶性分布</h2><p>按茶库中的茶性归类</p></div></div>
         <div v-if="stats.monthTotal" class="nature-list">
           <div v-for="item in stats.natureDist" :key="item.name" class="nature-row">
@@ -134,12 +136,12 @@ function frequencyHeight(count: number) {
 
       <section class="surface stats-card frequency-card" aria-labelledby="frequency-title">
         <div class="section-heading"><span aria-hidden="true">📈</span><div><h2 id="frequency-title">最近 30 天饮茶频率</h2><p>按实际打卡次数计算</p></div></div>
-        <div class="frequency-chart" role="img" :aria-label="`近 30 天饮茶 ${stats.freqDays} 天，共 ${stats.freqTotal} 次`">
+        <div v-if="stats.freqTotal" class="frequency-chart" role="img" :aria-label="`近 30 天饮茶 ${stats.freqDays} 天，共 ${stats.freqTotal} 次`">
           <div v-for="item in stats.freq" :key="item.date" class="frequency-column" :title="`${item.date}：${item.count} 次`">
             <span class="frequency-bar" :class="{ active: item.count > 0 }" :style="{ height: frequencyHeight(item.count) }" />
           </div>
         </div>
-        <div class="frequency-axis"><span>{{ stats.freq[0]?.label }}</span><span>近 30 天</span><span>{{ stats.freq[stats.freq.length - 1]?.label }}</span></div>
+        <div v-if="stats.freqTotal" class="frequency-axis"><span>{{ stats.freq[0]?.label }}</span><span>近 30 天</span><span>{{ stats.freq[stats.freq.length - 1]?.label }}</span></div>
         <p v-if="stats.freqTotal === 0" class="frequency-empty">近 30 天暂无饮茶打卡。</p>
         <div class="frequency-summary"><span>饮茶 {{ stats.freqDays }} 天</span><i aria-hidden="true">·</i><span>共 {{ stats.freqTotal }} 次</span></div>
       </section>
@@ -148,9 +150,9 @@ function frequencyHeight(count: number) {
 </template>
 
 <style scoped>
-.stats-page { width: min(calc(100% - 2rem), 64rem); margin: 0 auto; padding: clamp(1.6rem, 4vw, 3rem) 0 3rem; }
+.stats-page { width: min(calc(100% - 2.5rem), 64rem); margin: 0 auto; padding: 1.5rem 0 7rem; }
 .stats-header { display: flex; justify-content: space-between; align-items: end; gap: 1rem; margin-bottom: 1.25rem; }
-.stats-header h1 { margin: .35rem 0 .2rem; color: #544438; font-family: Georgia, 'Songti SC', serif; font-size: clamp(1.8rem, 5vw, 2.5rem); font-weight: 500; }
+.stats-header h1 { margin: .35rem 0 .2rem; color: var(--ink-2, #544438); font-family: var(--font-serif, Georgia, 'Songti SC', serif); font-size: 1.65rem; font-weight: 550; }
 .stats-subtitle { margin: 0; color: #827c72; font-size: .85rem; }
 .stats-status { margin: 0 0 .8rem; padding: .7rem .9rem; border-radius: .7rem; background: #edf2e9; color: #506b53; font-size: .82rem; }
 .stats-sections { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
@@ -171,11 +173,11 @@ function frequencyHeight(count: number) {
 .top-list { margin: 0; padding: 0; list-style: none; }.top-row { display: grid; grid-template-columns: 1.4rem minmax(0, 1fr) 3rem; align-items: center; gap: .6rem; }.rank { display: grid; width: 1.35rem; height: 1.35rem; place-items: center; border-radius: 50%; background: #f0eee8; color: #777368; font-size: .69rem; }.rank.podium { background: #f6e8e0; color: #a05d49; }.top-info { display: grid; min-width: 0; gap: .35rem; }.top-name { overflow: hidden; color: #5b5147; font-size: .77rem; text-overflow: ellipsis; white-space: nowrap; }.top-row > strong { color: #6a6257; font-size: .7rem; font-weight: 550; text-align: right; white-space: nowrap; }.top-fill { background: #c4793b; }
 .frequency-card { grid-column: 1 / -1; }.frequency-chart { display: flex; height: 6.3rem; align-items: end; gap: clamp(2px, .65vw, 7px); padding: .25rem 0 0; }.frequency-column { display: flex; height: 100%; min-width: 0; flex: 1; align-items: end; justify-content: center; }.frequency-bar { display: block; width: min(100%, .75rem); min-height: 3px; border-radius: .3rem .3rem 0 0; background: #eee8dd; }.frequency-bar.active { background: #c4793b; }.frequency-axis { display: flex; justify-content: space-between; margin-top: .45rem; color: #90897f; font-size: .68rem; }.frequency-summary { display: flex; justify-content: center; align-items: center; gap: .55rem; margin-top: .9rem; color: #5d6f57; font-size: .82rem; }.frequency-summary i { color: #a99a8a; font-style: normal; }.frequency-empty { margin: .55rem 0 0; color: #90897f; font-size: .73rem; text-align: center; }
 .section-empty { margin: 0; color: #8c867d; font-size: .8rem; line-height: 1.6; }.stats-empty-page { display: grid; justify-items: center; gap: .55rem; padding: 3rem 1rem; text-align: center; }.stats-empty-page > span { font-size: 2rem; }.stats-empty-page strong { color: #5b5147; font-family: Georgia, 'Songti SC', serif; font-size: 1.05rem; font-weight: 500; }.stats-empty-page p { margin: 0; color: #8c867d; font-size: .8rem; }
-:global(.phase-night) .stats-header h1,:global(.phase-night) .section-heading h2,:global(.phase-night) .donut > div,:global(.phase-night) .top-name,:global(.phase-night) .top-row > strong,:global(.phase-night) .nature-row,:global(.phase-night) .nature-row strong { color: #e4e1e5; }
-:global(.phase-night) .stats-subtitle,:global(.phase-night) .section-heading p,:global(.phase-night) .legend-name,:global(.phase-night) .section-empty,:global(.phase-night) .frequency-empty,:global(.phase-night) .frequency-axis { color: #c0c1bc; }
-:global(.phase-night) .section-heading > span,:global(.phase-night) .donut > div { background: #3b3c42; }
-:global(.phase-night) .category-legend strong { color: #dedadd; }
-@media (max-width: 700px) { .stats-page { width: min(calc(100% - 1.5rem), 64rem); }.stats-sections { grid-template-columns: 1fr; }.frequency-card { grid-column: auto; } }
+:global(.home-shell.phase-night) .stats-header h1,:global(.home-shell.phase-night) .section-heading h2,:global(.home-shell.phase-night) .donut > div,:global(.home-shell.phase-night) .top-name,:global(.home-shell.phase-night) .top-row > strong,:global(.home-shell.phase-night) .nature-row,:global(.home-shell.phase-night) .nature-row strong { color: #e4e1e5; }
+:global(.home-shell.phase-night) .stats-subtitle,:global(.home-shell.phase-night) .section-heading p,:global(.home-shell.phase-night) .legend-name,:global(.home-shell.phase-night) .section-empty,:global(.home-shell.phase-night) .frequency-empty,:global(.home-shell.phase-night) .frequency-axis { color: #c0c1bc; }
+:global(.home-shell.phase-night) .section-heading > span,:global(.home-shell.phase-night) .donut > div { background: #3b3c42; }
+:global(.home-shell.phase-night) .category-legend strong { color: #dedadd; }
+@media (max-width: 700px) { .stats-page { width: min(calc(100% - 2.5rem), 64rem); }.stats-sections { grid-template-columns: 1fr; }.frequency-card { grid-column: auto; } }
 @media (max-width: 420px) { .category-layout { grid-template-columns: minmax(7rem, .75fr) minmax(0, 1.25fr); gap: .6rem; }.category-legend { gap: .48rem; }.category-legend li { gap: .3rem; font-size: .66rem; }.category-legend strong { font-size: .62rem; }.donut { width: min(100%, 8rem); } }
 @media (prefers-reduced-motion: reduce) { .bar-fill { transition: none; } }
 </style>

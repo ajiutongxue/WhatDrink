@@ -12,7 +12,7 @@ python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().d
 
 Keep passwords and provider keys private. Store real values only in the ignored local `.env`; `.env.example` contains placeholders only. Back up `APP_ENCRYPTION_KEY` with the SQLite file. Losing it makes the separately encrypted AI key unreadable.
 
-For local development, run these from the repository root (the example uses a non-secure cookie only on localhost):
+For local development, run these from the repository root (this example uses a non-secure cookie on localhost):
 
 ```powershell
 python -m pip install -r server/requirements-dev.txt
@@ -26,7 +26,9 @@ Put the generated password hash and encryption key into `server/.env`, then star
 python -m uvicorn server.app:app --reload --port 8000
 ```
 
-In a second terminal, start the frontend with `cd web`, `npm ci`, and `npm run dev`, then open `http://127.0.0.1:5173/`. The app includes recommendations, history, tea library, statistics, and settings. Weather is optional: without `AMAP_KEY`, or when AMap is unavailable, it reports that weather is unavailable and rule-based recommendations still work. PWA installation, offline writes, old mini-program data import, and deployment remain later migration steps.
+In a second terminal, start the frontend with `cd web`, `npm ci`, and `npm run dev`, then open `http://127.0.0.1:5173/`. The app includes recommendations, history, tea library, statistics, and settings. Weather is optional: without `AMAP_KEY`, or when AMap is unavailable, it reports that weather is unavailable and rule-based recommendations still work. The PWA manifest, Service Worker shell cache, and IndexedDB outbox implement limited offline reads and queued history/avoidance writes; Service Worker registration requires HTTPS or localhost. The standalone old mini-program import tool is implemented. An actual user export dry-run, iPhone installation and flight-mode acceptance, and formal cutover remain pending.
+
+As of 2026-09-30, online trial deployment uses `http://tea.xense.com.cn`, the existing ECS Nginx, and one Uvicorn process started by `yang` with `nohup`. Its `server/.env` has `APP_ENV=development`, `COOKIE_SECURE=false`, `ALLOWED_ORIGIN=http://tea.xense.com.cn`, and `DATA_DIR=/home/yang/webapp/tea-data`; the current settings validation requires development mode for a non-secure cookie. HTTP does not encrypt passwords or session traffic, and the public HTTP trial cannot validate Service Worker offline startup or PWA installation. The process does not automatically restart after exit or reboot. Daily backups are not enabled; the user manages database copies manually. See [the deployment guide](../deploy/README.md) for paths, commands, and the remaining acceptance work.
 
 ## Authentication and responses
 
@@ -114,7 +116,9 @@ The image reference is stored in `history[].imageFileIDs` as `{"fileID":"att_<se
 
 `DELETE /api/attachments/{fileID}?baseRevision=5` checks the revision and refuses to delete when the ID is referenced by more than one record. It first removes the history reference and marks the attachment deleted in SQLite, then moves the file under `.trash/`; the file is retained for recovery, and `POST /api/attachments/{fileID}/restore` with `{"baseRevision":6}` restores it to its original record if the record still exists and has room. All previews use `Cache-Control: no-store` and `X-Content-Type-Options: nosniff`.
 
-Image files are stored in a sibling directory next to the configured SQLite file. With the default `DATA_DIR`, the paths are `DATA_DIR/tea.sqlite3` and `DATA_DIR/tea.uploads/`. JSON export contains references and captions, not image bytes; a complete backup must include both the SQLite database and the upload directory. The scheduled full-backup workflow remains part of step 6.
+Image files are stored in a sibling directory next to the configured SQLite file. With the configured `DATA_DIR`, the paths are `DATA_DIR/tea.sqlite3` and `DATA_DIR/tea.uploads/`. JSON export contains references and captions, not image bytes; a complete backup must include the SQLite database, upload directory, and corresponding encryption environment file. Current daily operations use manual database copies to another location, with frequency and retention chosen by the user. Create a consistent snapshot using the SQLite backup API, or stop API writes and close database connections before copying the database file. The systemd backup unit and timer have been installed but are not enabled for this trial.
+
+The existing `python -m server.backup create` remains an optional manual tool. Each invocation copies SQLite through its backup API, the upload directory, and `server/.env`; it still prunes matching `tea-pwa-daily-` backups older than 30 days in its configured backup directory. The default directory name `backups/daily/` and this pruning behavior do not schedule automatic execution. Import/reset safety snapshots remain active.
 
 ## Settings data actions (step 4)
 
@@ -122,7 +126,26 @@ The browser exports a `tea-pwa-v1` JSON file from `GET /api/state`; the file omi
 
 `POST /api/knowledge/install` accepts a complete import-purpose package for all 89 built-in teas, validates it against the bundled contract, and preserves the previous knowledge base as `knowledgeBaseBackup`. The settings page restores that backup through `PATCH /api/state/knowledgeBase`. These operations do not replace tea history or personal overrides.
 
-The JSON export and SQLite snapshot are not full disaster-recovery backups: they omit upload bytes, and the snapshot does not include the encryption environment file. The scheduled complete backup and old mini-program migration are step 6.
+The JSON export and SQLite safety snapshot are not full disaster-recovery backups: they omit upload bytes, and the safety snapshot does not include the encryption environment file. Manual backup and complete recovery requirements are described above and in `deploy/README.md`.
+
+## Old mini-program import and local backup (step 6)
+
+The old `tea_doctor_v1` format uses a separate CLI; it does not change the browser's `tea-pwa-v1` import endpoint. The input file is only read. Omit `--apply` for a dry-run; it validates the export without opening the PWA database and reports the old `imageFileIDs` that will be ignored:
+
+```powershell
+python -m server.legacy_import --input "C:\path\to\tea_doctor_v1.json"
+```
+
+After reviewing a clean dry-run, `--apply` writes to the configured `DATA_DIR/tea.sqlite3`. It first creates a SQLite backup under `DATA_DIR/backups/`, then imports the state and encrypted AI key in one transaction. The database records a simple completed-import marker; a second import requires the explicit `--allow-repeat` flag.
+
+```powershell
+python -m server.legacy_import --input "C:\path\to\tea_doctor_v1.json" --apply
+python -m server.legacy_import --input "C:\path\to\tea_doctor_v1.json" --apply --allow-repeat
+python -m server.backup create
+python -m server.backup restore-drill "C:\path\to\created-backup-directory"
+```
+
+The restore drill validates a temporary copy, confirms referenced images and encrypted-key recovery, starts the API against that copy, and removes the temporary environment. The current manual backup policy, optional tool commands, and inactive systemd units are documented in `deploy/README.md`. Creating backups can prune old sets, and the drill deletes its temporary copy; follow the user's command-confirmation requirement before running them on the ECS.
 
 ## Inventory lifecycle helper
 
