@@ -33,6 +33,14 @@
             },
             {
                 "type": "folder",
+                "value": "web"
+            },
+            {
+                "type": "folder",
+                "value": "server"
+            },
+            {
+                "type": "folder",
                 "value": "scripts"
             },
             {

@@ -1,0 +1,15 @@
+[Unit]
+Description=Create a private local backup of the Tea PWA
+After=local-fs.target
+
+[Service]
+Type=oneshot
+User=yang
+Group=yang
+WorkingDirectory=/home/yang/webapp/tea
+ExecStart=/home/yang/webapp/tea/server/.venv/bin/python -m server.backup create
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ReadWritePaths=/home/yang/webapp/tea-data/backups/daily

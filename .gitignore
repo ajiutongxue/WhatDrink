@@ -5,6 +5,18 @@ cloudfunctions/*/node_modules/
 # Cloud function secrets (API keys) - never commit
 cloudfunctions/*/config.json
 
+# PWA runtime files and secrets
+web/dist/
+server/.venv/
+server/.env
+deploy/.env
+server/runtime/
+server/.test-runtime/
+server/.test-tea.sqlite3
+server/__pycache__/
+server/tests/__pycache__/
+*.py[cod]
+
 # IDE
 .project
 .idea/
@@ -23,3 +35,6 @@ miniprogram_npm/
 
 # UI design references (untracked reference material)
 ui-references*.html
+
+# Local weather provider credential
+docs/weather-key.txt

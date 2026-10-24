@@ -19,7 +19,10 @@ function exists(relativePath) { return fs.existsSync(path.join(root, relativePat
 
 function walk(dir, result) {
   fs.readdirSync(dir, { withFileTypes: true }).forEach(function(entry) {
-    if (entry.name === '.git' || entry.name === 'node_modules' || entry.name === 'miniprogram_npm') return;
+    // The PWA frontend and API have their own build/tests; this checker only
+    // parses WeChat-program JavaScript (which is not ESM).
+    if (entry.name === '.git' || entry.name === 'node_modules' || entry.name === 'miniprogram_npm' ||
+        entry.name === 'web' || entry.name === 'server') return;
     var full = path.join(dir, entry.name);
     if (entry.isDirectory()) walk(full, result);
     else result.push(full);

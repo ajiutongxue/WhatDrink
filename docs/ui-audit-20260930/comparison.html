@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="zh-CN">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tea UI 审核对照</title>
+<style>
+*{box-sizing:border-box}body{margin:0;padding:12px;background:#ece9e4;color:#403b35;font:13px system-ui,sans-serif}
+h1{font-size:17px;margin:0 0 6px}p{margin:4px 0 10px;color:#746c63}.pair{display:flex;gap:14px;align-items:flex-start}.phone{width:var(--phone-width,215px);flex:none}h2{font-size:13px;margin:0 0 7px}.frame{width:var(--phone-width,215px);height:var(--phone-height,465px);overflow:hidden;border:1px solid #c5bcae;background:white}iframe,#current{display:block;width:390px;height:844px;border:0;transform:scale(var(--phone-scale,.55));transform-origin:top left}
+</style>
+<h1>原型与 PWA 对照</h1>
+<p>手机内容视口均为 390 × 844；并排缩放展示。本地隔离测试数据。</p>
+<div class="pair">
+<section class="phone"><h2>原型</h2><div class="frame"><iframe id="reference" title="原型"></iframe></div></section>
+<section class="phone"><h2>当前 PWA（本次截图）</h2><div class="frame"><img id="current" alt="本次审核保存的 PWA 页面截图"></div></section>
+</div>
+<script>
+const page=new URLSearchParams(location.search).get('page')||'recommendation';
+function fit(){const scale=Math.max(.2,Math.min(.75,(innerHeight-100)/844,(innerWidth-44)/780));document.documentElement.style.setProperty('--phone-scale',scale);document.documentElement.style.setProperty('--phone-width',Math.ceil(390*scale+2)+'px');document.documentElement.style.setProperty('--phone-height',Math.ceil(844*scale+2)+'px');}
+fit();addEventListener('resize',fit);
+const sources={
+ recommendation:'recommendation.html?embedded=1&state=initial&phase=day&weather=sunny',
+ result:'recommendation.html?embedded=1&state=rule-result&phase=day&weather=sunny',
+ history:'history.html?embedded=1&state=empty',
+ library:'tea-library.html?embedded=1&state=browse',
+ settings:'settings.html?embedded=1&state=default',
+ statistics:'statistics.html?embedded=1&state=empty',
+ form:'tea-library.html?embedded=1&state=form'
+};
+document.querySelector('#reference').src='/ui-prototype/pages/'+(sources[page]||sources.recommendation);
+const shots={recommendation:'01-pwa-recommendation-initial.jpg',result:'02-pwa-recommendation-result.jpg',history:'03-pwa-history-empty.jpg',library:'04-pwa-tea-library.jpg',settings:'05-pwa-settings.jpg',statistics:'06-pwa-statistics-empty.jpg',form:'07-pwa-tea-form.jpg'};
+document.querySelector('#current').src=shots[page]||shots.recommendation;
+</script>
+</html>
