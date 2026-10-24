@@ -35,3 +35,6 @@ miniprogram_npm/
 
 # UI design references (untracked reference material)
 ui-references*.html
+
+# Local weather provider credential
+docs/weather-key.txt

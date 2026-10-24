@@ -158,6 +158,7 @@ const caffeineOptions = ['高', '中', '低'];
 
 const filterKey = ref('all');
 const query = ref('');
+const showSearch = ref(false);
 const manageMode = ref(false);
 const notice = ref('');
 const formError = ref('');
@@ -678,24 +679,20 @@ function inventoryDescription(item: InventoryItem) {
 
 <template>
   <section class="tea-library-page" aria-labelledby="library-title">
-    <div class="page-heading">
-      <div>
-        <h1 id="library-title">我的茶库</h1>
-        <p class="page-subtitle">共 {{ state.teaLibrary.length }} 款茶叶<span v-if="disabledCount"> · {{ disabledCount }} 款已停用</span></p>
-        <p v-if="offline" class="page-subtitle">离线可查看；茶库、库存和个人画像的修改需要网络。</p>
-      </div>
-      <div class="heading-actions">
-        <button class="button-primary" type="button" :disabled="busy" @click="openAddTea">＋ 添加</button>
-        <button class="button-secondary" type="button" :disabled="busy" @click="manageMode = !manageMode">{{ manageMode ? '完成' : '管理' }}</button>
-      </div>
+    <h1 id="library-title" class="sr-only">我的茶库</h1>
+    <div class="library-toolbar">
+      <button class="button-primary add-tea-button" type="button" :disabled="busy" @click="openAddTea">＋ 添加茶叶</button>
+      <button class="button-secondary" type="button" :disabled="busy" :aria-pressed="manageMode" @click="manageMode = !manageMode">{{ manageMode ? '完成' : '管理' }}</button>
+      <button class="text-button search-toggle" type="button" :aria-expanded="showSearch" aria-controls="tea-search-panel" @click="showSearch = !showSearch">搜索</button>
     </div>
-
+    <p v-if="offline" class="page-subtitle">离线可查看；茶库、库存和个人画像的修改需要网络。</p>
     <p v-if="notice" class="notice" role="status">{{ notice }}</p>
-    <label class="search-box" for="tea-library-search"><span aria-hidden="true">⌕</span><input id="tea-library-search" v-model="query" type="search" placeholder="搜索茶名、品牌或分类" /></label>
+    <label v-if="showSearch" id="tea-search-panel" class="search-box" for="tea-library-search"><span class="sr-only">搜索茶叶</span><input id="tea-library-search" v-model="query" type="search" placeholder="搜索茶名、品牌或分类" /></label>
     <div class="filter-row" role="group" aria-label="按茶类筛选">
       <button v-for="item in categoryFilters" :key="item.key" class="filter-pill" :class="{ active: filterKey === item.key }" type="button" :aria-pressed="filterKey === item.key" @click="filterKey = item.key">{{ item.label }}</button>
     </div>
 
+    <p class="library-summary">共 {{ state.teaLibrary.length }} 款茶叶<span v-if="disabledCount">（{{ disabledCount }} 款已停用）</span><span v-if="query"> · 搜索「{{ query }}」</span></p>
     <template v-if="manageMode">
       <div v-if="visibleTeas.length" class="surface tea-list manage-list">
           <article v-for="tea in visibleTeas" :key="tea.id" class="tea-row" :class="{ disabled: tea.disabled }">
@@ -718,13 +715,12 @@ function inventoryDescription(item: InventoryItem) {
           <h2 class="group-title">{{ group.label }} <span>{{ group.teas.length }} 款</span></h2>
           <div class="surface tea-list">
             <article v-for="tea in group.teas" :key="tea.id" class="tea-row" :class="{ disabled: tea.disabled }">
-              <i class="tea-dot" aria-hidden="true"></i>
-              <button class="tea-open" type="button" :disabled="busy" @click="openKnowledge(tea)">
-                <span class="tea-primary"><span class="tea-name">{{ tea.name }}</span><span class="tea-meta">{{ tea.brand || '未记录品牌' }}<span v-if="tea.year"> · {{ tea.year }}</span></span><span class="tea-subline">{{ profileSummary(tea.id) }} · {{ inventorySummary(tea.id) }}</span></span>
-                <span class="tea-tags"><span class="nature-tag">{{ tea.nature || tea.baseNature || '平' }}</span><span v-if="tea.disabled" class="status-tag">已停用</span><span v-else-if="teaAvoidActive(tea.id)" class="avoid-tag">暂时回避</span></span>
+              <i class="tea-dot" :class="`cat-${tea.cat}`" aria-hidden="true"></i>
+              <button class="tea-open" type="button" :disabled="busy" :aria-label="`编辑${tea.name}`" @click="openEditTea(tea)">
+                <span class="tea-name">{{ tea.name }}<span v-if="tea.disabled" class="status-tag">已停用</span><span v-else-if="teaAvoidActive(tea.id)" class="avoid-tag">暂时回避</span></span>
+                <span class="tea-props"><span class="nature-mini" :data-nature="tea.nature || tea.baseNature || '平'">{{ tea.nature || tea.baseNature || '平' }}</span><span v-if="tea.year">{{ tea.year }}年</span><span>☕{{ tea.caffeine || '中' }}</span></span>
               </button>
-              <button class="small-button inventory-shortcut" type="button" :disabled="busy" :aria-label="`查看${tea.name}库存`" @click="openKnowledge(tea, 'inventory')">库存</button>
-              <button class="small-button edit-shortcut" type="button" :disabled="busy" :aria-label="`编辑${tea.name}`" @click="openEditTea(tea)">编辑</button>
+              <div class="row-detail-links"><button type="button" :disabled="busy" :aria-label="`查看${tea.name}画像`" @click="openKnowledge(tea)">{{ profileSummary(tea.id) }}</button><button type="button" :disabled="busy" :aria-label="`查看${tea.name}库存`" @click="openKnowledge(tea, 'inventory')">{{ inventorySummary(tea.id) }}</button></div>
             </article>
           </div>
         </section>
@@ -873,4 +869,30 @@ function inventoryDescription(item: InventoryItem) {
 @media(max-width:560px){.tea-library-page{padding:1rem 20px calc(100px + env(safe-area-inset-bottom))}.page-heading h1{font-size:1.45rem}.heading-actions .button-primary,.heading-actions .button-secondary{min-height:2.5rem;padding:.48rem .68rem;font-size:.72rem}.tea-list,.manage-list{padding-inline:12px}.tea-row{gap:.38rem}.tea-primary{flex:1}.tea-tags{max-width:7rem}.manage-list .tea-row{flex-wrap:nowrap;align-items:center}.row-actions{width:auto;justify-content:flex-end;padding:0}.row-actions .small-button{flex:0 1 auto}.modal-mask{padding:0}.modal-sheet{padding:1.05rem 1rem calc(1rem + env(safe-area-inset-bottom));border-radius:24px 24px 0 0}.field-grid{gap:.5rem}.inventory-heading{flex-direction:row}.inventory-heading .button-secondary{align-self:auto}}
 
 .inventory-shortcut{min-height:2.5rem;padding:.4rem .55rem;font-size:.7rem;background:var(--sage-soft);color:var(--sage-deep);border-color:transparent}.inventory-manage-link{align-self:flex-start;padding:4px 0;border:0;background:none;color:var(--coral-deep);font-size:.7rem}.detail-nav{display:flex;gap:8px;padding:5px 0 8px}.detail-nav button{flex:1;min-height:40px;padding:8px 12px;border:0;border-radius:14px;background:var(--cream-2);color:var(--ink-2);font-size:.82rem}.detail-nav button[aria-pressed="true"]{background:var(--coral);color:white}.knowledge-sheet>.inventory-section{padding-top:4px;border-top:0}
+
+/* Source mini-program: toolbar, filters, count, unboxed category lists. */
+.tea-library-page { margin-inline: auto; font-family: var(--font-serif); padding-top: 20px; }
+.library-toolbar { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.library-toolbar .add-tea-button { flex: 1; min-height: 44px; border-radius: 999px; font-family: var(--font-serif); font-size: 13px; letter-spacing: 1px; box-shadow: 0 5px 12px rgba(222,130,96,.28); }
+.library-toolbar .button-secondary { min-height: 44px; border: 1px solid var(--card-border); border-radius: 999px; background: var(--cream); color: var(--ink-2); font-family: var(--font-serif); font-size: 13px; }
+.library-toolbar .button-secondary[aria-pressed="true"] { background: var(--cocoa); color: var(--cream); }
+.search-toggle { font-family: var(--font-serif); font-size: 11px; color: var(--ink-3); }
+.search-box { margin: 0 0 10px; box-shadow: none; }
+.filter-row { gap: 8px; margin: 0 0 8px; padding: 4px 0 8px; }
+.filter-pill { min-height: 34px; padding: 6px 14px; background: var(--cream); border: 1px solid var(--card-border); font-family: var(--font-serif); font-size: 12px; color: var(--ink-3); }
+.library-summary { margin: 0 2px 10px; font-size: 11px; color: var(--ink-3); letter-spacing: .5px; }
+.tea-group { padding: 12px 0; margin-bottom: 12px; }
+.group-title { display: flex; justify-content: space-between; margin: 0 0 4px; padding: 2px 0 8px; border-bottom: 1px solid rgba(201,184,173,.3); font-size: 14px; font-weight: 600; letter-spacing: 1px; }
+.group-title span { font-family: var(--font-serif); font-size: 11px; font-weight: 400; }
+.tea-groups .tea-list { padding: 0; border: 0; border-radius: 0; background: transparent; box-shadow: none; backdrop-filter: none; }
+.tea-groups .tea-row { display: grid; grid-template-columns: 6px minmax(0,1fr); align-items: center; column-gap: 10px; row-gap: 2px; padding: 10px 0; border-color: rgba(201,184,173,.2); }
+.tea-groups .tea-dot { width: 6px; height: 6px; }
+.cat-black { background: #9c7b6a; }.cat-white { background: #bcc4bc; }.cat-oolong_tieguanyin,.cat-oolong_wuyi,.cat-oolong_dancong { background: #de8260; }.cat-puerh_ripe { background: #6b5344; }.cat-flavored_jasmine,.cat-flavored_other { background: #c98a9a; }
+.tea-open { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 5px 10px; padding: 0; }
+.tea-name { font-family: var(--font-serif); font-size: 13px; font-weight: 400; line-height: 1.8; white-space: normal; overflow-wrap: anywhere; }
+.tea-props { display: flex; align-items: center; gap: 5px; color: var(--ink-3); font-size: 11px; line-height: 1.8; }
+.nature-mini { padding: 1px 5px; border-radius: 999px; background: var(--nature-color,#a8a89c); color: white; font-size: 10px; }
+.row-detail-links { grid-column: 2; display: flex; flex-wrap: wrap; gap: 12px; }
+.row-detail-links button { padding: 2px 0; border: 0; background: transparent; color: var(--sage-deep); font-family: var(--font-serif); font-size: 10px; line-height: 1.8; }
+@media(max-width:560px) { .tea-library-page { padding-top: 20px; } .manage-list .tea-row { flex-wrap: wrap; } .row-actions { flex-wrap: wrap; } }
 </style>

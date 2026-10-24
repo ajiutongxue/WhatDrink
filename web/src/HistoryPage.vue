@@ -165,10 +165,10 @@ function imageSource(image: HistoryImage) {
 
 <template>
   <section class="history-page">
+    <div class="surface history-card">
     <header class="history-header">
       <div>
-        <h1>饮茶记录</h1>
-        <p class="history-subtitle">每一杯，都算数</p>
+        <h1><span aria-hidden="true">📅</span> 饮茶记录</h1>
       </div>
       <slot name="actions" />
     </header>
@@ -177,17 +177,17 @@ function imageSource(image: HistoryImage) {
 
     <p v-if="busy" class="history-status" role="status" aria-live="polite">正在处理记录…</p>
 
-    <section v-if="!state" class="surface history-empty" aria-live="polite">
+    <section v-if="!state" class="history-empty" aria-live="polite">
       <span class="empty-icon" aria-hidden="true">🍵</span>
       <strong>正在载入记录</strong>
       <span class="muted">记录准备好后会显示在这里。</span>
     </section>
-    <section v-else-if="!hasHistory" class="surface history-empty">
+    <section v-else-if="!hasHistory" class="history-empty">
       <span class="empty-icon" aria-hidden="true">🍵</span>
       <strong>还没有饮茶记录</strong>
-      <span class="muted">完成一次打卡后会显示在这里。</span>
+      <span class="muted">去首页开始你的第一杯茶吧</span>
     </section>
-    <section v-else class="surface history-list" aria-label="饮茶时间线">
+    <section v-else class="history-list" aria-label="饮茶时间线">
       <article v-for="row in rows" :key="row.key" class="history-entry" :class="{ 'is-expanded': expandedId === row.id }">
         <button
           class="history-row"
@@ -295,6 +295,7 @@ function imageSource(image: HistoryImage) {
         </section>
       </article>
     </section>
+    </div>
   </section>
 </template>
 
@@ -369,4 +370,25 @@ function imageSource(image: HistoryImage) {
   .history-chevron { display: none; }
   .history-detail { padding-left: .4rem; }
 }
+
+/* Keep the title and timeline inside the original single paper card. */
+.history-page { padding-top: 20px; padding-bottom: calc(96px + env(safe-area-inset-bottom)); }
+.history-card { padding: 18px 19px; }
+.history-header { align-items: center; margin-bottom: 13px; }
+.history-header h1 { margin: 0; font-family: var(--font-serif); font-size: 12px; font-weight: 600; letter-spacing: 1px; color: var(--ink-2); }
+.history-header h1 span { margin-right: 6px; font-size: 15px; }
+.history-header :deep(.stats-link) { padding: 4px 0 4px 12px; font-size: 11px; }
+.history-list { padding: 0; }
+.history-row { gap: 10px; padding: 15px 0; }
+.history-tea-name { font-family: var(--font-serif); font-size: 14px; }
+.history-date-col { flex-basis: 43px; font-size: 11px; }
+.history-time, .history-meta { font-size: 10px; color: var(--ink-3); }
+.history-dot { width: 6px; height: 6px; flex-basis: 6px; }
+.history-badge { padding: 2px 6px; font-size: 9px; }
+.history-empty { padding: 45px 5px 54px; gap: 4px; }
+.history-empty strong { font-family: var(--font-serif); font-size: 14px; font-weight: 400; color: var(--ink-3); }
+.history-empty .muted { font-size: 11px; }
+.empty-icon { font-size: 36px; }
+.history-detail { padding-left: 0; }
+@media (max-width:520px) { .history-page { padding-top: 20px; } .history-list { padding-inline: 0; } .history-date-col { flex-basis: 43px; } }
 </style>

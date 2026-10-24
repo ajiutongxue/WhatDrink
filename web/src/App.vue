@@ -6,20 +6,9 @@ import SettingsPage from './SettingsPage.vue';
 import HistoryPage from './HistoryPage.vue';
 import StatsPage from './StatsPage.vue';
 import TeaLibraryPage from './TeaLibraryPage.vue';
+import SceneBackground from './SceneBackground.vue';
 import { acknowledgeMutation, applyQueuedMutations, clearMutationFailure, clearRemoteSnapshot, enqueueMutation, loadOfflineData, markMutationFailed, saveRemoteSnapshot } from './offline.js';
 import type { OfflineMutation, QueuedMutation } from './offline.js';
-import baseDawn from '../../images/base-dawn.svg?url';
-import baseDay from '../../images/base-day.svg?url';
-import baseDusk from '../../images/base-dusk.svg?url';
-import baseNight from '../../images/base-night.svg?url';
-import overlayClouds from '../../images/overlay-clouds-a.svg?url';
-import overlayRain from '../../images/overlay-rain.svg?url';
-import overlaySnow from '../../images/overlay-snow.svg?url';
-import overlayThunder from '../../images/overlay-thunder.svg?url';
-import overlayFog from '../../images/overlay-fog.svg?url';
-import overlayOvercast from '../../images/overlay-overcast.svg?url';
-import overlaySun from '../../images/overlay-sun.svg?url';
-import overlayMoon from '../../images/overlay-moon.svg?url';
 import recIcon from '../../images/tab-rec.png';
 import recActiveIcon from '../../images/tab-rec-active.png';
 import historyIcon from '../../images/tab-history.png';
@@ -69,8 +58,6 @@ const customTea = ref('');
 const weather = ref<Weather | null>(null);
 const weatherNote = ref('');
 const result = ref<Result | null>(null);
-const activeCard = ref(0);
-const carousel = ref<HTMLElement | null>(null);
 const noResult = ref(false);
 const excludedIds = ref<number[]>([]);
 const selectedCheckinId = ref('');
@@ -93,8 +80,6 @@ const solarTerm = computed(() => { const md = (now.value.getMonth() + 1) * 100 +
 const weekday = computed(() => new Intl.DateTimeFormat('zh-CN', { weekday: 'long' }).format(now.value));
 const season = computed(() => ['冬', '春', '夏', '秋'][Math.floor(((now.value.getMonth() + 1) % 12) / 3)]);
 const phase = computed(() => { const hour = now.value.getHours(); return hour < 5 || hour >= 20 ? 'night' : hour < 8 ? 'dawn' : hour < 17 ? 'day' : 'dusk'; });
-const sceneBase = computed(() => ({ dawn: baseDawn, day: baseDay, dusk: baseDusk, night: baseNight })[phase.value]);
-const sceneOverlay = computed(() => { const desc = weather.value?.desc || ''; if (!desc) return overlayClouds; if (/雷/.test(desc)) return overlayThunder; if (/雪/.test(desc)) return overlaySnow; if (/雨/.test(desc)) return overlayRain; if (/雾|霾/.test(desc)) return overlayFog; if (/阴/.test(desc)) return overlayOvercast; if (/云/.test(desc)) return overlayClouds; return phase.value === 'night' ? overlayMoon : overlaySun; });
 const sceneWeather = computed(() => { const desc = weather.value?.desc || ''; return /雷/.test(desc) ? 'thunder' : /雪/.test(desc) ? 'snow' : /雨/.test(desc) ? 'rain' : /雾|霾/.test(desc) ? 'fog' : /阴/.test(desc) ? 'overcast' : !desc || /云/.test(desc) ? 'cloudy' : 'sunny'; });
 const todayHistory = computed(() => (state.value?.history || []).filter((item) => item.date === today.value && item.type !== 'skip'));
 const selectedCheckin = computed(() => todayHistory.value.find((item) => item.id === selectedCheckinId.value) || todayHistory.value.at(-1) || null);
@@ -103,8 +88,6 @@ const brewGuide = teaCatalog.BREW_GUIDE as Record<string, { temp: string | numbe
 
 function errorText(error: unknown, fallback: string) { notice.value = error instanceof Error && error.message ? error.message : fallback; }
 function openTab(next: 'recommend' | 'history' | 'library' | 'settings' | 'stats') { tab.value = next; notice.value = ''; window.scrollTo({ top: 0 }); }
-function updateActiveCard() { const el = carousel.value; if (el) activeCard.value = Math.round(el.scrollLeft / ((el.firstElementChild as HTMLElement)?.offsetWidth + 12 || 1)); }
-function selectCard(index: number) { carousel.value?.children[index]?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' }); }
 function isoDate() { return today.value; }
 function aiError(error: unknown) { if (error instanceof Error && error.name !== 'AbortError') notice.value = `${error.message}，已切换规则推荐。`; }
 
@@ -394,7 +377,7 @@ async function generateRecommendation(reroll = false) {
   if (!state.value) return;
   if (reroll && result.value) excludedIds.value.push(result.value.primary.tea.id, ...(result.value.alt ? [result.value.alt.tea.id] : [])); else if (!reroll) excludedIds.value = [];
   controller?.abort(); const request = new AbortController(); controller = request;
-  busy.value = true; recommending.value = true; notice.value = ''; noResult.value = false; result.value = null; activeCard.value = 0;
+  busy.value = true; recommending.value = true; notice.value = ''; noResult.value = false; result.value = null;
   try {
     const data = state.value;
     let skipDeepAI = false;
@@ -651,7 +634,7 @@ onUnmounted(() => {
 
 <template>
   <main class="app-shell" :class="[`phase-${phase}`, `weather-${sceneWeather}`, { 'home-shell': tab === 'recommend', 'is-authenticated': authenticated }]">
-    <div v-if="tab === 'recommend' || !authenticated" class="scene" aria-hidden="true"><img class="scene-base" :src="sceneBase" alt="" /><img class="scene-overlay" :src="sceneOverlay" alt="" /></div>
+    <SceneBackground v-if="tab === 'recommend' || !authenticated" :phase="phase" :weather="sceneWeather" />
     <header v-if="!authenticated" class="site-header"><div class="brand"><span class="brand-mark">茶</span><span>今天喝点什么茶</span></div><button v-if="authenticated && !needsLogin" class="header-link" type="button" @click="logout">退出</button><span v-else class="header-caption">一杯茶的日常</span></header>
     <div v-if="updateAvailable" class="pwa-banner"><span>新版本已准备好，更新后可继续离线使用。</span><button class="button-secondary" type="button" @click="activateUpdate">更新应用</button></div>
     <section v-if="!authenticated" class="login-panel" aria-labelledby="login-title"><h1 id="login-title">欢迎回来</h1><p class="muted">登录后，看看今天适合喝什么。</p><form class="form-stack" @submit.prevent="login"><label for="password">登录密码</label><input id="password" v-model="password" type="password" autocomplete="current-password" required /><button class="button-primary" :disabled="busy">{{ busy ? '正在登录…' : '进入茶园' }}</button></form><p v-if="outbox.length" class="muted">本机保留 {{ outbox.length }} 项待同步操作，登录后会继续补交。</p><p v-if="message" class="notice" role="status">{{ message }}</p></section>
@@ -669,24 +652,57 @@ onUnmounted(() => {
         <button :class="{ active: tab === 'library' }" :aria-current="tab === 'library' ? 'page' : undefined" @click="openTab('library')"><img :src="tab === 'library' ? libraryActiveIcon : libraryIcon" alt="" /><span>茶库</span></button>
         <button :class="{ active: tab === 'settings' }" :aria-current="tab === 'settings' ? 'page' : undefined" @click="openTab('settings')"><img :src="tab === 'settings' ? settingsActiveIcon : settingsIcon" alt="" /><span>设置</span></button>
       </nav>
-      <p v-if="tab !== 'recommend' && notice" class="notice page-notice" role="status">{{ notice }}</p>
-      <section v-if="tab === 'recommend'" class="recommend-page" aria-labelledby="recommend-title"><div class="hero">
-          <div class="hero-top"><div class="solar-block"><strong>{{ solarTerm }}</strong><span>{{ solarMeaning[solarTerm] }}</span><span>{{ solarCustom[solarTerm] }}</span></div><div class="weather-block" aria-live="polite"><strong v-if="weather">{{ weather.temp }}°</strong><span>{{ weather?.desc || '天气未获取' }}</span><small>{{ weather?.city || state?.profile.city || '请在设置填写城市' }}<template v-if="weather"> · 湿度 {{ weather.humidity }}%</template></small></div></div>
+      <p v-if="tab !== 'recommend' && tab !== 'settings' && notice" class="notice page-notice" role="status">{{ notice }}</p>
+      <section v-if="tab === 'recommend'" class="recommend-page" aria-labelledby="recommend-title">
+        <div class="hero">
+          <div class="hero-top">
+            <div class="solar-block"><strong>{{ solarTerm }}</strong><span>{{ solarMeaning[solarTerm] }}</span><span>{{ solarCustom[solarTerm] }}</span></div>
+            <div class="weather-block" aria-live="polite">
+              <template v-if="weather"><div class="weather-main"><strong>{{ weather.temp }}℃</strong><span>{{ weather.desc }}</span></div><small>{{ weather.city }} · {{ weather.humidity }}% RH</small></template>
+              <button v-else class="weather-help" type="button" :title="weatherNote" @click="openTab('settings')">{{ state?.profile.city ? '天气暂不可用' : '设置城市 · 查看天气' }}</button>
+            </div>
+          </div>
           <div class="hero-date"><h1 id="recommend-title">{{ now.getDate() }}</h1><span class="date-divider" aria-hidden="true"></span><div class="date-side"><strong>{{ weekday }}</strong><span>{{ lunarLabel }}</span></div></div>
-          <div class="hero-sub"><strong>{{ season }}日宜饮</strong><span>{{ quote }}</span></div><p v-if="weatherNote" class="weather-note">{{ weatherNote }}</p>
+          <div class="hero-sub"><strong>顺时而饮</strong><span>{{ quote }}</span></div>
         </div>
-        <div class="content-flow"><section v-if="!result || showInput" class="input-card" aria-label="今日状态输入"><button v-if="!showInput" class="input-prompt" type="button" @click="showInput = true"><strong>{{ input.trim() || '今天想怎么喝？' }}</strong><span>说说状态，推荐会更贴心</span></button><div v-else class="input-editor"><label for="today-input">说说今天的状态</label><textarea id="today-input" v-model="input" rows="3" maxlength="500" placeholder="例如：昨晚没睡好，想喝清爽一点的。"></textarea><button class="text-button" type="button" @click="showInput = false">收起</button></div></section>
-          <div v-if="!result || recommending" class="recommend-toolbar"><button class="button-primary button-rec" type="button" :disabled="busy" @click="generateRecommendation(!!result)">{{ recommending ? '正在寻茶…' : result ? '重新推荐' : '看看今天喝什么' }}</button><button v-if="recommending" class="text-button" type="button" @click="cancelRecommendation">取消</button></div><p v-if="notice" class="notice" role="status">{{ notice }}</p>
+        <div class="content-flow">
+          <section class="input-card" aria-label="今日状态输入">
+            <button v-if="!showInput" class="input-prompt" :class="{ 'has-input': input.trim() }" type="button" :aria-expanded="showInput" aria-controls="today-input-panel" @click="showInput = true"><span>{{ input.trim() || '说说今天的状态…' }}</span></button>
+            <div v-else id="today-input-panel" class="input-editor"><label for="today-input">说说今天的状态</label><textarea id="today-input" v-model="input" rows="3" maxlength="500" placeholder="例如：昨晚没睡好，想喝清爽一点的。"></textarea><button class="text-button" type="button" @click="showInput = false">收起</button></div>
+          </section>
+          <div class="recommend-toolbar"><button class="button-primary button-rec" type="button" :disabled="busy" @click="generateRecommendation(!!result)">{{ recommending ? '正在寻茶…' : result ? '换一款试试' : '看看今天喝什么' }}</button><button v-if="recommending" class="text-button" type="button" @click="cancelRecommendation">取消</button></div>
+          <p v-if="notice" class="notice" role="status">{{ notice }}</p>
           <section v-if="noResult" class="surface empty-result"><h2>今天没有合适的候选</h2><p>可以放宽回避条件，或在茶库启用更多茶叶。</p><button class="button-secondary" @click="showInput = true">重新输入</button></section>
-          <div v-if="result" :key="result.primary.tea.id" ref="carousel" class="cards-grid" aria-label="今日推荐，可左右滑动查看备选" aria-live="polite" @scroll.passive="updateActiveCard"><article v-for="(card, index) in [result.primary, result.alt].filter(Boolean)" :key="card!.tea.id" class="surface tea-card" :class="{ 'primary-card': index === 0 }"><div class="card-top"><span class="eyebrow">{{ card!.label }}</span></div><h2>{{ card!.tea.name }}</h2><p class="tea-meta">{{ card!.tea.brand || catNames[card!.tea.cat] || card!.tea.cat }}<span v-if="card!.tea.year"> · {{ card!.tea.year }}年</span></p><div class="tea-tags"><span>{{ catNames[card!.tea.cat] || card!.tea.cat }}</span><span class="nature-tag">{{ card!.tea.nature || card!.tea.baseNature || '平' }}</span><span>{{ card!.tea.caffeine || '中' }}咖啡因</span></div><p v-if="card!.tagline" class="tea-tagline">{{ card!.tagline }}</p><p class="tea-reason">{{ card!.reason }}</p><p class="brew-line">冲泡建议 · {{ card!.brew || '按个人习惯冲泡' }}</p><div class="card-actions"><button class="button-primary" :disabled="busy" @click="checkin(card!.tea, index === 0 ? 'primary' : 'alt')">喝这个</button><button class="button-secondary" :disabled="busy" @click="avoidTea(card!.tea)">近期不想喝</button></div></article></div>
-          <div v-if="result?.alt" class="carousel-dots" aria-label="推荐卡片位置"><button v-for="(card, index) in [result.primary, result.alt]" :key="card.tea.id" :class="{ active: activeCard === index }" :aria-label="index === 0 ? '查看主推' : '查看备选'" :aria-pressed="activeCard === index" @click="selectCard(index)"></button></div>
-          <p v-if="result?.avoidInfo" class="avoid-note">{{ result.avoidInfo }}</p><div v-if="result && !recommending" class="recommend-toolbar result-toolbar"><button class="button-primary" type="button" :disabled="busy" @click="generateRecommendation(true)">重新推荐</button><button class="button-secondary" type="button" @click="showInput = !showInput">{{ showInput ? '收起输入' : '调整今日状态' }}</button></div><section v-if="result" class="surface custom-card"><div><h2>我喝了别的</h2></div><form class="custom-form" @submit.prevent="checkinCustom"><label class="sr-only" for="custom-tea">实际喝的茶</label><input id="custom-tea" v-model="customTea" placeholder="输入实际喝的茶" /><button class="button-secondary" :disabled="busy">记录这杯</button></form></section>
-          <section v-if="selectedCheckin" class="surface checkin-card"><h2>今天喝了「{{ selectedCheckin.teaName }}」</h2><p class="muted">{{ selectedCheckin.checkinTime }} · {{ selectedCheckin.type === 'primary' ? '主推' : selectedCheckin.type === 'alt' ? '备选' : '自选' }}</p><p v-if="selectedCheckin.tastingNotes" class="saved-note">{{ selectedCheckin.tastingNotes }}</p><button v-if="!tastingOpen" class="button-secondary" @click="openTasting">{{ selectedCheckin.tastingNotes ? '修改品饮感受' : '写几句品饮感受' }}</button><form v-else class="tasting-form" @submit.prevent="saveTasting"><label for="tasting">品饮感受</label><textarea id="tasting" v-model="tastingDraft" rows="4" maxlength="500" placeholder="这一杯的香气、滋味或心情……"></textarea><div class="form-footer"><span>{{ tastingDraft.length }} / 500</span><button class="button-primary" :disabled="busy">保存感受</button></div></form><button class="text-button" type="button" @click="openTab('history')">到饮茶记录添加图片 →</button></section>
-        </div></section>
-      <HistoryPage v-else-if="tab === 'history'" :state="state" :busy="busy" :offline="isOffline" @update-notes="updateHistoryNotes" @clear-notes="clearHistoryNotes" @avoid-tea="toggleHistoryAvoid" @upload-image="uploadHistoryImage" @delete-image="deleteHistoryImage" @update-image-description="updateImageDescription"><template #actions><button class="button-secondary" @click="openTab('stats')">查看统计</button></template></HistoryPage>
+          <section v-if="result" class="recommendations" aria-label="今日推荐" aria-live="polite">
+            <article class="surface tea-card primary-card">
+              <span class="recommend-badge" :class="{ 'ai-badge': result.mode === 'ai' }">{{ result.primary.label }}</span>
+              <h2>{{ result.primary.tea.name }}</h2>
+              <p v-if="result.primary.tagline" class="tea-tagline">{{ result.primary.tagline }}</p>
+              <p class="tea-meta">{{ result.primary.tea.brand }}</p>
+              <div class="tea-tags"><span class="nature-tag" :data-nature="result.primary.tea.nature || result.primary.tea.baseNature || '平'">{{ result.primary.tea.nature || result.primary.tea.baseNature || '平' }}性</span><span class="category-tag">{{ catNames[result.primary.tea.cat] || result.primary.tea.cat }}</span><span>咖啡因 {{ result.primary.tea.caffeine || '中' }}</span><span v-if="result.primary.tea.year">{{ result.primary.tea.year }}年</span></div>
+              <p class="tea-reason">{{ result.primary.reason }}</p>
+              <p class="brew-line">{{ result.primary.brew || '按个人习惯冲泡' }}</p>
+              <p v-if="result.avoidInfo" class="avoid-note">{{ result.avoidInfo }}</p>
+              <div class="card-actions"><button class="button-primary" :disabled="busy" @click="checkin(result.primary.tea, 'primary')">喝这个</button><button class="button-secondary" :disabled="busy" @click="avoidTea(result.primary.tea)">近期不想喝</button></div>
+            </article>
+            <article v-if="result.alt" class="surface alternate-card">
+              <img class="alternate-icon" :src="libraryActiveIcon" alt="" />
+              <div class="alternate-body"><span class="alternate-label">备选 · 换一种口味</span><h2>{{ result.alt.tea.name }}<small>{{ result.alt.tea.brand }}</small></h2>
+                <div class="tea-tags"><span class="nature-tag" :data-nature="result.alt.tea.nature || result.alt.tea.baseNature || '平'">{{ result.alt.tea.nature || result.alt.tea.baseNature || '平' }}性</span><span class="category-tag">{{ catNames[result.alt.tea.cat] || result.alt.tea.cat }}</span></div>
+                <p class="alternate-reason">{{ result.alt.reason }}</p><p class="alternate-brew">{{ result.alt.brew }}</p>
+                <div class="card-actions"><button class="button-primary" :disabled="busy" @click="checkin(result.alt.tea, 'alt')">喝这个</button><button class="button-secondary" :disabled="busy" @click="avoidTea(result.alt.tea)">近期不想喝</button></div>
+              </div>
+            </article>
+          </section>
+          <section class="surface custom-card" aria-labelledby="direct-checkin-title"><h2 id="direct-checkin-title">{{ result ? '喝的别的' : '喝的这个' }}</h2><form class="custom-form" @submit.prevent="checkinCustom"><label class="sr-only" for="custom-tea">实际喝的茶</label><input id="custom-tea" v-model="customTea" placeholder="喝了什么茶？" required :disabled="busy" /><button class="button-primary" :disabled="busy || !customTea.trim()">记录这杯</button></form></section>
+          <section v-if="selectedCheckin" class="surface checkin-card"><h2>今日打卡完成 ✓</h2><p class="muted">{{ selectedCheckin.teaName }} · {{ selectedCheckin.checkinTime }}</p><p v-if="selectedCheckin.tastingNotes" class="saved-note">{{ selectedCheckin.tastingNotes }}</p><button v-if="!tastingOpen" class="text-button" @click="openTasting">{{ selectedCheckin.tastingNotes ? '修改品饮感受' : '写几句品饮感受' }}</button><form v-else class="tasting-form" @submit.prevent="saveTasting"><label for="tasting">品饮感受</label><textarea id="tasting" v-model="tastingDraft" rows="4" maxlength="500" placeholder="口感、香气、回甘、体感、心情…"></textarea><div class="form-footer"><span>{{ tastingDraft.length }} / 500</span><button class="button-primary" :disabled="busy">保存感受</button></div></form><button class="text-button" type="button" @click="openTab('history')">到饮茶记录添加图片 →</button></section>
+        </div>
+      </section>
+      <HistoryPage v-else-if="tab === 'history'" :state="state" :busy="busy" :offline="isOffline" @update-notes="updateHistoryNotes" @clear-notes="clearHistoryNotes" @avoid-tea="toggleHistoryAvoid" @upload-image="uploadHistoryImage" @delete-image="deleteHistoryImage" @update-image-description="updateImageDescription"><template #actions><button class="text-button stats-link" @click="openTab('stats')">统计 →</button></template></HistoryPage>
       <StatsPage v-else-if="tab === 'stats'" :state="state" :busy="busy"><template #actions><button class="button-secondary" @click="openTab('history')">返回记录</button></template></StatsPage>
       <TeaLibraryPage v-else-if="tab === 'library' && state" :state="state" :busy="busy" :offline="isOffline" @save-library="saveLibrary" @set-avoid="setLibraryAvoid" @save-override="saveKnowledgeOverride" @save-inventory="saveInventory" />
       <SettingsPage v-else-if="state" :state="state" :revision="revision" :busy="busy" :offline="isOffline" :offline-capable="offlineCapable" :sync-status="{ connected, needsLogin, pending: outbox.length, syncing, lastSyncedAt, failure: syncFailure }" @logout="logout" @retry-sync="retrySync" @save-profile="saveProfile" @save-quiz="saveQuiz" @save-recommend="saveRecommendSettings" @save-ai="saveAiSettings" @refresh-state="readState(true)" @export-data="exportData" @import-data="importData" @install-knowledge="installKnowledge" @rollback-knowledge="rollbackKnowledge" @reset-data="resetData" />
+      <div v-if="tab === 'settings' && (busy || notice)" class="settings-feedback" role="status" aria-live="polite" aria-atomic="true"><span>{{ busy ? '正在处理，请稍候…' : notice }}</span><button v-if="!busy" type="button" class="text-button" aria-label="关闭设置反馈" @click="notice = ''">关闭</button></div>
     </template><footer v-if="!authenticated" class="site-footer">慢一点，喝一杯。</footer>
   </main>
 </template>
